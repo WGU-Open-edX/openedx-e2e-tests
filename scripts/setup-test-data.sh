@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Test data setup script for edX E2E tests
+# Test data setup script for Open edX E2E tests
 # This script creates test users and courses for use in Playwright tests
 
 set -e
 
-echo "Setting up test data for edX E2E tests..."
+echo "Setting up test data for Open edX E2E tests..."
 
 # Colors for output
 RED='\033[0;31m'

@@ -1,11 +1,11 @@
-# edX E2E Tests
+# Open edX E2E Tests
 
-End-to-end tests for edX microservices and MFEs using Playwright.
+End-to-end tests for Open edX microservices and MFEs using Playwright.
 
 ## Prerequisites
 
-- Tutor-based edX installation running locally
-- edX instance accessible at `http://apps.local.openedx.io:1996`
+- Tutor-based Open edX installation running locally
+- Open edX instance accessible at `http://apps.local.openedx.io:1996`
 
 ## Setup
 
@@ -100,6 +100,6 @@ After running `npm run setup`, use these credentials in your tests:
 
 ## Troubleshooting
 
-- Ensure your edX instance is running: `tutor local status`
+- Ensure your Open edX instance is running: `tutor local status`
 - If tests fail, check if test data exists: `npm run setup`
 - Check network connectivity to `http://apps.local.openedx.io:1996`

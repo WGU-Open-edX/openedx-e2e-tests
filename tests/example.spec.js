@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-test.describe('edX Platform Basic Tests', () => {
+test.describe('Open edX Platform Basic Tests', () => {
   test('learner dashboard loads successfully', async ({ page }) => {
     await page.goto('/learner-dashboard/');
     await expect(page).toHaveTitle(/edX/);

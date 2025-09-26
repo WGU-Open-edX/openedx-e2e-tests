@@ -4,12 +4,12 @@ const { LoginPage } = require("../common/page-objects");
 
 test.describe("Autodoc: How to Login", () => {
   test("generate login documentation", async ({ page }) => {
-    const autodoc = new AutodocTest(page, "How-to-Login-to-edX", {
-      title: "How to Log In to Your edX Account",
-      overview: `This guide explains how to log in to your edX account. Once you log in, you can access your enrolled courses, track your progress, and manage your account settings.`,
+    const autodoc = new AutodocTest(page, "How-to-Login-to-Open-edX", {
+      title: "How to Log In to Your Open edX Account",
+      overview: `This guide explains how to log in to your Open edX account. Once you log in, you can access your enrolled courses, track your progress, and manage your account settings.`,
 
       prerequisites: [
-        "You have created an edX account",
+        "You have created an Open edX account",
         "You have your email address or username and password ready",
         "Your web browser has JavaScript enabled"
       ],
@@ -19,7 +19,7 @@ test.describe("Autodoc: How to Login", () => {
       ],
 
       relatedTopics: [
-        { title: "Creating an edX Account", url: "#creating-account" },
+        { title: "Creating an Open edX Account", url: "#creating-account" },
         { title: "Resetting Your Password", url: "#reset-password" },
         { title: "Account Settings and Profile Management", url: "#account-settings" },
         { title: "Course Enrollment", url: "#course-enrollment" }
@@ -32,8 +32,8 @@ test.describe("Autodoc: How to Login", () => {
     // Step 1: Navigate to login page
     await loginPage.navigate();
     await autodoc.addStep(
-      "Navigate to the edX login page",
-      "You can access the login page by clicking 'Sign In' from the main edX website or by going directly to the login URL."
+      "Navigate to the Open edX login page",
+      "You can access the login page by clicking 'Sign In' from the main Open edX website or by going directly to the login URL."
     );
 
     // Step 2: Show the login form

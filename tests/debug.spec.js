@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 const { LoginPage } = require('./common/page-objects');
 
 test.describe('Debug Tests', () => {
-  test('verify edX instance is accessible', async ({ page }) => {
+  test('verify Open edX instance is accessible', async ({ page }) => {
     await page.goto('/');
 
     // Log the current URL and title for debugging
