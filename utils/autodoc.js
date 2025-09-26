@@ -199,16 +199,61 @@ class AutodocTest {
 
     let rst = `${this.title}\n`;
     rst += '='.repeat(this.title.length) + '\n\n';
-    rst += 'This documentation was automatically generated during testing.\n\n';
+
+    if (this.overview) {
+      rst += `${this.overview}\n\n`;
+    }
+
+    if (this.prerequisites.length > 0) {
+      rst += `Prerequisites\n`;
+      rst += '='.repeat('Prerequisites'.length) + '\n\n';
+      rst += `Before you begin, ensure that:\n\n`;
+      for (const prereq of this.prerequisites) {
+        rst += `- ${prereq}\n`;
+      }
+      rst += `\n`;
+    }
+
+    if (this.notes.length > 0) {
+      for (const note of this.notes) {
+        rst += `.. note:: ${note}\n\n`;
+      }
+    }
+
+    rst += `Steps\n`;
+    rst += '='.repeat('Steps'.length) + '\n\n';
+    rst += `To complete this process, follow these steps:\n\n`;
 
     for (const step of this.steps) {
-      rst += `Step ${step.stepNumber}: ${step.description}\n`;
-      rst += '-'.repeat(`Step ${step.stepNumber}: ${step.description}`.length) + '\n\n';
+      rst += `${step.stepNumber}. ${step.title}\n`;
+      rst += '-'.repeat(`${step.stepNumber}. ${step.title}`.length) + '\n\n';
+      if (step.description) {
+        rst += `${step.description}\n\n`;
+      }
       if (step.screenshot) {
         rst += `.. image:: ${step.screenshot}\n`;
         rst += '   :alt: Step ' + step.stepNumber + '\n\n';
       }
+      if (step.note) {
+        rst += `.. note:: ${step.note}\n\n`;
+      }
     }
+
+    if (this.relatedTopics.length > 0) {
+      rst += `Related Topics\n`;
+      rst += '='.repeat('Related Topics'.length) + '\n\n';
+      for (const topic of this.relatedTopics) {
+        if (typeof topic === 'string') {
+          rst += `- ${topic}\n`;
+        } else {
+          rst += `- \`${topic.title} <${topic.url}>\`_\n`;
+        }
+      }
+      rst += `\n`;
+    }
+
+    rst += `----\n\n`;
+    rst += `*This documentation was automatically generated during testing.*\n`;
 
     await fs.writeFile(rstPath, rst, 'utf8');
     console.log(`📄 RST Documentation generated: ${rstPath}`);
