@@ -87,8 +87,21 @@ await autodoc.fillElement(
   'Enter your email address',
   'Type your email in the email field.',
   {
-    elementOnly: true,  // Screenshot just the input, not full page
+    elementOnly: true,  // Screenshot the input with 20px padding
+    padding: 40,  // Or use custom padding
     note: 'Make sure to use a valid email format'
+  }
+);
+
+// Screenshot a different element while highlighting the input
+await autodoc.fillElement(
+  'input[name="email"]',
+  'user@example.com',
+  'Enter email',
+  'Type your email address.',
+  {
+    elementOnly: 'form.login-form',  // Screenshot the entire form
+    padding: 25  // With 25px padding around the form
   }
 );
 ```
@@ -99,6 +112,11 @@ await autodoc.fillElement(
 - `title` (string): Step title
 - `description` (string): Detailed explanation (optional)
 - `options` (object): Configuration options
+
+**Options:**
+- `elementOnly` (boolean|string): Screenshot mode - `true` for highlighted element, string selector for different element, or `null`/`false` for full page
+- `padding` (number): Pixels of padding around element screenshots (default: 20)
+- `note` (string): Additional note for this step
 
 ### clickElement(selector, title, description?, options?)
 
@@ -144,7 +162,10 @@ autodoc.steps.push({
 
 ### Screenshot Options
 
-- `elementOnly: true` - Screenshot only the selected element, not the full page
+- `elementOnly: true` - Screenshot the highlighted element with padding (default: 20px)
+- `elementOnly: 'selector'` - Screenshot a different element (with padding) while highlighting the specified element
+- `elementOnly: null` or `elementOnly: false` - Full page screenshot (default)
+- `padding: 30` - Custom padding around element screenshots in pixels (default: 20)
 - `screenshot: false` - Skip taking a screenshot for this step
 
 ### Element Highlighting
@@ -206,8 +227,14 @@ await autodoc.addStep("Fill input");
 
 ### 4. Use Element-Only Screenshots for UI Components
 ```javascript
-// For form fields, buttons, menus
-await autodoc.fillElement(selector, value, title, description, { elementOnly: true });
+// Screenshot just the button with default 20px padding
+await autodoc.clickElement('button', 'Click Submit', null, { elementOnly: true });
+
+// Screenshot the entire form while highlighting just the input
+await autodoc.fillElement('input[name="email"]', 'user@example.com', 'Enter email', null, {
+  elementOnly: 'form',  // Screenshot the form
+  padding: 30  // With 30px padding around the form
+});
 
 // For full page context
 await autodoc.addStep("Page loaded", "The dashboard page is now visible");

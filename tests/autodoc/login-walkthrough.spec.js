@@ -49,7 +49,7 @@ test.describe("Autodoc: How to Login", () => {
       "testuser",
       "Enter your email or username",
       "Enter either the email address you registered with or your chosen username in the first field.",
-      { note: "If you're unsure which one to use, try the email address you used when creating your account first." }
+      { elementOnly: 'form[id="sign-in-form"]', note: "If you're unsure which one to use, try the email address you used when creating your account first." }
     );
 
     // Step 4: Fill in password
@@ -58,7 +58,7 @@ test.describe("Autodoc: How to Login", () => {
       "password123",
       "Enter your password",
       "Type your password in the password field.",
-      { note: "Your password is case-sensitive, so make sure your Caps Lock is in the correct position." }
+      { elementOnly: 'form[id="sign-in-form"]', note: "Your password is case-sensitive, so make sure your Caps Lock is in the correct position." }
     );
 
     // Step 5: Click login button

@@ -60,7 +60,7 @@ class AutodocTest {
     const stepNumber = this.stepCounter++;
     const screenshotName = `step-${stepNumber.toString().padStart(2, '0')}.png`;
     const screenshotPath = path.join(this.screenshotDir, screenshotName);
-    const { elementOnly = false } = options;
+    const { elementOnly = null, padding = 20 } = options;
 
     // Wait for element to be visible first
     await this.page.locator(selector).waitFor({ state: 'visible', timeout: 10000 });
@@ -81,10 +81,48 @@ class AutodocTest {
       el.classList.add('autodoc-highlight');
     });
 
-    // Take screenshot - either full page or just the element
-    if (elementOnly) {
-      await this.page.locator(selector).screenshot({ path: screenshotPath });
+    // Small delay to ensure highlight is fully rendered
+    await this.page.waitForTimeout(500);
+
+    // Take screenshot - full page, specific element, or custom selector
+    if (elementOnly === true) {
+      // Default behavior: screenshot the highlighted element with padding
+      const elementBox = await this.page.locator(selector).boundingBox();
+      if (elementBox) {
+        await this.page.screenshot({
+          path: screenshotPath,
+          clip: {
+            x: Math.max(0, elementBox.x - padding),
+            y: Math.max(0, elementBox.y - padding),
+            width: Math.min(await this.page.viewportSize().width - Math.max(0, elementBox.x - padding), elementBox.width + (2 * padding)),
+            height: Math.min(await this.page.viewportSize().height - Math.max(0, elementBox.y - padding), elementBox.height + (2 * padding))
+          }
+        });
+      } else {
+        // Fallback to element screenshot if bounding box fails
+        await this.page.locator(selector).screenshot({ path: screenshotPath });
+      }
+    } else if (typeof elementOnly === 'string') {
+      // Custom selector: screenshot a different element with padding
+      const targetElement = this.page.locator(elementOnly);
+      const elementBox = await targetElement.boundingBox();
+      if (elementBox) {
+        const viewport = await this.page.viewportSize();
+        await this.page.screenshot({
+          path: screenshotPath,
+          clip: {
+            x: Math.max(0, elementBox.x - padding),
+            y: Math.max(0, elementBox.y - padding),
+            width: Math.min(viewport.width - Math.max(0, elementBox.x - padding), elementBox.width + (2 * padding)),
+            height: Math.min(viewport.height - Math.max(0, elementBox.y - padding), elementBox.height + (2 * padding))
+          }
+        });
+      } else {
+        // Fallback to element screenshot if bounding box fails
+        await targetElement.screenshot({ path: screenshotPath });
+      }
     } else {
+      // Full page screenshot
       await this.page.screenshot({ path: screenshotPath, fullPage: true });
     }
 
