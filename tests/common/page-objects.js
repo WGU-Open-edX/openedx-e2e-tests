@@ -22,28 +22,4 @@ class LoginPage {
   }
 }
 
-class CoursePage {
-  constructor(page) {
-    this.page = page;
-    this.enrollButton = page.locator('a.register');
-    this.courseTitle = page.locator('h1');
-    this.courseNumber = page.locator('.course-number');
-    this.aboutSection = page.locator('section.about');
-    this.socialSharing = page.locator('.social-sharing');
-  }
-
-  async navigateToCourse(courseId) {
-    await this.page.goto(`/courses/${courseId}/about`);
-  }
-
-  async enroll() {
-    await this.enrollButton.click();
-  }
-
-  async waitForPageLoad() {
-    await this.courseTitle.waitFor();
-    await this.enrollButton.waitFor();
-  }
-}
-
-module.exports = { LoginPage, CoursePage };
+module.exports = { LoginPage };
