@@ -1,0 +1,24 @@
+{
+  "name": "openedx-e2e-tests",
+  "version": "1.0.0",
+  "description": "End-to-end tests for Open edX microservices and MFEs using Playwright",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report",
+    "install:browsers": "playwright install",
+    "setup": "./scripts/setup-test-data.sh",
+    "test:record": "RECORD_VIDEO=1 playwright test --headed",
+    "test:record-all": "RECORD_VIDEO=1 playwright test",
+    "test:full": "npm run setup && npm test",
+    "test:debug-only": "playwright test debug.spec.js --headed"
+  },
+  "keywords": ["edx", "e2e", "playwright", "testing"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  }
+}
