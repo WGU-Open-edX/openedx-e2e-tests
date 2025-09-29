@@ -52,90 +52,126 @@ relatedTopics: [
 
 ## Methods
 
-### addStep(title, description?, action?, options?)
+### addStep(config)
 
 Adds a step with optional screenshot to the documentation.
 
 ```javascript
-await autodoc.addStep("Navigate to login page");
-await autodoc.addStep(
-  "Navigate to login page",
-  "Detailed explanation of what this step does",
-  null,
-  { screenshot: false, note: "Important tip about this step" }
-);
+// Simple step
+await autodoc.addStep({
+  title: "Navigate to login page"
+});
+
+// Detailed step with description
+await autodoc.addStep({
+  title: "Navigate to login page",
+  description: "Detailed explanation of what this step does",
+  screenshot: false
+});
+
 ```
 
-**Parameters:**
+**Parameters (Object):**
 - `title` (string): Step title (required)
 - `description` (string): Detailed explanation (optional)
 - `action` (function): Code to execute (optional)
-- `options` (object): Configuration options
-
-**Options:**
 - `screenshot` (boolean): Whether to take screenshot (default: true)
-- `note` (string): Additional note for this step
 
-### fillElement(selector, value, title, description?, options?)
+### fillElement(config)
 
 Highlights an input field, fills it with a value, and documents the step.
 
 ```javascript
-await autodoc.fillElement(
-  'input[name="email"]',
-  'user@example.com',
-  'Enter your email address',
-  'Type your email in the email field.',
-  {
-    elementOnly: true,  // Screenshot the input with 20px padding
-    padding: 40,  // Or use custom padding
-    note: 'Make sure to use a valid email format'
-  }
-);
+// Recommended: Object parameters
+await autodoc.fillElement({
+  selector: 'input[name="email"]',
+  value: 'user@example.com',
+  title: 'Enter your email address',
+  description: 'Type your email in the email field.',
+  elementOnly: true,
+  padding: 40
+});
 
 // Screenshot a different element while highlighting the input
-await autodoc.fillElement(
-  'input[name="email"]',
-  'user@example.com',
-  'Enter email',
-  'Type your email address.',
-  {
-    elementOnly: 'form.login-form',  // Screenshot the entire form
-    padding: 25  // With 25px padding around the form
-  }
-);
+await autodoc.fillElement({
+  selector: 'input[name="email"]',
+  value: 'user@example.com',
+  title: 'Enter email',
+  description: 'Type your email address.',
+  elementOnly: 'form.login-form',
+  padding: 25
+});
+
 ```
 
-**Parameters:**
-- `selector` (string): CSS selector for the element
-- `value` (string): Value to enter
-- `title` (string): Step title
+**Parameters (Object):**
+- `selector` (string): CSS selector for the element (required)
+- `value` (string): Value to enter (required)
+- `title` (string): Step title (required)
 - `description` (string): Detailed explanation (optional)
-- `options` (object): Configuration options
-
-**Options:**
 - `elementOnly` (boolean|string): Screenshot mode - `true` for highlighted element, string selector for different element, or `null`/`false` for full page
 - `padding` (number): Pixels of padding around element screenshots (default: 20)
-- `note` (string): Additional note for this step
 
-### clickElement(selector, title, description?, options?)
+### clickElement(config)
 
 Highlights a clickable element, clicks it, and documents the step.
 
 ```javascript
-await autodoc.clickElement(
-  'button[type="submit"]',
-  'Click the Submit button',
-  'This will submit your form data.',
-  { elementOnly: true }
-);
+// Recommended: Object parameters
+await autodoc.clickElement({
+  selector: 'button[type="submit"]',
+  title: 'Click the Submit button',
+  description: 'This will submit your form data.',
+  elementOnly: true
+});
+
+```
+
+**Parameters (Object):**
+- `selector` (string): CSS selector for the element (required)
+- `title` (string): Step title (required)
+- `description` (string): Detailed explanation (optional)
+- `elementOnly` (boolean|string): Screenshot mode - `true` for highlighted element, string selector for different element, or `null`/`false` for full page
+- `padding` (number): Pixels of padding around element screenshots (default: 20)
+
+### takeScreenshot(config)
+
+Takes a screenshot without highlighting any elements.
+
+```javascript
+// Recommended: Object parameters
+await autodoc.takeScreenshot({
+  title: "Dashboard loaded",
+  description: "The main dashboard is now visible"
+});
+
+// Element screenshot with custom selector
+await autodoc.takeScreenshot({
+  title: "Login form visible",
+  description: "The login form is displayed on the page",
+  elementOnly: 'form#login-form',
+  padding: 30
+});
+
+```
+
+**Parameters (Object):**
+- `title` (string): Step title (required)
+- `description` (string): Detailed explanation (optional)
+- `elementOnly` (string): CSS selector for element to screenshot (required if not full page)
+- `padding` (number): Pixels of padding around element screenshots (default: 20)
+
+### addNote(note)
+
+Adds a note to the most recently created step.
+
+```javascript
+await autodoc.fillElement({ /* ... */ });
+await autodoc.addNote("This is an important tip about the previous step");
 ```
 
 **Parameters:**
-- `selector` (string): CSS selector for the element
-- `title` (string): Step title
-- `description` (string): Detailed explanation (optional)
-- `options` (object): Configuration options
+- `note` (string): The note text to add to the last step
 
 ### highlightElement(selector, action?, options?)
 
@@ -261,11 +297,36 @@ const autodoc = new AutodocTest(page, "user-login", {
 
 await autodoc.initialize();
 
-await autodoc.addStep("Go to login page", "Navigate to the login form");
-await autodoc.fillElement('input[name="email"]', 'user@example.com', 'Enter email');
-await autodoc.fillElement('input[name="password"]', 'password', 'Enter password');
-await autodoc.clickElement('button[type="submit"]', 'Click Sign In');
-await autodoc.addStep("Access dashboard", "You're now logged in");
+// Recommended: Object parameters for clarity
+await autodoc.addStep({
+  title: "Go to login page",
+  description: "Navigate to the login form"
+});
+
+await autodoc.fillElement({
+  selector: 'input[name="email"]',
+  value: 'user@example.com',
+  title: 'Enter email',
+  elementOnly: true
+});
+
+await autodoc.fillElement({
+  selector: 'input[name="password"]',
+  value: 'password',
+  title: 'Enter password',
+  elementOnly: true
+});
+await autodoc.addNote("Make sure Caps Lock is off");
+
+await autodoc.clickElement({
+  selector: 'button[type="submit"]',
+  title: 'Click Sign In'
+});
+
+await autodoc.takeScreenshot({
+  title: "Access dashboard",
+  description: "You're now logged in and can see your dashboard"
+});
 
 await autodoc.generateMarkdown();
 await autodoc.generateRST();

@@ -56,6 +56,18 @@ After successful login, you will be automatically redirected to your dashboard w
 
 ![Step 6](step-06.png)
 
+### 7. Main dashboard area highlighted
+
+This is the main content area where you can see your courses and progress.
+
+![Step 7](step-07.png)
+
+### 8. Explore your account options
+
+From the dashboard, you can navigate to different sections like My Courses, Account Settings, or Profile.
+
+> **Note:** Look for navigation menus or buttons to access different features.
+
 ## Related Topics
 
 - [Creating an Open edX Account](#creating-account)

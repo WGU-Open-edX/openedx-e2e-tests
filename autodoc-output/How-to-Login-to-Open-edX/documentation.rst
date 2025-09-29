@@ -71,6 +71,21 @@ After successful login, you will be automatically redirected to your dashboard w
 .. image:: step-06.png
    :alt: Step 6
 
+7. Main dashboard area highlighted
+----------------------------------
+
+This is the main content area where you can see your courses and progress.
+
+.. image:: step-07.png
+   :alt: Step 7
+
+8. Explore your account options
+-------------------------------
+
+From the dashboard, you can navigate to different sections like My Courses, Account Settings, or Profile.
+
+.. note:: Look for navigation menus or buttons to access different features.
+
 Related Topics
 ==============
 

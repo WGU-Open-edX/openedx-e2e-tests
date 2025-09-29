@@ -31,50 +31,75 @@ test.describe("Autodoc: How to Login", () => {
 
     // Step 1: Navigate to login page
     await loginPage.navigate();
-    await autodoc.addStep(
-      "Navigate to the Open edX login page",
-      "You can access the login page by clicking 'Sign In' from the main Open edX website or by going directly to the login URL."
-    );
+    await autodoc.addStep({
+      title: "Navigate to the Open edX login page",
+      description: "You can access the login page by clicking 'Sign In' from the main Open edX website or by going directly to the login URL."
+    });
 
     // Step 2: Show the login form
     await expect(loginPage.emailInput).toBeVisible();
-    await autodoc.addStep(
-      "Locate the login form",
-      "The form contains two main fields: an email/username field and a password field, along with a 'Sign In' button."
-    );
+    await autodoc.addStep({
+      title: "Locate the login form",
+      description: "The form contains two main fields: an email/username field and a password field, along with a 'Sign In' button."
+    });
 
     // Step 3: Fill in email
-    await autodoc.fillElement(
-      'input[name="emailOrUsername"]',
-      "testuser",
-      "Enter your email or username",
-      "Enter either the email address you registered with or your chosen username in the first field.",
-      { elementOnly: 'form[id="sign-in-form"]', note: "If you're unsure which one to use, try the email address you used when creating your account first." }
-    );
+    await autodoc.fillElement({
+      selector: 'input[name="emailOrUsername"]',
+      value: "testuser",
+      title: "Enter your email or username",
+      description: "Enter either the email address you registered with or your chosen username in the first field.",
+      elementOnly: 'form[id="sign-in-form"]'
+    });
+    await autodoc.addNote("If you're unsure which one to use, try the email address you used when creating your account first.");
 
     // Step 4: Fill in password
-    await autodoc.fillElement(
-      'input[name="password"]',
-      "password123",
-      "Enter your password",
-      "Type your password in the password field.",
-      { elementOnly: 'form[id="sign-in-form"]', note: "Your password is case-sensitive, so make sure your Caps Lock is in the correct position." }
-    );
+    await autodoc.fillElement({
+      selector: 'input[name="password"]',
+      value: "password123",
+      title: "Enter your password",
+      description: "Type your password in the password field.",
+      elementOnly: 'form[id="sign-in-form"]'
+    });
+    await autodoc.addNote("Your password is case-sensitive, so make sure your Caps Lock is in the correct position.");
 
     // Step 5: Click login button
-    await autodoc.clickElement(
-      'button[name="sign-in"]',
-      'Click the "Sign In" button',
-      "This will submit your login credentials and access your account.",
-      { elementOnly: true }
-    );
+    await autodoc.clickElement({
+      selector: 'button[name="sign-in"]',
+      title: 'Click the "Sign In" button',
+      description: "This will submit your login credentials and access your account.",
+      elementOnly: true
+    });
 
     // Step 6: Wait for navigation and show result
     await page.waitForLoadState("networkidle");
-    await autodoc.addStep(
-      "Access your dashboard",
-      "After successful login, you will be automatically redirected to your dashboard where you can view your enrolled courses, progress, and account information."
+    await autodoc.takeScreenshot({
+      title: "Access your dashboard",
+      description: "After successful login, you will be automatically redirected to your dashboard where you can view your enrolled courses, progress, and account information."
+    });
+
+    // Step 7: Demonstrate highlightElement (manual step creation)
+    const { stepNumber, screenshot } = await autodoc.highlightElement(
+      'body',
+      null,
+      { elementOnly: 'main', padding: 15 }
     );
+
+    autodoc.steps.push({
+      stepNumber,
+      title: 'Main dashboard area highlighted',
+      description: 'This is the main content area where you can see your courses and progress.',
+      screenshot,
+      note: null
+    });
+
+    // Step 8: Add a step without screenshot
+    await autodoc.addStep({
+      title: "Explore your account options",
+      description: "From the dashboard, you can navigate to different sections like My Courses, Account Settings, or Profile.",
+      screenshot: false
+    });
+    await autodoc.addNote("Look for navigation menus or buttons to access different features.");
 
     // Generate documentation
     await autodoc.generateMarkdown();

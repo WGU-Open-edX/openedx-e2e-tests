@@ -19,9 +19,23 @@ class AutodocTest {
     await fs.mkdir(this.screenshotDir, { recursive: true });
   }
 
-  async addStep(title, description = null, action = null, options = {}) {
+  async addStep(config) {
+    // Support both object and legacy positional parameters
+    let title, description, action, options;
+
+    if (typeof config === 'string') {
+      // Legacy positional parameters
+      title = arguments[0];
+      description = arguments[1] || null;
+      action = arguments[2] || null;
+      options = arguments[3] || {};
+    } else {
+      // New object-based parameters
+      ({ title, description = null, action = null, ...options } = config);
+    }
+
     const stepNumber = this.stepCounter++;
-    const { screenshot = true, note = null } = options;
+    const { screenshot = true } = options;
 
     let screenshotName = null;
 
@@ -49,11 +63,82 @@ class AutodocTest {
       title,
       description,
       screenshot: screenshotName,
-      note
+      note: null
     });
 
     const icon = screenshot ? '📸' : '📝';
     console.log(`${icon} Step ${stepNumber}: ${title}`);
+  }
+
+  async addNote(note) {
+    // Add note to the last step
+    if (this.steps.length > 0) {
+      this.steps[this.steps.length - 1].note = note;
+      console.log(`📌 Note added to Step ${this.steps.length}: ${note}`);
+    } else {
+      console.warn('No steps available to add note to');
+    }
+  }
+
+  async takeScreenshot(config) {
+    // Support both object and legacy positional parameters
+    let title, description, options;
+
+    if (typeof config === 'string') {
+      // Legacy positional parameters
+      title = arguments[0];
+      description = arguments[1] || null;
+      options = arguments[2] || {};
+    } else {
+      // New object-based parameters
+      ({ title, description = null, ...options } = config);
+    }
+
+    const stepNumber = this.stepCounter++;
+    const { elementOnly = null, padding = 20 } = options;
+    const screenshotName = `step-${stepNumber.toString().padStart(2, '0')}.png`;
+    const screenshotPath = path.join(this.screenshotDir, screenshotName);
+
+    // Wait for page to be fully loaded
+    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForTimeout(1000); // Extra delay for content to render
+
+    // Take screenshot based on elementOnly option
+    if (elementOnly === true) {
+      throw new Error('takeScreenshot requires a selector when elementOnly is true. Use a specific selector instead.');
+    } else if (typeof elementOnly === 'string') {
+      // Screenshot a specific element with padding
+      const targetElement = this.page.locator(elementOnly);
+      const elementBox = await targetElement.boundingBox();
+      if (elementBox) {
+        const viewport = await this.page.viewportSize();
+        await this.page.screenshot({
+          path: screenshotPath,
+          clip: {
+            x: Math.max(0, elementBox.x - padding),
+            y: Math.max(0, elementBox.y - padding),
+            width: Math.min(viewport.width - Math.max(0, elementBox.x - padding), elementBox.width + (2 * padding)),
+            height: Math.min(viewport.height - Math.max(0, elementBox.y - padding), elementBox.height + (2 * padding))
+          }
+        });
+      } else {
+        // Fallback to element screenshot if bounding box fails
+        await targetElement.screenshot({ path: screenshotPath });
+      }
+    } else {
+      // Full page screenshot
+      await this.page.screenshot({ path: screenshotPath, fullPage: true });
+    }
+
+    this.steps.push({
+      stepNumber,
+      title,
+      description,
+      screenshot: screenshotName,
+      note: null
+    });
+
+    console.log(`📸 Step ${stepNumber}: ${title}`);
   }
 
   async highlightElement(selector, action = null, options = {}) {
@@ -139,7 +224,21 @@ class AutodocTest {
     return { stepNumber, screenshot: screenshotName };
   }
 
-  async clickElement(selector, title, description = null, options = {}) {
+  async clickElement(config) {
+    // Support both object and legacy positional parameters
+    let selector, title, description, options;
+
+    if (typeof config === 'string') {
+      // Legacy positional parameters
+      selector = arguments[0];
+      title = arguments[1];
+      description = arguments[2] || null;
+      options = arguments[3] || {};
+    } else {
+      // New object-based parameters
+      ({ selector, title, description = null, ...options } = config);
+    }
+
     const { stepNumber, screenshot } = await this.highlightElement(selector, async () => {
       await this.page.locator(selector).click();
     }, options);
@@ -149,13 +248,28 @@ class AutodocTest {
       title: title || `Click on ${selector}`,
       description,
       screenshot,
-      note: options.note || null
+      note: null
     });
 
     console.log(`🖱️  Step ${stepNumber}: ${title || `Click on ${selector}`}`);
   }
 
-  async fillElement(selector, value, title, description = null, options = {}) {
+  async fillElement(config) {
+    // Support both object and legacy positional parameters
+    let selector, value, title, description, options;
+
+    if (typeof config === 'string') {
+      // Legacy positional parameters
+      selector = arguments[0];
+      value = arguments[1];
+      title = arguments[2];
+      description = arguments[3] || null;
+      options = arguments[4] || {};
+    } else {
+      // New object-based parameters
+      ({ selector, value, title, description = null, ...options } = config);
+    }
+
     const { stepNumber, screenshot } = await this.highlightElement(selector, async () => {
       await this.page.locator(selector).fill(value);
     }, options);
@@ -165,7 +279,7 @@ class AutodocTest {
       title: title || `Enter "${value}" in ${selector}`,
       description,
       screenshot,
-      note: options.note || null
+      note: null
     });
 
     console.log(`⌨️  Step ${stepNumber}: ${title || `Enter "${value}" in ${selector}`}`);
