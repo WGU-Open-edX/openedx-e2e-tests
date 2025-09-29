@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-const { spawn } = require('child_process');
-const fs = require('fs').promises;
-const path = require('path');
-const { MarkdownTestParser } = require('../utils/markdown-test-parser');
+import { spawn } from 'child_process';
+import { promises as fs } from 'fs';
+import * as path from 'path';
+import { MarkdownTestParser } from '../utils/markdown-test-parser';
 
-async function findMarkdownFiles(dir) {
+async function findMarkdownFiles(dir: string): Promise<string[]> {
   const files = await fs.readdir(dir);
-  const markdownFiles = [];
+  const markdownFiles: string[] = [];
 
   for (const file of files) {
     const fullPath = path.join(dir, file);
@@ -24,20 +24,20 @@ async function findMarkdownFiles(dir) {
   return markdownFiles;
 }
 
-async function runMarkdownTest(markdownFile) {
+async function runMarkdownTest(markdownFile: string): Promise<void> {
   const parser = new MarkdownTestParser(markdownFile);
   const codeBlocks = await parser.parseMarkdown();
 
   // Generate a temporary test file
   const testName = path.basename(markdownFile, '.md');
-  const tempTestFile = path.join(__dirname, '..', 'tests', 'autodoc', `${testName}-temp.spec.js`);
+  const tempTestFile = path.join(__dirname, '..', 'tests', 'autodoc', `${testName}-temp.spec.ts`);
 
   const testContent = `
-const { test, expect } = require('@playwright/test');
-const { AutodocTest } = require('../../utils/autodoc');
-const { LoginPage } = require('../common/page-objects');
-const { MarkdownTestParser } = require('../../utils/markdown-test-parser');
-const fs = require('fs').promises;
+import { test, expect } from '@playwright/test';
+import { AutodocTest } from '../../utils/autodoc';
+import { LoginPage } from '../common/page-objects';
+import { MarkdownTestParser } from '../../utils/markdown-test-parser';
+import { promises as fs } from 'fs';
 
 test.describe('${testName}', () => {
   test('markdown-driven test', async ({ page }) => {
@@ -48,7 +48,7 @@ test.describe('${testName}', () => {
     await autodoc.initialize();
 
     const loginPage = new LoginPage(page);
-    const testResults = [];
+    const testResults: string[] = [];
 
 ${codeBlocks.map((block, index) => `
     // Execute code block ${index + 1}
@@ -85,7 +85,8 @@ ${codeBlocks.map((block, index) => `
           testResults.push('// Code executed successfully\\n');
         }
       } catch (error) {
-        testResults.push(\`❌ **Error:** \${error.message}\\n\\n\`);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        testResults.push(\`❌ **Error:** \${errorMessage}\\n\\n\`);
       }
     }
 `).join('')}
@@ -96,7 +97,7 @@ ${codeBlocks.map((block, index) => `
     const finalMarkdown = await parser.createFinalMarkdown(testResults);
 
     // Write the final documentation
-    const outputDir = autodoc.screenshotDir;
+    const outputDir = autodoc['screenshotDir'];
     await fs.writeFile(outputDir + '/documentation.md', finalMarkdown);
     console.log('📄 Enhanced documentation generated with autodoc steps');
   });
@@ -114,25 +115,29 @@ ${codeBlocks.map((block, index) => `
     cwd: path.join(__dirname, '..')
   });
 
-  playwright.on('close', async (code) => {
-    if (code === 0) {
-      console.log('✅ Markdown test completed successfully!');
-      // Clean up the temporary file on success
-      try {
-        await fs.unlink(tempTestFile);
-      } catch (err) {
-        console.warn('Could not delete temporary test file:', err.message);
+  await new Promise<void>((resolve, reject) => {
+    playwright.on('close', async (code) => {
+      if (code === 0) {
+        console.log('✅ Markdown test completed successfully!');
+        // Clean up the temporary file on success
+        try {
+          await fs.unlink(tempTestFile);
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : String(err);
+          console.warn('Could not delete temporary test file:', errorMessage);
+        }
+        resolve();
+      } else {
+        console.log('❌ Markdown test failed');
+        console.log(`🔍 Debug: Temp file preserved at: ${tempTestFile}`);
+        console.log('🔍 Check the file to see what was generated');
+        reject(new Error(`Test failed with code ${code}`));
       }
-    } else {
-      console.log('❌ Markdown test failed');
-      console.log(`🔍 Debug: Temp file preserved at: ${tempTestFile}`);
-      console.log('🔍 Check the file to see what was generated');
-      process.exit(code);
-    }
+    });
   });
 }
 
-async function runMarkdownTests(input) {
+async function runMarkdownTests(input: string): Promise<void> {
   const stat = await fs.stat(input);
 
   if (stat.isDirectory()) {
@@ -170,4 +175,4 @@ if (require.main === module) {
   runMarkdownTests(input).catch(console.error);
 }
 
-module.exports = { runMarkdownTest };
+export { runMarkdownTest };

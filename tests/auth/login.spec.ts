@@ -1,8 +1,8 @@
-const { test, expect } = require('@playwright/test');
-const { LoginPage } = require('../common/page-objects');
+import { test, expect } from '@playwright/test';
+import { LoginPage } from '../common/page-objects';
 
 test.describe('Authentication Tests', () => {
-  let loginPage;
+  let loginPage: LoginPage;
 
   test.beforeEach(async ({ page }) => {
     loginPage = new LoginPage(page);

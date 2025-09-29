@@ -13,15 +13,23 @@
     "test:record": "RECORD_VIDEO=1 playwright test --headed",
     "test:record-all": "RECORD_VIDEO=1 playwright test",
     "test:full": "npm run setup && npm test",
-    "test:debug-only": "playwright test debug.spec.js --headed",
+    "test:debug-only": "playwright test debug.spec.ts --headed",
     "test:autodoc": "playwright test tests/autodoc/ --headed --project=firefox",
-    "test:markdown": "node scripts/run-markdown-test.js tests/autodoc",
-    "test:markdown:file": "node scripts/run-markdown-test.js"
+    "test:markdown": "ts-node scripts/run-markdown-test.ts tests/autodoc",
+    "test:markdown:file": "ts-node scripts/run-markdown-test.ts"
   },
-  "keywords": ["edx", "e2e", "playwright", "testing"],
+  "keywords": [
+    "edx",
+    "e2e",
+    "playwright",
+    "testing"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@playwright/test": "^1.40.0"
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^24.6.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
   }
 }

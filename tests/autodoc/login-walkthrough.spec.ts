@@ -1,6 +1,6 @@
-const { test, expect } = require("@playwright/test");
-const { AutodocTest } = require("../../utils/autodoc");
-const { LoginPage } = require("../common/page-objects");
+import { test, expect } from "@playwright/test";
+import { AutodocTest } from "../../utils/autodoc";
+import { LoginPage } from "../common/page-objects";
 
 test.describe("Autodoc: How to Login", () => {
   test("generate login documentation", async ({ page }) => {

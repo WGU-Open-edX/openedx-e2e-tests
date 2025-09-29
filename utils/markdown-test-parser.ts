@@ -1,17 +1,37 @@
-const fs = require('fs').promises;
+import { promises as fs } from 'fs';
 
-class MarkdownTestParser {
-  constructor(markdownPath) {
+interface CodeBlock {
+  code: string;
+  startLine: number;
+  endLine: number;
+}
+
+interface ParsedStep {
+  title: string;
+  description: string;
+  code?: string;
+  level: number;
+}
+
+export class MarkdownTestParser {
+  private markdownPath: string;
+  private steps: ParsedStep[];
+  private codeBlocks: CodeBlock[];
+  private originalContent: string;
+
+  constructor(markdownPath: string) {
     this.markdownPath = markdownPath;
     this.steps = [];
+    this.codeBlocks = [];
+    this.originalContent = '';
   }
 
-  async parseMarkdown() {
+  async parseMarkdown(): Promise<CodeBlock[]> {
     const content = await fs.readFile(this.markdownPath, 'utf8');
-    this.originalContent = content; // Store original content
+    this.originalContent = content;
     const lines = content.split('\n');
 
-    let codeBlocks = [];
+    const codeBlocks: CodeBlock[] = [];
     let inJsCodeBlock = false;
     let codeAccumulator = '';
     let blockStartLine = -1;
@@ -19,14 +39,11 @@ class MarkdownTestParser {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
 
-      // Handle JavaScript code blocks
       if (line === '```js' || line === '```javascript') {
-        // Start JavaScript code block
         inJsCodeBlock = true;
         blockStartLine = i;
         continue;
       } else if (line.startsWith('```') && inJsCodeBlock) {
-        // End JavaScript code block
         codeBlocks.push({
           code: codeAccumulator.trim(),
           startLine: blockStartLine,
@@ -37,38 +54,32 @@ class MarkdownTestParser {
         continue;
       }
 
-      // Accumulate JavaScript code
       if (inJsCodeBlock) {
         codeAccumulator += line + '\n';
       }
     }
 
     this.codeBlocks = codeBlocks;
-    return codeBlocks; // Return code blocks instead of steps
+    return codeBlocks;
   }
 
-  // New method to create final markdown with test results
-  async createFinalMarkdown(testResults) {
+  async createFinalMarkdown(testResults: string[]): Promise<string> {
     const lines = this.originalContent.split('\n');
-    let finalLines = [];
+    const finalLines: string[] = [];
     let codeBlockIndex = 0;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
 
-      // Check if this line starts a JavaScript code block we need to replace
       const codeBlock = this.codeBlocks.find(block => block.startLine === i);
 
       if (codeBlock) {
-        // Replace the entire code block with actual autodoc output
         if (testResults[codeBlockIndex]) {
           finalLines.push(testResults[codeBlockIndex]);
         }
-        // Skip to the end of the code block
         i = codeBlock.endLine;
         codeBlockIndex++;
       } else {
-        // Keep original line
         finalLines.push(line);
       }
     }
@@ -76,18 +87,17 @@ class MarkdownTestParser {
     return finalLines.join('\n');
   }
 
-  generatePlaywrightTest(testName) {
+  generatePlaywrightTest(testName: string): string {
     const steps = this.steps;
 
-    // Helper function to create a safe JavaScript string literal
-    const toJSString = (str) => {
+    const toJSString = (str: string): string => {
       return JSON.stringify(str);
     };
 
     let testCode =
-`const { test, expect } = require('@playwright/test');
-const { AutodocTest } = require('../utils/autodoc');
-const { LoginPage } = require('./common/page-objects');
+`import { test, expect } from '@playwright/test';
+import { AutodocTest } from '../utils/autodoc';
+import { LoginPage } from './common/page-objects';
 
 test.describe(${toJSString(testName)}, () => {
   test('generated from markdown', async ({ page }) => {
@@ -100,7 +110,7 @@ test.describe(${toJSString(testName)}, () => {
 `;
 
     steps.forEach((step) => {
-      if (step.level <= 2) { // Only h1 and h2 as main steps
+      if (step.level <= 2) {
         testCode += '\n    // ' + step.title.replace(/\*/g, '') + '\n';
         testCode += '    await autodoc.step({\n';
         testCode += '      title: ' + toJSString(step.title) + ',\n';
@@ -124,5 +134,3 @@ test.describe(${toJSString(testName)}, () => {
     return testCode;
   }
 }
-
-module.exports = { MarkdownTestParser };

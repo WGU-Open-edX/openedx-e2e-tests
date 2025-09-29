@@ -1,5 +1,5 @@
-const { test, expect } = require('@playwright/test');
-const { LoginPage } = require('./common/page-objects');
+import { test, expect } from '@playwright/test';
+import { LoginPage } from './common/page-objects';
 
 test.describe('Debug Tests', () => {
   test('verify Open edX instance is accessible', async ({ page }) => {

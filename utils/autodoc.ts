@@ -1,83 +1,166 @@
-const fs = require('fs').promises;
-const path = require('path');
+import { promises as fs } from 'fs';
+import * as path from 'path';
+import { Page } from '@playwright/test';
 
-class AutodocTest {
-  constructor(page, testName, options = {}) {
+interface StepConfig {
+  title: string;
+  description?: string | null;
+  action?: (() => Promise<void>) | null;
+  screenshot?: boolean;
+  showNumber?: boolean;
+  skipNumber?: boolean;
+}
+
+interface ScreenshotConfig {
+  title: string;
+  description?: string | null;
+  elementOnly?: boolean | string | null;
+  padding?: number;
+  showNumber?: boolean;
+  skipNumber?: boolean;
+}
+
+interface HighlightOptions {
+  elementOnly?: boolean | string | null;
+  padding?: number;
+  title?: string;
+  showNumber?: boolean;
+  skipNumber?: boolean;
+}
+
+interface ClickConfig {
+  selector: string;
+  title: string;
+  description?: string | null;
+  elementOnly?: boolean | string | null;
+  padding?: number;
+  showNumber?: boolean;
+  skipNumber?: boolean;
+}
+
+interface FillConfig {
+  selector: string;
+  value: string;
+  title: string;
+  description?: string | null;
+  elementOnly?: boolean | string | null;
+  padding?: number;
+  showNumber?: boolean;
+  skipNumber?: boolean;
+}
+
+interface RelatedTopic {
+  title: string;
+  url: string;
+}
+
+interface AutodocOptions {
+  title?: string;
+  overview?: string;
+  prerequisites?: string[];
+  notes?: string[];
+  relatedTopics?: (string | RelatedTopic)[];
+  showNumbers?: boolean;
+}
+
+interface Step {
+  stepNumber: number;
+  numberedStepNumber: number | null;
+  title: string;
+  description: string | null;
+  screenshot: string | null;
+  note: string | null;
+  showNumber: boolean;
+}
+
+export class AutodocTest {
+  private page: Page;
+  private testName: string;
+  private title: string;
+  public steps: Step[];
+  private screenshotDir: string;
+  private stepCounter: number;
+  private numberedStepCounter: number;
+  private overview: string;
+  private prerequisites: string[];
+  private notes: string[];
+  private relatedTopics: (string | RelatedTopic)[];
+  private defaultShowNumbers: boolean;
+
+  constructor(page: Page, testName: string, options: AutodocOptions = {}) {
     this.page = page;
     this.testName = testName;
     this.title = options.title || testName;
     this.steps = [];
     this.screenshotDir = path.join(process.cwd(), 'autodoc-output', testName);
     this.stepCounter = 1;
-    this.numberedStepCounter = 1; // Separate counter for numbered steps only
+    this.numberedStepCounter = 1;
     this.overview = options.overview || '';
     this.prerequisites = options.prerequisites || [];
     this.notes = options.notes || [];
     this.relatedTopics = options.relatedTopics || [];
-    this.defaultShowNumbers = options.showNumbers !== false; // Default to true unless explicitly false
+    this.defaultShowNumbers = options.showNumbers !== false;
   }
 
-  async initialize() {
+  async initialize(): Promise<void> {
     await fs.mkdir(this.screenshotDir, { recursive: true });
   }
 
-  createSlug(text) {
+  createSlug(text: string): string {
     return text
       .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
+      .replace(/[^a-z0-9\s-]/g, '')
       .trim()
-      .replace(/\s+/g, '-') // Replace spaces with hyphens
-      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-      .substring(0, 50); // Limit length to 50 characters
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .substring(0, 50);
   }
 
-  async step(config) {
-    // Support both object and legacy positional parameters
-    let title, description, action, options;
+  async step(config: StepConfig | string, description?: string | null, action?: (() => Promise<void>) | null, options?: Partial<StepConfig>): Promise<void> {
+    let title: string;
+    let desc: string | null;
+    let act: (() => Promise<void>) | null;
+    let opts: Partial<StepConfig>;
 
     if (typeof config === 'string') {
-      // Legacy positional parameters
-      title = arguments[0];
-      description = arguments[1] || null;
-      action = arguments[2] || null;
-      options = arguments[3] || {};
+      title = config;
+      desc = description ?? null;
+      act = action ?? null;
+      opts = options || {};
     } else {
-      // New object-based parameters
-      ({ title, description = null, action = null, ...options } = config);
+      ({ title, description: desc = null, action: act = null, ...opts } = config);
     }
 
-    const { screenshot = true, showNumber = this.defaultShowNumbers, skipNumber = false } = options;
+    const { screenshot = true, showNumber = this.defaultShowNumbers, skipNumber = false } = opts;
     const stepNumber = this.stepCounter++;
     const numberedStepNumber = skipNumber ? null : this.numberedStepCounter++;
 
-    let screenshotName = null;
+    let screenshotName: string | null = null;
 
     if (screenshot) {
       const titleSlug = this.createSlug(title);
       const fileNumber = showNumber ? numberedStepNumber : stepNumber;
-      screenshotName = `step-${fileNumber.toString().padStart(2, '0')}-${titleSlug}.png`;
+      screenshotName = `step-${fileNumber?.toString().padStart(2, '0')}-${titleSlug}.png`;
       const screenshotPath = path.join(this.screenshotDir, screenshotName);
 
-      // Wait for page to be fully loaded
       await this.page.waitForLoadState('networkidle');
-      await this.page.waitForTimeout(1000); // Extra delay for content to render
+      await this.page.waitForTimeout(1000);
 
-      // Take screenshot before action if specified
-      if (action) {
+      if (act) {
         await this.page.screenshot({ path: screenshotPath, fullPage: true });
-        await action();
+        await act();
       } else {
         await this.page.screenshot({ path: screenshotPath, fullPage: true });
       }
-    } else if (action) {
-      await action();
+    } else if (act) {
+      await act();
     }
 
     this.steps.push({
       stepNumber,
       numberedStepNumber,
       title,
-      description,
+      description: desc,
       screenshot: screenshotName,
       note: null,
       showNumber
@@ -88,8 +171,7 @@ class AutodocTest {
     console.log(`${icon} Step ${displayNumber}: ${title}`);
   }
 
-  async note(note) {
-    // Add note to the last step
+  async note(note: string): Promise<void> {
     if (this.steps.length > 0) {
       this.steps[this.steps.length - 1].note = note;
       console.log(`📌 Note added to Step ${this.steps.length}: ${note}`);
@@ -98,56 +180,52 @@ class AutodocTest {
     }
   }
 
-  async screenshot(config) {
-    // Support both object and legacy positional parameters
-    let title, description, options;
+  async screenshot(config: ScreenshotConfig | string, description?: string | null, options?: Partial<ScreenshotConfig>): Promise<void> {
+    let title: string;
+    let desc: string | null;
+    let opts: Partial<ScreenshotConfig>;
 
     if (typeof config === 'string') {
-      // Legacy positional parameters
-      title = arguments[0];
-      description = arguments[1] || null;
-      options = arguments[2] || {};
+      title = config;
+      desc = description ?? null;
+      opts = options || {};
     } else {
-      // New object-based parameters
-      ({ title, description = null, ...options } = config);
+      ({ title, description: desc = null, ...opts } = config);
     }
 
-    const { elementOnly = null, padding = 20, showNumber = this.defaultShowNumbers, skipNumber = false } = options;
+    const { elementOnly = null, padding = 20, showNumber = this.defaultShowNumbers, skipNumber = false } = opts;
     const stepNumber = this.stepCounter++;
     const numberedStepNumber = skipNumber ? null : this.numberedStepCounter++;
     const titleSlug = this.createSlug(title);
     const fileNumber = showNumber ? numberedStepNumber : stepNumber;
-    const screenshotName = `step-${fileNumber.toString().padStart(2, '0')}-${titleSlug}.png`;
+    const screenshotName = `step-${fileNumber?.toString().padStart(2, '0')}-${titleSlug}.png`;
     const screenshotPath = path.join(this.screenshotDir, screenshotName);
 
-    // Wait for page to be fully loaded
     await this.page.waitForLoadState('networkidle');
-    await this.page.waitForTimeout(1000); // Extra delay for content to render
+    await this.page.waitForTimeout(1000);
 
-    // Take screenshot based on elementOnly option
     if (elementOnly === true) {
       throw new Error('takeScreenshot requires a selector when elementOnly is true. Use a specific selector instead.');
     } else if (typeof elementOnly === 'string') {
-      // Screenshot a specific element with padding
       const targetElement = this.page.locator(elementOnly);
       const elementBox = await targetElement.boundingBox();
       if (elementBox) {
         const viewport = await this.page.viewportSize();
-        await this.page.screenshot({
-          path: screenshotPath,
-          clip: {
-            x: Math.max(0, elementBox.x - padding),
-            y: Math.max(0, elementBox.y - padding),
-            width: Math.min(viewport.width - Math.max(0, elementBox.x - padding), elementBox.width + (2 * padding)),
-            height: Math.min(viewport.height - Math.max(0, elementBox.y - padding), elementBox.height + (2 * padding))
-          }
-        });
+        if (viewport) {
+          await this.page.screenshot({
+            path: screenshotPath,
+            clip: {
+              x: Math.max(0, elementBox.x - padding),
+              y: Math.max(0, elementBox.y - padding),
+              width: Math.min(viewport.width - Math.max(0, elementBox.x - padding), elementBox.width + (2 * padding)),
+              height: Math.min(viewport.height - Math.max(0, elementBox.y - padding), elementBox.height + (2 * padding))
+            }
+          });
+        }
       } else {
-        // Fallback to element screenshot if bounding box fails
         await targetElement.screenshot({ path: screenshotPath });
       }
     } else {
-      // Full page screenshot
       await this.page.screenshot({ path: screenshotPath, fullPage: true });
     }
 
@@ -155,7 +233,7 @@ class AutodocTest {
       stepNumber,
       numberedStepNumber,
       title,
-      description,
+      description: desc,
       screenshot: screenshotName,
       note: null,
       showNumber
@@ -165,7 +243,7 @@ class AutodocTest {
     console.log(`📸 Step ${displayNumber}: ${title}`);
   }
 
-  async highlight(selector, action = null, options = {}) {
+  async highlight(selector: string, action: (() => Promise<void>) | null = null, options: HighlightOptions = {}): Promise<{ stepNumber: number; numberedStepNumber: number | null; screenshot: string }> {
     const stepNumber = this.stepCounter++;
     const { elementOnly = null, padding = 20, title = `highlight-${selector}`, showNumber = this.defaultShowNumbers, skipNumber = false } = options;
     const numberedStepNumber = skipNumber ? null : this.numberedStepCounter++;
@@ -174,10 +252,8 @@ class AutodocTest {
     const screenshotName = `step-${fileNumber.toString().padStart(2, '0')}-${titleSlug}.png`;
     const screenshotPath = path.join(this.screenshotDir, screenshotName);
 
-    // Wait for element to be visible first
     await this.page.locator(selector).waitFor({ state: 'visible', timeout: 10000 });
 
-    // Add highlight styling
     await this.page.addStyleTag({
       content: `
         .autodoc-highlight {
@@ -188,62 +264,57 @@ class AutodocTest {
       `
     });
 
-    // Highlight the element
     await this.page.locator(selector).evaluate(el => {
       el.classList.add('autodoc-highlight');
     });
 
-    // Small delay to ensure highlight is fully rendered
     await this.page.waitForTimeout(500);
 
-    // Take screenshot - full page, specific element, or custom selector
     if (elementOnly === true) {
-      // Default behavior: screenshot the highlighted element with padding
       const elementBox = await this.page.locator(selector).boundingBox();
       if (elementBox) {
-        await this.page.screenshot({
-          path: screenshotPath,
-          clip: {
-            x: Math.max(0, elementBox.x - padding),
-            y: Math.max(0, elementBox.y - padding),
-            width: Math.min(await this.page.viewportSize().width - Math.max(0, elementBox.x - padding), elementBox.width + (2 * padding)),
-            height: Math.min(await this.page.viewportSize().height - Math.max(0, elementBox.y - padding), elementBox.height + (2 * padding))
-          }
-        });
+        const viewport = await this.page.viewportSize();
+        if (viewport) {
+          await this.page.screenshot({
+            path: screenshotPath,
+            clip: {
+              x: Math.max(0, elementBox.x - padding),
+              y: Math.max(0, elementBox.y - padding),
+              width: Math.min(viewport.width - Math.max(0, elementBox.x - padding), elementBox.width + (2 * padding)),
+              height: Math.min(viewport.height - Math.max(0, elementBox.y - padding), elementBox.height + (2 * padding))
+            }
+          });
+        }
       } else {
-        // Fallback to element screenshot if bounding box fails
         await this.page.locator(selector).screenshot({ path: screenshotPath });
       }
     } else if (typeof elementOnly === 'string') {
-      // Custom selector: screenshot a different element with padding
       const targetElement = this.page.locator(elementOnly);
       const elementBox = await targetElement.boundingBox();
       if (elementBox) {
         const viewport = await this.page.viewportSize();
-        await this.page.screenshot({
-          path: screenshotPath,
-          clip: {
-            x: Math.max(0, elementBox.x - padding),
-            y: Math.max(0, elementBox.y - padding),
-            width: Math.min(viewport.width - Math.max(0, elementBox.x - padding), elementBox.width + (2 * padding)),
-            height: Math.min(viewport.height - Math.max(0, elementBox.y - padding), elementBox.height + (2 * padding))
-          }
-        });
+        if (viewport) {
+          await this.page.screenshot({
+            path: screenshotPath,
+            clip: {
+              x: Math.max(0, elementBox.x - padding),
+              y: Math.max(0, elementBox.y - padding),
+              width: Math.min(viewport.width - Math.max(0, elementBox.x - padding), elementBox.width + (2 * padding)),
+              height: Math.min(viewport.height - Math.max(0, elementBox.y - padding), elementBox.height + (2 * padding))
+            }
+          });
+        }
       } else {
-        // Fallback to element screenshot if bounding box fails
         await targetElement.screenshot({ path: screenshotPath });
       }
     } else {
-      // Full page screenshot
       await this.page.screenshot({ path: screenshotPath, fullPage: true });
     }
 
-    // Remove highlight
     await this.page.locator(selector).evaluate(el => {
       el.classList.remove('autodoc-highlight');
     });
 
-    // Perform action if specified
     if (action) {
       await action();
     }
@@ -251,78 +322,79 @@ class AutodocTest {
     return { stepNumber, numberedStepNumber, screenshot: screenshotName };
   }
 
-  async click(config) {
-    // Support both object and legacy positional parameters
-    let selector, title, description, options;
+  async click(config: ClickConfig | string, title?: string, description?: string | null, options?: Partial<ClickConfig>): Promise<void> {
+    let selector: string;
+    let titleStr: string;
+    let desc: string | null;
+    let opts: Partial<ClickConfig>;
 
     if (typeof config === 'string') {
-      // Legacy positional parameters
-      selector = arguments[0];
-      title = arguments[1];
-      description = arguments[2] || null;
-      options = arguments[3] || {};
+      selector = config;
+      titleStr = title!;
+      desc = description ?? null;
+      opts = options || {};
     } else {
-      // New object-based parameters
-      ({ selector, title, description = null, ...options } = config);
+      ({ selector, title: titleStr, description: desc = null, ...opts } = config);
     }
 
-    const { showNumber = this.defaultShowNumbers, skipNumber = false } = options;
+    const { showNumber = this.defaultShowNumbers, skipNumber = false } = opts;
     const numberedStepNumber = skipNumber ? null : this.numberedStepCounter++;
     const { stepNumber, screenshot } = await this.highlight(selector, async () => {
       await this.page.locator(selector).click();
-    }, { ...options, title });
+    }, { ...opts, title: titleStr });
 
     this.steps.push({
       stepNumber,
       numberedStepNumber,
-      title: title || `Click on ${selector}`,
-      description,
+      title: titleStr || `Click on ${selector}`,
+      description: desc,
       screenshot,
       note: null,
       showNumber
     });
 
     const displayNumber = showNumber && numberedStepNumber !== null ? numberedStepNumber : stepNumber;
-    console.log(`🖱️  Step ${displayNumber}: ${title || `Click on ${selector}`}`);
+    console.log(`🖱️  Step ${displayNumber}: ${titleStr || `Click on ${selector}`}`);
   }
 
-  async fill(config) {
-    // Support both object and legacy positional parameters
-    let selector, value, title, description, options;
+  async fill(config: FillConfig | string, value?: string, title?: string, description?: string | null, options?: Partial<FillConfig>): Promise<void> {
+    let selector: string;
+    let val: string;
+    let titleStr: string;
+    let desc: string | null;
+    let opts: Partial<FillConfig>;
 
     if (typeof config === 'string') {
-      // Legacy positional parameters
-      selector = arguments[0];
-      value = arguments[1];
-      title = arguments[2];
-      description = arguments[3] || null;
-      options = arguments[4] || {};
+      selector = config;
+      val = value!;
+      titleStr = title!;
+      desc = description ?? null;
+      opts = options || {};
     } else {
-      // New object-based parameters
-      ({ selector, value, title, description = null, ...options } = config);
+      ({ selector, value: val, title: titleStr, description: desc = null, ...opts } = config);
     }
 
-    const { showNumber = this.defaultShowNumbers, skipNumber = false } = options;
+    const { showNumber = this.defaultShowNumbers, skipNumber = false } = opts;
     const numberedStepNumber = skipNumber ? null : this.numberedStepCounter++;
     const { stepNumber, screenshot } = await this.highlight(selector, async () => {
-      await this.page.locator(selector).fill(value);
-    }, { ...options, title });
+      await this.page.locator(selector).fill(val);
+    }, { ...opts, title: titleStr });
 
     this.steps.push({
       stepNumber,
       numberedStepNumber,
-      title: title || `Enter "${value}" in ${selector}`,
-      description,
+      title: titleStr || `Enter "${val}" in ${selector}`,
+      description: desc,
       screenshot,
       note: null,
       showNumber
     });
 
     const displayNumber = showNumber && numberedStepNumber !== null ? numberedStepNumber : stepNumber;
-    console.log(`⌨️  Step ${displayNumber}: ${title || `Enter "${value}" in ${selector}`}`);
+    console.log(`⌨️  Step ${displayNumber}: ${titleStr || `Enter "${val}" in ${selector}`}`);
   }
 
-  async generateMarkdown() {
+  async generateMarkdown(): Promise<string> {
     const markdownPath = path.join(this.screenshotDir, 'documentation.md');
 
     let markdown = `# ${this.title}\n\n`;
@@ -350,7 +422,6 @@ class AutodocTest {
     markdown += `To complete this process, follow these steps:\n\n`;
 
     for (const step of this.steps) {
-      // Use numbered step number for display when showNumber is true and numberedStepNumber exists
       const heading = step.showNumber !== false && step.numberedStepNumber !== null
         ? `### ${step.numberedStepNumber}. ${step.title}\n\n`
         : `### ${step.title}\n\n`;
@@ -376,7 +447,6 @@ class AutodocTest {
         if (typeof topic === 'string') {
           markdown += `- ${topic}\n`;
         } else {
-          // Assume topic is an object with title and url
           markdown += `- [${topic.title}](${topic.url})\n`;
         }
       }
@@ -391,7 +461,7 @@ class AutodocTest {
     return markdownPath;
   }
 
-  async generateRST() {
+  async generateRST(): Promise<string> {
     const rstPath = path.join(this.screenshotDir, 'documentation.rst');
 
     let rst = `${this.title}\n`;
@@ -422,7 +492,6 @@ class AutodocTest {
     rst += `To complete this process, follow these steps:\n\n`;
 
     for (const step of this.steps) {
-      // Use numbered step number for display when showNumber is true and numberedStepNumber exists
       const heading = step.showNumber !== false && step.numberedStepNumber !== null
         ? `${step.numberedStepNumber}. ${step.title}`
         : step.title;
@@ -465,5 +534,3 @@ class AutodocTest {
     return rstPath;
   }
 }
-
-module.exports = { AutodocTest };

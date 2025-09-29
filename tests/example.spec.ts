@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('Open edX Platform Basic Tests', () => {
   test('learner dashboard loads successfully', async ({ page }) => {
