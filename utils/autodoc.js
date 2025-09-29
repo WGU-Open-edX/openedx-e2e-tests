@@ -19,7 +19,7 @@ class AutodocTest {
     await fs.mkdir(this.screenshotDir, { recursive: true });
   }
 
-  async addStep(config) {
+  async step(config) {
     // Support both object and legacy positional parameters
     let title, description, action, options;
 
@@ -70,7 +70,7 @@ class AutodocTest {
     console.log(`${icon} Step ${stepNumber}: ${title}`);
   }
 
-  async addNote(note) {
+  async note(note) {
     // Add note to the last step
     if (this.steps.length > 0) {
       this.steps[this.steps.length - 1].note = note;
@@ -80,7 +80,7 @@ class AutodocTest {
     }
   }
 
-  async takeScreenshot(config) {
+  async screenshot(config) {
     // Support both object and legacy positional parameters
     let title, description, options;
 
@@ -141,7 +141,7 @@ class AutodocTest {
     console.log(`📸 Step ${stepNumber}: ${title}`);
   }
 
-  async highlightElement(selector, action = null, options = {}) {
+  async highlight(selector, action = null, options = {}) {
     const stepNumber = this.stepCounter++;
     const screenshotName = `step-${stepNumber.toString().padStart(2, '0')}.png`;
     const screenshotPath = path.join(this.screenshotDir, screenshotName);
@@ -224,7 +224,7 @@ class AutodocTest {
     return { stepNumber, screenshot: screenshotName };
   }
 
-  async clickElement(config) {
+  async click(config) {
     // Support both object and legacy positional parameters
     let selector, title, description, options;
 
@@ -239,7 +239,7 @@ class AutodocTest {
       ({ selector, title, description = null, ...options } = config);
     }
 
-    const { stepNumber, screenshot } = await this.highlightElement(selector, async () => {
+    const { stepNumber, screenshot } = await this.highlight(selector, async () => {
       await this.page.locator(selector).click();
     }, options);
 
@@ -254,7 +254,7 @@ class AutodocTest {
     console.log(`🖱️  Step ${stepNumber}: ${title || `Click on ${selector}`}`);
   }
 
-  async fillElement(config) {
+  async fill(config) {
     // Support both object and legacy positional parameters
     let selector, value, title, description, options;
 
@@ -270,7 +270,7 @@ class AutodocTest {
       ({ selector, value, title, description = null, ...options } = config);
     }
 
-    const { stepNumber, screenshot } = await this.highlightElement(selector, async () => {
+    const { stepNumber, screenshot } = await this.highlight(selector, async () => {
       await this.page.locator(selector).fill(value);
     }, options);
 

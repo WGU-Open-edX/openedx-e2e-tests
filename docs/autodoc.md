@@ -1,4 +1,4 @@
-# AutodocTest API Documentation
+# AutodocTest Documentation
 
 The AutodocTest framework allows you to generate professional user documentation automatically while running Playwright tests. This creates step-by-step guides with screenshots that read like official documentation.
 
@@ -52,18 +52,18 @@ relatedTopics: [
 
 ## Methods
 
-### addStep(config)
+### step(config)
 
 Adds a step with optional screenshot to the documentation.
 
 ```javascript
 // Simple step
-await autodoc.addStep({
+await autodoc.step({
   title: "Navigate to login page"
 });
 
 // Detailed step with description
-await autodoc.addStep({
+await autodoc.step({
   title: "Navigate to login page",
   description: "Detailed explanation of what this step does",
   screenshot: false
@@ -77,13 +77,13 @@ await autodoc.addStep({
 - `action` (function): Code to execute (optional)
 - `screenshot` (boolean): Whether to take screenshot (default: true)
 
-### fillElement(config)
+### fill(config)
 
 Highlights an input field, fills it with a value, and documents the step.
 
 ```javascript
 // Recommended: Object parameters
-await autodoc.fillElement({
+await autodoc.fill({
   selector: 'input[name="email"]',
   value: 'user@example.com',
   title: 'Enter your email address',
@@ -93,7 +93,7 @@ await autodoc.fillElement({
 });
 
 // Screenshot a different element while highlighting the input
-await autodoc.fillElement({
+await autodoc.fill({
   selector: 'input[name="email"]',
   value: 'user@example.com',
   title: 'Enter email',
@@ -112,13 +112,13 @@ await autodoc.fillElement({
 - `elementOnly` (boolean|string): Screenshot mode - `true` for highlighted element, string selector for different element, or `null`/`false` for full page
 - `padding` (number): Pixels of padding around element screenshots (default: 20)
 
-### clickElement(config)
+### click(config)
 
 Highlights a clickable element, clicks it, and documents the step.
 
 ```javascript
 // Recommended: Object parameters
-await autodoc.clickElement({
+await autodoc.click({
   selector: 'button[type="submit"]',
   title: 'Click the Submit button',
   description: 'This will submit your form data.',
@@ -134,19 +134,19 @@ await autodoc.clickElement({
 - `elementOnly` (boolean|string): Screenshot mode - `true` for highlighted element, string selector for different element, or `null`/`false` for full page
 - `padding` (number): Pixels of padding around element screenshots (default: 20)
 
-### takeScreenshot(config)
+### screenshot(config)
 
 Takes a screenshot without highlighting any elements.
 
 ```javascript
 // Recommended: Object parameters
-await autodoc.takeScreenshot({
+await autodoc.screenshot({
   title: "Dashboard loaded",
   description: "The main dashboard is now visible"
 });
 
 // Element screenshot with custom selector
-await autodoc.takeScreenshot({
+await autodoc.screenshot({
   title: "Login form visible",
   description: "The login form is displayed on the page",
   elementOnly: 'form#login-form',
@@ -161,24 +161,24 @@ await autodoc.takeScreenshot({
 - `elementOnly` (string): CSS selector for element to screenshot (required if not full page)
 - `padding` (number): Pixels of padding around element screenshots (default: 20)
 
-### addNote(note)
+### note(note)
 
 Adds a note to the most recently created step.
 
 ```javascript
-await autodoc.fillElement({ /* ... */ });
-await autodoc.addNote("This is an important tip about the previous step");
+await autodoc.fill({ /* ... */ });
+await autodoc.note("This is an important tip about the previous step");
 ```
 
 **Parameters:**
 - `note` (string): The note text to add to the last step
 
-### highlightElement(selector, action?, options?)
+### highlight(selector, action?, options?)
 
 Highlights an element and optionally performs an action. Returns step data for manual documentation.
 
 ```javascript
-const { stepNumber, screenshot } = await autodoc.highlightElement(
+const { stepNumber, screenshot } = await autodoc.highlight(
   '.profile-menu',
   null,
   { elementOnly: true }
@@ -206,7 +206,7 @@ autodoc.steps.push({
 
 ### Element Highlighting
 
-All interactive methods (`fillElement`, `clickElement`, `highlightElement`) automatically:
+All interactive methods (`fill`, `click`, `highlight`) automatically:
 1. Wait for the element to be visible
 2. Add orange outline highlight
 3. Take screenshot
@@ -255,25 +255,25 @@ autodoc-output/
 ### 1. Use Descriptive Titles
 ```javascript
 // Good
-await autodoc.addStep("Enter your email address", "Type your email in the username field");
+await autodoc.step("Enter your email address", "Type your email in the username field");
 
 // Avoid
-await autodoc.addStep("Fill input");
+await autodoc.step("Fill input");
 ```
 
 ### 4. Use Element-Only Screenshots for UI Components
 ```javascript
 // Screenshot just the button with default 20px padding
-await autodoc.clickElement('button', 'Click Submit', null, { elementOnly: true });
+await autodoc.click('button', 'Click Submit', null, { elementOnly: true });
 
 // Screenshot the entire form while highlighting just the input
-await autodoc.fillElement('input[name="email"]', 'user@example.com', 'Enter email', null, {
+await autodoc.fill('input[name="email"]', 'user@example.com', 'Enter email', null, {
   elementOnly: 'form',  // Screenshot the form
   padding: 30  // With 30px padding around the form
 });
 
 // For full page context
-await autodoc.addStep("Page loaded", "The dashboard page is now visible");
+await autodoc.step("Page loaded", "The dashboard page is now visible");
 ```
 
 ## Example: Complete Login Documentation
@@ -298,32 +298,32 @@ const autodoc = new AutodocTest(page, "user-login", {
 await autodoc.initialize();
 
 // Recommended: Object parameters for clarity
-await autodoc.addStep({
+await autodoc.step({
   title: "Go to login page",
   description: "Navigate to the login form"
 });
 
-await autodoc.fillElement({
+await autodoc.fill({
   selector: 'input[name="email"]',
   value: 'user@example.com',
   title: 'Enter email',
   elementOnly: true
 });
 
-await autodoc.fillElement({
+await autodoc.fill({
   selector: 'input[name="password"]',
   value: 'password',
   title: 'Enter password',
   elementOnly: true
 });
-await autodoc.addNote("Make sure Caps Lock is off");
+await autodoc.note("Make sure Caps Lock is off");
 
-await autodoc.clickElement({
+await autodoc.click({
   selector: 'button[type="submit"]',
   title: 'Click Sign In'
 });
 
-await autodoc.takeScreenshot({
+await autodoc.screenshot({
   title: "Access dashboard",
   description: "You're now logged in and can see your dashboard"
 });
@@ -333,3 +333,69 @@ await autodoc.generateRST();
 ```
 
 This creates professional documentation that reads like official user guides with step-by-step instructions and screenshots.
+
+## Markdown-Driven Tests
+
+You can now write tests directly as markdown files with embedded code blocks. This approach allows you to write documentation first, then add interactive code to make it executable.
+
+### Creating Markdown Tests
+
+Create a `.md` file in the `tests/autodoc/` directory:
+
+```markdown
+# How to Login to Open edX
+
+This guide shows you how to log into your Open edX account step by step.
+
+## Navigate to Login Page
+
+Go to the login page from the main website. You can access this by clicking the "Sign In" button.
+
+```js
+await loginPage.navigate();
+await autodoc.screenshot({
+  title: "Login page loaded",
+  description: "The Open edX login page is displayed"
+});
+```
+
+## Enter Your Email
+
+Click on the email field and enter your email address or username.
+
+```js
+await loginPage.emailInput.fill("test@example.com");
+await autodoc.screenshot({
+  title: "Email entered",
+  description: "Email address filled in the email field",
+  elementOnly: 'input[name="emailOrUsername"]',
+  padding: 30
+});
+```
+```
+
+### Running Markdown Tests
+
+Use the npm scripts to run markdown-driven tests:
+
+```bash
+# Run all markdown files in tests/autodoc/
+npm run test:markdown
+
+# Run a specific markdown file
+npm run test:markdown:file tests/autodoc/login-markdown.md
+```
+
+### How It Works
+
+1. The markdown parser extracts headings as step titles and descriptions
+2. Code blocks are executed as Playwright test code
+3. Steps are automatically added to the documentation with `autodoc.step()`
+4. The test generates both the interactive execution and the final documentation
+
+### Benefits of Markdown-Driven Tests
+
+- **Documentation-first approach**: Write clear, readable documentation that becomes executable
+- **No duplication**: Single source for both documentation and test logic
+- **Easy maintenance**: Update documentation and tests in one place
+- **Readable**: Stakeholders can review test scenarios in markdown format

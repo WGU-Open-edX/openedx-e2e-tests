@@ -14,7 +14,9 @@
     "test:record-all": "RECORD_VIDEO=1 playwright test",
     "test:full": "npm run setup && npm test",
     "test:debug-only": "playwright test debug.spec.js --headed",
-    "test:autodoc": "playwright test tests/autodoc/ --headed --project=firefox"
+    "test:autodoc": "playwright test tests/autodoc/ --headed --project=firefox",
+    "test:markdown": "node scripts/run-markdown-test.js tests/autodoc",
+    "test:markdown:file": "node scripts/run-markdown-test.js"
   },
   "keywords": ["edx", "e2e", "playwright", "testing"],
   "author": "",
