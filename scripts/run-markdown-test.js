@@ -61,12 +61,21 @@ ${codeBlocks.map((block, index) => `
         const newSteps${index} = autodoc.steps.slice(stepsBefore${index});
         if (newSteps${index}.length > 0) {
           const step${index} = newSteps${index}[newSteps${index}.length - 1]; // Get the latest step
-          let stepMarkdown${index} = \`### \${step${index}.stepNumber}. \${step${index}.title}\\n\\n\`;
+
+          // Use numbered step number for display when showNumber is true and numberedStepNumber exists
+          const heading${index} = step${index}.showNumber !== false && step${index}.numberedStepNumber !== null
+            ? \`### \${step${index}.numberedStepNumber}. \${step${index}.title}\\n\\n\`
+            : \`### \${step${index}.title}\\n\\n\`;
+          let stepMarkdown${index} = heading${index};
+
           if (step${index}.description) {
             stepMarkdown${index} += \`\${step${index}.description}\\n\\n\`;
           }
           if (step${index}.screenshot) {
-            stepMarkdown${index} += \`![Step \${step${index}.stepNumber}](\${step${index}.screenshot})\\n\\n\`;
+            const altText${index} = step${index}.showNumber !== false && step${index}.numberedStepNumber !== null
+              ? \`Step \${step${index}.numberedStepNumber}\`
+              : step${index}.title;
+            stepMarkdown${index} += \`![\${altText${index}}](\${step${index}.screenshot})\\n\\n\`;
           }
           if (step${index}.note) {
             stepMarkdown${index} += \`> **Note:** \${step${index}.note}\\n\\n\`;

@@ -29,7 +29,7 @@ The first step is accessing the Open edX login page. You can reach this page in 
 
 The Open edX login page is displayed with all necessary form elements
 
-![Step 1](step-01.png)
+![Step 1](step-01-login-page-loaded.png)
 
 
 
@@ -53,7 +53,7 @@ The login form includes several important elements:
 
 Complete view of the login form showing all input fields and buttons
 
-![Step 2](step-02.png)
+![Step 2](step-02-login-form-overview.png)
 
 
 
@@ -69,7 +69,7 @@ Click on the email field and carefully enter your login identifier. This can be 
 
 Type your login identifier in the email/username field
 
-![Step 3](step-03.png)
+![Step 3](step-04-enter-your-email-or-username.png)
 
 
 
@@ -79,11 +79,11 @@ Type your login identifier in the email/username field
 
 Next, click on the password field and enter your account password. Make sure to type it exactly as you created it, paying attention to capitalization and special characters.
 
-### 4. Enter your password
+### 5. Enter your password
 
 Type your secure password in the password field
 
-![Step 4](step-04.png)
+![Step 5](step-06-enter-your-password.png)
 
 
 
@@ -99,11 +99,11 @@ With your credentials entered, you're ready to authenticate and access your acco
 
 Locate the "Sign In" button (usually prominently displayed) and click it to submit your login information to the server.
 
-### 5. Click the Sign In button
+### 7. Click the Sign In button
 
 Submit your credentials by clicking the Sign In button
 
-![Step 5](step-05.png)
+![Step 7](step-08-click-the-sign-in-button.png)
 
 
 
@@ -119,7 +119,7 @@ During authentication, the system:
 4. Creates a secure session for your browser
 5. Redirects you to your dashboard or intended destination
 
-### 6. Authentication completed
+### Authentication completed
 
 Your credentials have been verified and you are being redirected
 
@@ -140,11 +140,11 @@ Your dashboard is the central hub for your learning experience. From here, you c
 - **View announcements**: Stay updated with important information
 - **Manage notifications**: Control how you receive updates
 
-### 7. Dashboard successfully loaded
+### 9. Dashboard successfully loaded
 
 Your personalized Open edX dashboard showing available courses and account options
 
-![Step 7](step-07.png)
+![Step 9](step-09-dashboard-successfully-loaded.png)
 
 
 

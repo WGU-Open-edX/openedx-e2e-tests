@@ -19,68 +19,68 @@ Steps
 
 To complete this process, follow these steps:
 
-1. Navigate to the Open edX login page
---------------------------------------
+Navigate to the Open edX login page
+-----------------------------------
 
 You can access the login page by clicking 'Sign In' from the main Open edX website or by going directly to the login URL.
 
-.. image:: step-01.png
-   :alt: Step 1
+.. image:: step-01-navigate-to-the-open-edx-login-page.png
+   :alt: Navigate to the Open edX login page
 
-2. Locate the login form
-------------------------
+Locate the login form
+---------------------
 
 The form contains two main fields: an email/username field and a password field, along with a 'Sign In' button.
 
-.. image:: step-02.png
-   :alt: Step 2
+.. image:: step-02-locate-the-login-form.png
+   :alt: Locate the login form
 
-3. Enter your email or username
--------------------------------
+Enter your email or username
+----------------------------
 
 Enter either the email address you registered with or your chosen username in the first field.
 
-.. image:: step-03.png
-   :alt: Step 3
+.. image:: step-03-enter-your-email-or-username.png
+   :alt: Enter your email or username
 
 .. note:: If you're unsure which one to use, try the email address you used when creating your account first.
 
-4. Enter your password
-----------------------
+Enter your password
+-------------------
 
 Type your password in the password field.
 
-.. image:: step-04.png
-   :alt: Step 4
+.. image:: step-04-enter-your-password.png
+   :alt: Enter your password
 
 .. note:: Your password is case-sensitive, so make sure your Caps Lock is in the correct position.
 
-5. Click the "Sign In" button
------------------------------
+Click the "Sign In" button
+--------------------------
 
 This will submit your login credentials and access your account.
 
-.. image:: step-05.png
-   :alt: Step 5
+.. image:: step-05-click-the-sign-in-button.png
+   :alt: Click the "Sign In" button
 
-6. Access your dashboard
-------------------------
+Access your dashboard
+---------------------
 
 After successful login, you will be automatically redirected to your dashboard where you can view your enrolled courses, progress, and account information.
 
-.. image:: step-06.png
-   :alt: Step 6
+.. image:: step-06-access-your-dashboard.png
+   :alt: Access your dashboard
 
-7. Main dashboard area highlighted
-----------------------------------
+10. Main dashboard area highlighted
+-----------------------------------
 
 This is the main content area where you can see your courses and progress.
 
-.. image:: step-07.png
-   :alt: Step 7
+.. image:: step-07-highlight-body.png
+   :alt: Step 10
 
-8. Explore your account options
--------------------------------
+Explore your account options
+----------------------------
 
 From the dashboard, you can navigate to different sections like My Courses, Account Settings, or Profile.
 

@@ -137,7 +137,8 @@ await expect(page.locator('input[name="emailOrUsername"]')).not.toBeVisible();
 await autodoc.step({
   title: 'Authentication completed',
   description: 'Your credentials have been verified and you are being redirected',
-  screenshot: false
+  screenshot: false,
+  skipNumber: true
 });
 ```
 

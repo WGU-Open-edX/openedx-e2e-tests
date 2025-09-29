@@ -9,14 +9,26 @@ class AutodocTest {
     this.steps = [];
     this.screenshotDir = path.join(process.cwd(), 'autodoc-output', testName);
     this.stepCounter = 1;
+    this.numberedStepCounter = 1; // Separate counter for numbered steps only
     this.overview = options.overview || '';
     this.prerequisites = options.prerequisites || [];
     this.notes = options.notes || [];
     this.relatedTopics = options.relatedTopics || [];
+    this.defaultShowNumbers = options.showNumbers !== false; // Default to true unless explicitly false
   }
 
   async initialize() {
     await fs.mkdir(this.screenshotDir, { recursive: true });
+  }
+
+  createSlug(text) {
+    return text
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
+      .trim()
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      .substring(0, 50); // Limit length to 50 characters
   }
 
   async step(config) {
@@ -34,13 +46,16 @@ class AutodocTest {
       ({ title, description = null, action = null, ...options } = config);
     }
 
+    const { screenshot = true, showNumber = this.defaultShowNumbers, skipNumber = false } = options;
     const stepNumber = this.stepCounter++;
-    const { screenshot = true } = options;
+    const numberedStepNumber = skipNumber ? null : this.numberedStepCounter++;
 
     let screenshotName = null;
 
     if (screenshot) {
-      screenshotName = `step-${stepNumber.toString().padStart(2, '0')}.png`;
+      const titleSlug = this.createSlug(title);
+      const fileNumber = showNumber ? numberedStepNumber : stepNumber;
+      screenshotName = `step-${fileNumber.toString().padStart(2, '0')}-${titleSlug}.png`;
       const screenshotPath = path.join(this.screenshotDir, screenshotName);
 
       // Wait for page to be fully loaded
@@ -60,14 +75,17 @@ class AutodocTest {
 
     this.steps.push({
       stepNumber,
+      numberedStepNumber,
       title,
       description,
       screenshot: screenshotName,
-      note: null
+      note: null,
+      showNumber
     });
 
+    const displayNumber = showNumber && numberedStepNumber !== null ? numberedStepNumber : stepNumber;
     const icon = screenshot ? '📸' : '📝';
-    console.log(`${icon} Step ${stepNumber}: ${title}`);
+    console.log(`${icon} Step ${displayNumber}: ${title}`);
   }
 
   async note(note) {
@@ -94,9 +112,12 @@ class AutodocTest {
       ({ title, description = null, ...options } = config);
     }
 
+    const { elementOnly = null, padding = 20, showNumber = this.defaultShowNumbers, skipNumber = false } = options;
     const stepNumber = this.stepCounter++;
-    const { elementOnly = null, padding = 20 } = options;
-    const screenshotName = `step-${stepNumber.toString().padStart(2, '0')}.png`;
+    const numberedStepNumber = skipNumber ? null : this.numberedStepCounter++;
+    const titleSlug = this.createSlug(title);
+    const fileNumber = showNumber ? numberedStepNumber : stepNumber;
+    const screenshotName = `step-${fileNumber.toString().padStart(2, '0')}-${titleSlug}.png`;
     const screenshotPath = path.join(this.screenshotDir, screenshotName);
 
     // Wait for page to be fully loaded
@@ -132,20 +153,26 @@ class AutodocTest {
 
     this.steps.push({
       stepNumber,
+      numberedStepNumber,
       title,
       description,
       screenshot: screenshotName,
-      note: null
+      note: null,
+      showNumber
     });
 
-    console.log(`📸 Step ${stepNumber}: ${title}`);
+    const displayNumber = showNumber && numberedStepNumber !== null ? numberedStepNumber : stepNumber;
+    console.log(`📸 Step ${displayNumber}: ${title}`);
   }
 
   async highlight(selector, action = null, options = {}) {
     const stepNumber = this.stepCounter++;
-    const screenshotName = `step-${stepNumber.toString().padStart(2, '0')}.png`;
+    const { elementOnly = null, padding = 20, title = `highlight-${selector}`, showNumber = this.defaultShowNumbers, skipNumber = false } = options;
+    const numberedStepNumber = skipNumber ? null : this.numberedStepCounter++;
+    const titleSlug = this.createSlug(title);
+    const fileNumber = showNumber && numberedStepNumber !== null ? numberedStepNumber : stepNumber;
+    const screenshotName = `step-${fileNumber.toString().padStart(2, '0')}-${titleSlug}.png`;
     const screenshotPath = path.join(this.screenshotDir, screenshotName);
-    const { elementOnly = null, padding = 20 } = options;
 
     // Wait for element to be visible first
     await this.page.locator(selector).waitFor({ state: 'visible', timeout: 10000 });
@@ -221,7 +248,7 @@ class AutodocTest {
       await action();
     }
 
-    return { stepNumber, screenshot: screenshotName };
+    return { stepNumber, numberedStepNumber, screenshot: screenshotName };
   }
 
   async click(config) {
@@ -239,19 +266,24 @@ class AutodocTest {
       ({ selector, title, description = null, ...options } = config);
     }
 
+    const { showNumber = this.defaultShowNumbers, skipNumber = false } = options;
+    const numberedStepNumber = skipNumber ? null : this.numberedStepCounter++;
     const { stepNumber, screenshot } = await this.highlight(selector, async () => {
       await this.page.locator(selector).click();
-    }, options);
+    }, { ...options, title });
 
     this.steps.push({
       stepNumber,
+      numberedStepNumber,
       title: title || `Click on ${selector}`,
       description,
       screenshot,
-      note: null
+      note: null,
+      showNumber
     });
 
-    console.log(`🖱️  Step ${stepNumber}: ${title || `Click on ${selector}`}`);
+    const displayNumber = showNumber && numberedStepNumber !== null ? numberedStepNumber : stepNumber;
+    console.log(`🖱️  Step ${displayNumber}: ${title || `Click on ${selector}`}`);
   }
 
   async fill(config) {
@@ -270,19 +302,24 @@ class AutodocTest {
       ({ selector, value, title, description = null, ...options } = config);
     }
 
+    const { showNumber = this.defaultShowNumbers, skipNumber = false } = options;
+    const numberedStepNumber = skipNumber ? null : this.numberedStepCounter++;
     const { stepNumber, screenshot } = await this.highlight(selector, async () => {
       await this.page.locator(selector).fill(value);
-    }, options);
+    }, { ...options, title });
 
     this.steps.push({
       stepNumber,
+      numberedStepNumber,
       title: title || `Enter "${value}" in ${selector}`,
       description,
       screenshot,
-      note: null
+      note: null,
+      showNumber
     });
 
-    console.log(`⌨️  Step ${stepNumber}: ${title || `Enter "${value}" in ${selector}`}`);
+    const displayNumber = showNumber && numberedStepNumber !== null ? numberedStepNumber : stepNumber;
+    console.log(`⌨️  Step ${displayNumber}: ${title || `Enter "${value}" in ${selector}`}`);
   }
 
   async generateMarkdown() {
@@ -313,12 +350,20 @@ class AutodocTest {
     markdown += `To complete this process, follow these steps:\n\n`;
 
     for (const step of this.steps) {
-      markdown += `### ${step.stepNumber}. ${step.title}\n\n`;
+      // Use numbered step number for display when showNumber is true and numberedStepNumber exists
+      const heading = step.showNumber !== false && step.numberedStepNumber !== null
+        ? `### ${step.numberedStepNumber}. ${step.title}\n\n`
+        : `### ${step.title}\n\n`;
+      markdown += heading;
+
       if (step.description) {
         markdown += `${step.description}\n\n`;
       }
       if (step.screenshot) {
-        markdown += `![Step ${step.stepNumber}](${step.screenshot})\n\n`;
+        const altText = step.showNumber !== false && step.numberedStepNumber !== null
+          ? `Step ${step.numberedStepNumber}`
+          : step.title;
+        markdown += `![${altText}](${step.screenshot})\n\n`;
       }
       if (step.note) {
         markdown += `> **Note:** ${step.note}\n\n`;
@@ -377,14 +422,22 @@ class AutodocTest {
     rst += `To complete this process, follow these steps:\n\n`;
 
     for (const step of this.steps) {
-      rst += `${step.stepNumber}. ${step.title}\n`;
-      rst += '-'.repeat(`${step.stepNumber}. ${step.title}`.length) + '\n\n';
+      // Use numbered step number for display when showNumber is true and numberedStepNumber exists
+      const heading = step.showNumber !== false && step.numberedStepNumber !== null
+        ? `${step.numberedStepNumber}. ${step.title}`
+        : step.title;
+      rst += `${heading}\n`;
+      rst += '-'.repeat(heading.length) + '\n\n';
+
       if (step.description) {
         rst += `${step.description}\n\n`;
       }
       if (step.screenshot) {
         rst += `.. image:: ${step.screenshot}\n`;
-        rst += '   :alt: Step ' + step.stepNumber + '\n\n';
+        const altText = step.showNumber !== false && step.numberedStepNumber !== null
+          ? `Step ${step.numberedStepNumber}`
+          : step.title;
+        rst += `   :alt: ${altText}\n\n`;
       }
       if (step.note) {
         rst += `.. note:: ${step.note}\n\n`;

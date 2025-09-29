@@ -23,7 +23,8 @@ test.describe("Autodoc: How to Login", () => {
         { title: "Resetting Your Password", url: "#reset-password" },
         { title: "Account Settings and Profile Management", url: "#account-settings" },
         { title: "Course Enrollment", url: "#course-enrollment" }
-      ]
+      ],
+      showNumbers: false
     });
     await autodoc.initialize();
 
@@ -79,7 +80,7 @@ test.describe("Autodoc: How to Login", () => {
     });
 
     // Step 7: Demonstrate highlightElement (manual step creation)
-    const { stepNumber, screenshot } = await autodoc.highlight(
+    const { stepNumber, numberedStepNumber, screenshot } = await autodoc.highlight(
       'body',
       null,
       { elementOnly: 'main', padding: 15 }
@@ -87,10 +88,12 @@ test.describe("Autodoc: How to Login", () => {
 
     autodoc.steps.push({
       stepNumber,
+      numberedStepNumber,
       title: 'Main dashboard area highlighted',
       description: 'This is the main content area where you can see your courses and progress.',
       screenshot,
-      note: null
+      note: null,
+      showNumber: true
     });
 
     // Step 8: Add a step without screenshot

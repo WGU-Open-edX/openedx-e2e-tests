@@ -40,6 +40,7 @@ await autodoc.initialize();
 | `prerequisites` | string[] | List of requirements before starting | No |
 | `notes` | string[] | Important notes displayed at the top | No |
 | `relatedTopics` | (string \| object)[] | Links to related documentation | No |
+| `showNumbers` | boolean | Default numbering behavior for all steps | No (defaults to true) |
 
 #### Related Topics Format
 
@@ -76,6 +77,8 @@ await autodoc.step({
 - `description` (string): Detailed explanation (optional)
 - `action` (function): Code to execute (optional)
 - `screenshot` (boolean): Whether to take screenshot (default: true)
+- `showNumber` (boolean): Whether to display step number in output (default: from constructor)
+- `skipNumber` (boolean): Whether to skip numbering entirely (default: false)
 
 ### fill(config)
 
@@ -111,6 +114,8 @@ await autodoc.fill({
 - `description` (string): Detailed explanation (optional)
 - `elementOnly` (boolean|string): Screenshot mode - `true` for highlighted element, string selector for different element, or `null`/`false` for full page
 - `padding` (number): Pixels of padding around element screenshots (default: 20)
+- `showNumber` (boolean): Whether to display step number in output (default: from constructor)
+- `skipNumber` (boolean): Whether to skip numbering entirely (default: false)
 
 ### click(config)
 
@@ -133,6 +138,8 @@ await autodoc.click({
 - `description` (string): Detailed explanation (optional)
 - `elementOnly` (boolean|string): Screenshot mode - `true` for highlighted element, string selector for different element, or `null`/`false` for full page
 - `padding` (number): Pixels of padding around element screenshots (default: 20)
+- `showNumber` (boolean): Whether to display step number in output (default: from constructor)
+- `skipNumber` (boolean): Whether to skip numbering entirely (default: false)
 
 ### screenshot(config)
 
@@ -160,6 +167,8 @@ await autodoc.screenshot({
 - `description` (string): Detailed explanation (optional)
 - `elementOnly` (string): CSS selector for element to screenshot (required if not full page)
 - `padding` (number): Pixels of padding around element screenshots (default: 20)
+- `showNumber` (boolean): Whether to display step number in output (default: from constructor)
+- `skipNumber` (boolean): Whether to skip numbering entirely (default: false)
 
 ### note(note)
 
@@ -178,21 +187,113 @@ await autodoc.note("This is an important tip about the previous step");
 Highlights an element and optionally performs an action. Returns step data for manual documentation.
 
 ```javascript
-const { stepNumber, screenshot } = await autodoc.highlight(
+const { stepNumber, numberedStepNumber, screenshot } = await autodoc.highlight(
   '.profile-menu',
   null,
-  { elementOnly: true }
+  {
+    elementOnly: true,
+    showNumber: true,
+    skipNumber: false
+  }
 );
 
 // Manually add to documentation
 autodoc.steps.push({
   stepNumber,
+  numberedStepNumber,
   title: 'Profile menu highlighted',
   description: 'This menu contains your account options.',
   screenshot,
-  note: 'Click here to access settings'
+  note: 'Click here to access settings',
+  showNumber: true
 });
 ```
+
+**Parameters:**
+- `selector` (string): CSS selector for element to highlight (required)
+- `action` (function): Optional function to execute after highlighting (optional)
+- `options` (object): Configuration options (optional)
+  - `elementOnly` (boolean|string): Screenshot mode (default: null)
+  - `padding` (number): Padding around element screenshots (default: 20)
+  - `title` (string): Custom title for the step (default: "highlight-{selector}")
+  - `showNumber` (boolean): Whether to display step number (default: from constructor)
+  - `skipNumber` (boolean): Whether to skip numbering entirely (default: false)
+
+**Returns:**
+- `stepNumber` (number): Internal step counter
+- `numberedStepNumber` (number|null): Display step number (null if skipNumber: true)
+- `screenshot` (string): Screenshot filename
+
+## Step Numbering
+
+The AutodocTest framework provides flexible step numbering options to control how steps are numbered and displayed in the generated documentation.
+
+### Constructor Option: `showNumbers`
+
+Control the default numbering behavior for all steps:
+
+```javascript
+const autodoc = new AutodocTest(page, "test-name", {
+  title: "My Test",
+  showNumbers: true   // Default: numbers are shown
+  // showNumbers: false // Numbers are assigned but not displayed
+});
+```
+
+### Per-Step Options: `showNumber` and `skipNumber`
+
+Control numbering behavior for individual steps:
+
+```javascript
+// Normal numbered step (follows constructor default)
+await autodoc.step({
+  title: "Step with number"
+  // Will be "1. Step with number" if showNumbers: true
+});
+
+// Hide number for this step (still gets assigned number 2)
+await autodoc.step({
+  title: "Step without visible number",
+  showNumber: false
+  // Will be "Step without visible number" (no number shown)
+});
+
+// Skip numbering entirely (doesn't get a number)
+await autodoc.step({
+  title: "Unnumbered informational step",
+  skipNumber: true
+  // Will be "Unnumbered informational step" (no number assigned)
+});
+
+// Next numbered step continues sequence
+await autodoc.step({
+  title: "Next numbered step"
+  // Will be "3. Next numbered step" (continues from step 1)
+});
+```
+
+### Numbering Behavior
+
+- **`showNumber: false`**: Step gets a number but doesn't display it in markdown headings
+- **`skipNumber: true`**: Step doesn't get a number at all, skipping that position in the sequence
+- **When both are specified**: `skipNumber` takes precedence
+
+### Meaningful Filenames
+
+Screenshots are automatically named with descriptive slugs based on step titles:
+
+```
+step-01-navigate-to-login-page.png
+step-02-enter-your-email-address.png
+step-03-click-the-submit-button.png
+```
+
+Filenames are generated by:
+1. Converting title to lowercase
+2. Removing special characters
+3. Replacing spaces with hyphens
+4. Limiting length to 50 characters
+5. Prefixing with step number (padded to 2 digits)
 
 ## Common Options
 
@@ -245,9 +346,9 @@ autodoc-output/
 └── how-to-login/
     ├── documentation.md
     ├── documentation.rst
-    ├── step-01.png
-    ├── step-02.png
-    └── step-03.png
+    ├── step-01-navigate-to-login-page.png
+    ├── step-02-enter-your-email-address.png
+    └── step-03-click-submit-button.png
 ```
 
 ## Best Practices
@@ -292,7 +393,8 @@ const autodoc = new AutodocTest(page, "user-login", {
   relatedTopics: [
     { title: "Create Account", url: "#signup" },
     { title: "Reset Password", url: "#reset" }
-  ]
+  ],
+  showNumbers: true  // Enable step numbering by default
 });
 
 await autodoc.initialize();
