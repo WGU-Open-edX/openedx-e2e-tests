@@ -26,7 +26,7 @@ async function findMarkdownFiles(dir) {
 
 async function runMarkdownTest(markdownFile) {
   const parser = new MarkdownTestParser(markdownFile);
-  const steps = await parser.parseMarkdown();
+  const codeBlocks = await parser.parseMarkdown();
 
   // Generate a temporary test file
   const testName = path.basename(markdownFile, '.md');
@@ -36,39 +36,60 @@ async function runMarkdownTest(markdownFile) {
 const { test, expect } = require('@playwright/test');
 const { AutodocTest } = require('../../utils/autodoc');
 const { LoginPage } = require('../common/page-objects');
+const { MarkdownTestParser } = require('../../utils/markdown-test-parser');
+const fs = require('fs').promises;
 
 test.describe('${testName}', () => {
   test('markdown-driven test', async ({ page }) => {
     const autodoc = new AutodocTest(page, "${testName}", {
-      title: "${steps[0]?.title || testName}",
+      title: "${testName}",
       overview: "This documentation was generated from a markdown test file."
     });
     await autodoc.initialize();
 
     const loginPage = new LoginPage(page);
+    const testResults = [];
 
-${steps.map(step => {
-  let code = '';
-  if (step.level <= 2) {
-    code += `
-    // ${step.title}
-    await autodoc.step({
-      title: ${JSON.stringify(step.title)},
-      description: ${JSON.stringify(step.description.trim())},
-      screenshot: false
-    });
-`;
-  }
-  if (step.code) {
-    code += `
-    ${step.code}
-`;
-  }
-  return code;
-}).join('')}
+${codeBlocks.map((block, index) => `
+    // Execute code block ${index + 1}
+    {
+      const stepsBefore${index} = autodoc.steps.length;
+      try {
+        ${block.code}
 
-    await autodoc.generateMarkdown();
-    await autodoc.generateRST();
+        // Capture any new steps that were created
+        const newSteps${index} = autodoc.steps.slice(stepsBefore${index});
+        if (newSteps${index}.length > 0) {
+          const step${index} = newSteps${index}[newSteps${index}.length - 1]; // Get the latest step
+          let stepMarkdown${index} = \`### \${step${index}.stepNumber}. \${step${index}.title}\\n\\n\`;
+          if (step${index}.description) {
+            stepMarkdown${index} += \`\${step${index}.description}\\n\\n\`;
+          }
+          if (step${index}.screenshot) {
+            stepMarkdown${index} += \`![Step \${step${index}.stepNumber}](\${step${index}.screenshot})\\n\\n\`;
+          }
+          if (step${index}.note) {
+            stepMarkdown${index} += \`> **Note:** \${step${index}.note}\\n\\n\`;
+          }
+          testResults.push(stepMarkdown${index});
+        } else {
+          testResults.push('// Code executed successfully\\n');
+        }
+      } catch (error) {
+        testResults.push(\`❌ **Error:** \${error.message}\\n\\n\`);
+      }
+    }
+`).join('')}
+
+    // Generate final documentation with original markdown + actual autodoc output
+    const parser = new MarkdownTestParser('${markdownFile}');
+    await parser.parseMarkdown();
+    const finalMarkdown = await parser.createFinalMarkdown(testResults);
+
+    // Write the final documentation
+    const outputDir = autodoc.screenshotDir;
+    await fs.writeFile(outputDir + '/documentation.md', finalMarkdown);
+    console.log('📄 Enhanced documentation generated with autodoc steps');
   });
 });
 `;

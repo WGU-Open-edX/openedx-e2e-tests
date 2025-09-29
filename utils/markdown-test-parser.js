@@ -8,62 +8,72 @@ class MarkdownTestParser {
 
   async parseMarkdown() {
     const content = await fs.readFile(this.markdownPath, 'utf8');
+    this.originalContent = content; // Store original content
     const lines = content.split('\n');
 
-    let currentStep = null;
-    let inCodeBlock = false;
+    let codeBlocks = [];
+    let inJsCodeBlock = false;
     let codeAccumulator = '';
+    let blockStartLine = -1;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
 
-      // Check for headings (steps)
-      if (line.startsWith('#')) {
-        if (currentStep) {
-          this.steps.push(currentStep);
-        }
-        currentStep = {
-          title: line.replace(/^#+\s*/, ''),
-          description: '',
-          code: '',
-          level: (line.match(/^#+/) || [''])[0].length
-        };
+      // Handle JavaScript code blocks
+      if (line === '```js' || line === '```javascript') {
+        // Start JavaScript code block
+        inJsCodeBlock = true;
+        blockStartLine = i;
+        continue;
+      } else if (line.startsWith('```') && inJsCodeBlock) {
+        // End JavaScript code block
+        codeBlocks.push({
+          code: codeAccumulator.trim(),
+          startLine: blockStartLine,
+          endLine: i
+        });
+        codeAccumulator = '';
+        inJsCodeBlock = false;
         continue;
       }
 
-      // Check for code blocks
-      if (line.startsWith('```')) {
-        if (inCodeBlock) {
-          // End code block
-          if (currentStep) {
-            currentStep.code = codeAccumulator.trim();
-          }
-          codeAccumulator = '';
-          inCodeBlock = false;
-        } else {
-          // Start code block
-          inCodeBlock = true;
-        }
-        continue;
-      }
-
-      // Accumulate content
-      if (inCodeBlock) {
+      // Accumulate JavaScript code
+      if (inJsCodeBlock) {
         codeAccumulator += line + '\n';
-      } else if (currentStep && line.trim()) {
-        // Add to description (skip empty lines)
-        if (!line.startsWith('>')) { // Skip blockquotes for now
-          currentStep.description += line + ' ';
-        }
       }
     }
 
-    // Add final step
-    if (currentStep) {
-      this.steps.push(currentStep);
+    this.codeBlocks = codeBlocks;
+    return codeBlocks; // Return code blocks instead of steps
+  }
+
+  // New method to create final markdown with test results
+  async createFinalMarkdown(testResults) {
+    const lines = this.originalContent.split('\n');
+    let finalLines = [];
+    let codeBlockIndex = 0;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+
+      // Check if this line starts a JavaScript code block we need to replace
+      const codeBlock = this.codeBlocks.find(block => block.startLine === i);
+
+      if (codeBlock) {
+        // Replace the entire code block with actual autodoc output
+        if (testResults[codeBlockIndex]) {
+          finalLines.push(testResults[codeBlockIndex]);
+        }
+        // Skip to the end of the code block
+        i = codeBlock.endLine;
+        codeBlockIndex++;
+      } else {
+        // Keep original line
+        finalLines.push(line);
+      }
     }
 
-    return this.steps;
+    return finalLines.join('\n');
   }
 
   generatePlaywrightTest(testName) {
