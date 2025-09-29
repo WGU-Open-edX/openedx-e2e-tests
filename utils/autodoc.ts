@@ -1,81 +1,19 @@
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import { Page } from '@playwright/test';
-
-interface StepConfig {
-  title: string;
-  description?: string | null;
-  action?: (() => Promise<void>) | null;
-  screenshot?: boolean;
-  showNumber?: boolean;
-  skipNumber?: boolean;
-}
-
-interface ScreenshotConfig {
-  title: string;
-  description?: string | null;
-  elementOnly?: boolean | string | null;
-  padding?: number;
-  showNumber?: boolean;
-  skipNumber?: boolean;
-}
-
-interface HighlightOptions {
-  elementOnly?: boolean | string | null;
-  padding?: number;
-  title?: string;
-  showNumber?: boolean;
-  skipNumber?: boolean;
-}
-
-interface ClickConfig {
-  selector: string;
-  title: string;
-  description?: string | null;
-  elementOnly?: boolean | string | null;
-  padding?: number;
-  showNumber?: boolean;
-  skipNumber?: boolean;
-}
-
-interface FillConfig {
-  selector: string;
-  value: string;
-  title: string;
-  description?: string | null;
-  elementOnly?: boolean | string | null;
-  padding?: number;
-  showNumber?: boolean;
-  skipNumber?: boolean;
-}
-
-interface RelatedTopic {
-  title: string;
-  url: string;
-}
-
-interface AutodocOptions {
-  title?: string;
-  overview?: string;
-  prerequisites?: string[];
-  notes?: string[];
-  relatedTopics?: (string | RelatedTopic)[];
-  showNumbers?: boolean;
-}
-
-interface Step {
-  stepNumber: number;
-  numberedStepNumber: number | null;
-  title: string;
-  description: string | null;
-  screenshot: string | null;
-  note: string | null;
-  showNumber: boolean;
-}
+import type {
+  StepConfig,
+  ScreenshotConfig,
+  HighlightOptions,
+  ClickConfig,
+  FillConfig,
+  RelatedTopic,
+  AutodocOptions,
+  Step
+} from '../types/autodoc.types';
 
 export class AutodocTest {
   private page: Page;
-  private testName: string;
   private title: string;
   public steps: Step[];
   private screenshotDir: string;
@@ -89,7 +27,6 @@ export class AutodocTest {
 
   constructor(page: Page, testName: string, options: AutodocOptions = {}) {
     this.page = page;
-    this.testName = testName;
     this.title = options.title || testName;
     this.steps = [];
     this.screenshotDir = path.join(process.cwd(), 'autodoc-output', testName);
@@ -210,7 +147,7 @@ export class AutodocTest {
       const targetElement = this.page.locator(elementOnly);
       const elementBox = await targetElement.boundingBox();
       if (elementBox) {
-        const viewport = await this.page.viewportSize();
+        const viewport = this.page.viewportSize();
         if (viewport) {
           await this.page.screenshot({
             path: screenshotPath,
@@ -273,7 +210,7 @@ export class AutodocTest {
     if (elementOnly === true) {
       const elementBox = await this.page.locator(selector).boundingBox();
       if (elementBox) {
-        const viewport = await this.page.viewportSize();
+        const viewport = this.page.viewportSize();
         if (viewport) {
           await this.page.screenshot({
             path: screenshotPath,
@@ -292,7 +229,7 @@ export class AutodocTest {
       const targetElement = this.page.locator(elementOnly);
       const elementBox = await targetElement.boundingBox();
       if (elementBox) {
-        const viewport = await this.page.viewportSize();
+        const viewport = this.page.viewportSize();
         if (viewport) {
           await this.page.screenshot({
             path: screenshotPath,

@@ -1,17 +1,5 @@
 import { promises as fs } from 'fs';
-
-interface CodeBlock {
-  code: string;
-  startLine: number;
-  endLine: number;
-}
-
-interface ParsedStep {
-  title: string;
-  description: string;
-  code?: string;
-  level: number;
-}
+import type { CodeBlock, ParsedStep } from '../types/markdown-test-parser.types';
 
 export class MarkdownTestParser {
   private markdownPath: string;
