@@ -5,18 +5,18 @@
   "scripts": {
     "test": "playwright test",
     "test:headed": "playwright test --headed",
-    "test:debug": "playwright test --debug",
     "test:ui": "playwright test --ui",
-    "report": "playwright show-report",
-    "install:browsers": "playwright install",
-    "setup": "./scripts/setup-test-data.sh",
-    "test:record": "RECORD_VIDEO=1 playwright test --headed",
-    "test:record-all": "RECORD_VIDEO=1 playwright test",
+    "test:debug": "playwright test --debug",
     "test:full": "npm run setup && npm test",
-    "test:debug-only": "playwright test debug.spec.ts --headed",
-    "test:autodoc": "playwright test tests/autodoc/ --headed --project=firefox",
-    "test:markdown": "ts-node scripts/run-markdown-test.ts tests/autodoc",
-    "test:markdown:file": "ts-node scripts/run-markdown-test.ts"
+    "test:clean": "npm run clean && npm test",
+    "test:record": "RECORD_VIDEO=1 playwright test --headed",
+    "setup": "./scripts/setup-test-data.sh",
+    "clean": "rm -rf artifacts",
+    "report": "playwright show-report artifacts/playwright-report",
+    "report:a11y": "open artifacts/a11y-reports/index.html",
+    "autodoc": "playwright test tests/autodoc/ --headed --project=firefox",
+    "autodoc:markdown": "ts-node scripts/run-markdown-test.ts tests/autodoc/",
+    "install:browsers": "playwright install"
   },
   "keywords": [
     "edx",
@@ -27,8 +27,10 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
     "@playwright/test": "^1.40.0",
     "@types/node": "^24.6.0",
+    "axe-html-reporter": "^2.2.11",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   }

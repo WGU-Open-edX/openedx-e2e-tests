@@ -1,9 +1,10 @@
 import { test, expect } from "@playwright/test";
 import { AutodocTest } from "../../utils/autodoc";
 import { LoginPage } from "../common/page-objects";
+import { assertA11y } from "../common/a11y-helpers";
 
 test.describe("Autodoc: How to Login", () => {
-  test("generate login documentation", async ({ page }) => {
+  test("generate login documentation", async ({ page }, testInfo) => {
     const autodoc = new AutodocTest(page, "How-to-Login-to-Open-edX", {
       title: "How to Log In to Your Open edX Account",
       overview: `This guide explains how to log in to your Open edX account. Once you log in, you can access your enrolled courses, track your progress, and manage your account settings.`,
@@ -39,9 +40,14 @@ test.describe("Autodoc: How to Login", () => {
 
     // Step 2: Show the login form
     await expect(loginPage.emailInput).toBeVisible();
+
+    // Run accessibility check on login page
+    await assertA11y(page, { warnOnly: true, report: true, reportName: 'login-page' }, testInfo);
+
     await autodoc.step({
       title: "Locate the login form",
-      description: "The form contains two main fields: an email/username field and a password field, along with a 'Sign In' button."
+      description: "The form contains two main fields: an email/username field and a password field, along with a 'Sign In' button.",
+      screenshot: false
     });
 
     // Step 3: Fill in email
@@ -103,6 +109,9 @@ test.describe("Autodoc: How to Login", () => {
       screenshot: false
     });
     await autodoc.note("Look for navigation menus or buttons to access different features.");
+
+    // Run accessibility check on dashboard
+    await assertA11y(page, { warnOnly: true, report: true, reportName: 'dashboard' }, testInfo);
 
     // Generate documentation
     await autodoc.generateMarkdown();

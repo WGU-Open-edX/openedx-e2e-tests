@@ -29,7 +29,7 @@ export class AutodocTest {
     this.page = page;
     this.title = options.title || testName;
     this.steps = [];
-    this.screenshotDir = path.join(process.cwd(), 'autodoc-output', testName);
+    this.screenshotDir = path.join(process.cwd(), 'artifacts', 'autodoc-output', testName);
     this.stepCounter = 1;
     this.numberedStepCounter = 1;
     this.overview = options.overview || '';

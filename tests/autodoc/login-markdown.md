@@ -51,6 +51,14 @@ The login form includes several important elements:
 
 ```js
 await expect(loginPage.emailInput).toBeVisible();
+
+// Check accessibility of login page
+await assertA11y(page, {
+  warnOnly: true,
+  report: true,
+  reportName: 'login-page'
+}, testInfo);
+
 await autodoc.screenshot({
   title: "Login form overview",
   description: "Complete view of the login form showing all input fields and buttons",
@@ -162,6 +170,13 @@ await autodoc.screenshot({
   title: "Dashboard successfully loaded",
   description: "Your personalized Open edX dashboard showing available courses and account options"
 });
+
+// Check accessibility of dashboard
+await assertA11y(page, {
+  warnOnly: true,
+  report: true,
+  reportName: 'dashboard'
+}, testInfo);
 ```
 
 ### Navigation Options
@@ -209,6 +224,32 @@ Try these steps if the page isn't working correctly:
 - Disable browser extensions temporarily
 - Try using an incognito/private browsing window
 - Update your browser to the latest version
+
+## Accessibility Testing
+
+Throughout this login process, we verify that the interface meets accessibility standards to ensure all users can successfully authenticate, regardless of their abilities.
+
+### What We Test
+
+Our automated accessibility tests check for:
+
+- **Color Contrast**: Text and background colors meet WCAG AA standards
+- **Keyboard Navigation**: All interactive elements are accessible via keyboard
+- **Screen Reader Support**: Proper labels and ARIA attributes for assistive technologies
+- **Semantic HTML**: Correct use of landmarks and heading structure
+- **Form Labels**: All input fields have associated labels
+
+### Running Accessibility Checks
+
+The `assertA11y` helper is automatically imported in markdown-driven tests. Use it at key points in your user flow:
+
+### Viewing Reports
+
+After running tests, accessibility reports are generated at:
+- `artifacts/a11y-reports/index.html` - Main dashboard
+- Individual test reports with screenshots of violations
+
+View reports with: `npm run report:a11y`
 
 ## Security Best Practices
 

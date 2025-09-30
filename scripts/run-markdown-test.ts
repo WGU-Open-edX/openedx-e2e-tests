@@ -36,11 +36,12 @@ async function runMarkdownTest(markdownFile: string): Promise<void> {
 import { test, expect } from '@playwright/test';
 import { AutodocTest } from '../../utils/autodoc';
 import { LoginPage } from '../common/page-objects';
+import { assertA11y } from '../common/a11y-helpers';
 import { MarkdownTestParser } from '../../utils/markdown-test-parser';
 import { promises as fs } from 'fs';
 
 test.describe('${testName}', () => {
-  test('markdown-driven test', async ({ page }) => {
+  test('markdown-driven test', async ({ page }, testInfo) => {
     const autodoc = new AutodocTest(page, "${testName}", {
       title: "${testName}",
       overview: "This documentation was generated from a markdown test file."
