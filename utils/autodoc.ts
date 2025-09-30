@@ -76,8 +76,8 @@ export class AutodocTest {
 
     if (screenshot) {
       const titleSlug = this.createSlug(title);
-      const fileNumber = showNumber ? numberedStepNumber : stepNumber;
-      screenshotName = `step-${fileNumber?.toString().padStart(2, '0')}-${titleSlug}.png`;
+      const fileNumber = showNumber ? (numberedStepNumber ?? stepNumber) : stepNumber;
+      screenshotName = `step-${fileNumber.toString().padStart(2, '0')}-${titleSlug}.png`;
       const screenshotPath = path.join(this.screenshotDir, screenshotName);
 
       await this.page.waitForLoadState('networkidle');
@@ -134,8 +134,8 @@ export class AutodocTest {
     const stepNumber = this.stepCounter++;
     const numberedStepNumber = skipNumber ? null : this.numberedStepCounter++;
     const titleSlug = this.createSlug(title);
-    const fileNumber = showNumber ? numberedStepNumber : stepNumber;
-    const screenshotName = `step-${fileNumber?.toString().padStart(2, '0')}-${titleSlug}.png`;
+    const fileNumber = showNumber ? (numberedStepNumber ?? stepNumber) : stepNumber;
+    const screenshotName = `step-${fileNumber.toString().padStart(2, '0')}-${titleSlug}.png`;
     const screenshotPath = path.join(this.screenshotDir, screenshotName);
 
     await this.page.waitForLoadState('networkidle');
@@ -185,7 +185,7 @@ export class AutodocTest {
     const { elementOnly = null, padding = 20, title = `highlight-${selector}`, showNumber = this.defaultShowNumbers, skipNumber = false } = options;
     const numberedStepNumber = skipNumber ? null : this.numberedStepCounter++;
     const titleSlug = this.createSlug(title);
-    const fileNumber = showNumber && numberedStepNumber !== null ? numberedStepNumber : stepNumber;
+    const fileNumber = showNumber ? (numberedStepNumber ?? stepNumber) : stepNumber;
     const screenshotName = `step-${fileNumber.toString().padStart(2, '0')}-${titleSlug}.png`;
     const screenshotPath = path.join(this.screenshotDir, screenshotName);
 

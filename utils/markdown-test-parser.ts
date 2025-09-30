@@ -1,15 +1,13 @@
 import { promises as fs } from 'fs';
-import type { CodeBlock, ParsedStep } from '../types/markdown-test-parser.types';
+import type { CodeBlock } from '../types/markdown-test-parser.types';
 
 export class MarkdownTestParser {
   private markdownPath: string;
-  private steps: ParsedStep[];
   private codeBlocks: CodeBlock[];
   private originalContent: string;
 
   constructor(markdownPath: string) {
     this.markdownPath = markdownPath;
-    this.steps = [];
     this.codeBlocks = [];
     this.originalContent = '';
   }
@@ -73,52 +71,5 @@ export class MarkdownTestParser {
     }
 
     return finalLines.join('\n');
-  }
-
-  generatePlaywrightTest(testName: string): string {
-    const steps = this.steps;
-
-    const toJSString = (str: string): string => {
-      return JSON.stringify(str);
-    };
-
-    let testCode =
-`import { test, expect } from '@playwright/test';
-import { AutodocTest } from '../utils/autodoc';
-import { LoginPage } from './common/page-objects';
-
-test.describe(${toJSString(testName)}, () => {
-  test('generated from markdown', async ({ page }) => {
-    const autodoc = new AutodocTest(page, ${toJSString(testName.replace(/\s+/g, '-'))}, {
-      title: ${toJSString(steps[0]?.title || testName)}
-    });
-    await autodoc.initialize();
-
-    const loginPage = new LoginPage(page);
-`;
-
-    steps.forEach((step) => {
-      if (step.level <= 2) {
-        testCode += '\n    // ' + step.title.replace(/\*/g, '') + '\n';
-        testCode += '    await autodoc.step({\n';
-        testCode += '      title: ' + toJSString(step.title) + ',\n';
-        testCode += '      description: ' + toJSString(step.description.trim()) + ',\n';
-        testCode += '      screenshot: false\n';
-        testCode += '    });\n\n';
-      }
-
-      if (step.code) {
-        testCode += `    ${step.code.replace(/\n/g, '\n    ')}\n`;
-      }
-    });
-
-    testCode += `
-    await autodoc.generateMarkdown();
-    await autodoc.generateRST();
-  });
-});
-`;
-
-    return testCode;
   }
 }

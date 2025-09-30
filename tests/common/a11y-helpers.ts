@@ -1,6 +1,7 @@
 import { Page, TestInfo } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { createHtmlReport } from 'axe-html-reporter';
+import { AxeResults } from 'axe-core';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -82,7 +83,7 @@ export async function checkA11y(page: Page, options: A11yCheckOptions = {}) {
  */
 async function captureViolationScreenshots(
   page: Page,
-  results: any,
+  results: AxeResults,
   screenshotDir: string
 ): Promise<Map<string, string[]>> {
   const screenshotMap = new Map<string, string[]>();
@@ -108,7 +109,10 @@ async function captureViolationScreenshots(
 
     for (let j = 0; j < violation.nodes.length; j++) {
       const node = violation.nodes[j];
-      const selector = node.target[0];
+      const target = node.target[0];
+
+      // Convert target to string selector (handle shadow DOM selectors)
+      const selector = typeof target === 'string' ? target : target.join(' ');
 
       try {
         // Check if element exists
@@ -118,7 +122,7 @@ async function captureViolationScreenshots(
         if (count === 0) continue;
 
         // Highlight the element
-        await element.evaluate((el: any) => {
+        await element.evaluate((el: Element) => {
           el.classList.add('a11y-violation-highlight');
         });
 
@@ -153,7 +157,7 @@ async function captureViolationScreenshots(
         }
 
         // Remove highlight
-        await element.evaluate((el: any) => {
+        await element.evaluate((el: Element) => {
           el.classList.remove('a11y-violation-highlight');
         });
       } catch (error) {
@@ -272,7 +276,7 @@ function addScreenshotsToReport(
  */
 async function saveReport(
   page: Page,
-  results: any,
+  results: AxeResults,
   reportPath: string,
   pageUrl: string
 ): Promise<void> {
@@ -350,7 +354,7 @@ function generateReportPath(testInfo: TestInfo | undefined, options: A11yCheckOp
 /**
  * Updates the main index.html file with all reports
  */
-function updateMainIndex(baseDir: string, reportPath: string, results: any, pageUrl: string, testInfo?: TestInfo): void {
+function updateMainIndex(baseDir: string, reportPath: string, results: AxeResults, pageUrl: string, testInfo?: TestInfo): void {
   const indexPath = path.join(baseDir, 'index.html');
   const timestamp = new Date().toISOString();
 

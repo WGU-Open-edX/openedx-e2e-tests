@@ -15,7 +15,7 @@
     "report": "playwright show-report artifacts/playwright-report",
     "report:a11y": "open artifacts/a11y-reports/index.html",
     "autodoc": "playwright test tests/autodoc/ --headed --project=firefox",
-    "autodoc:markdown": "ts-node scripts/run-markdown-test.ts tests/autodoc/",
+    "autodoc:markdown": "ts-node scripts/run-markdown-test.ts ${TEST_DIR:-tests/autodoc/}",
     "install:browsers": "playwright install"
   },
   "keywords": [

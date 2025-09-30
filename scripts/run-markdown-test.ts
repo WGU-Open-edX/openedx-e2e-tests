@@ -24,7 +24,7 @@ async function findMarkdownFiles(dir: string): Promise<string[]> {
   return markdownFiles;
 }
 
-async function runMarkdownTest(markdownFile: string): Promise<void> {
+async function runMarkdownTest(markdownFile: string, options: { headed?: boolean; project?: string } = {}): Promise<void> {
   const parser = new MarkdownTestParser(markdownFile);
   const codeBlocks = await parser.parseMarkdown();
 
@@ -110,8 +110,17 @@ ${codeBlocks.map((block, index) => `
 
   console.log(`🔄 Running markdown test: ${markdownFile}`);
 
+  // Build command arguments
+  const args = ['playwright', 'test', tempTestFile];
+  if (options.headed) {
+    args.push('--headed');
+  }
+  if (options.project) {
+    args.push(`--project=${options.project}`);
+  }
+
   // Run the test
-  const playwright = spawn('npx', ['playwright', 'test', tempTestFile, '--headed', '--project=chromium'], {
+  const playwright = spawn('npx', args, {
     stdio: 'inherit',
     cwd: path.join(__dirname, '..')
   });
@@ -138,7 +147,7 @@ ${codeBlocks.map((block, index) => `
   });
 }
 
-async function runMarkdownTests(input: string): Promise<void> {
+async function runMarkdownTests(input: string, options: { headed?: boolean; project?: string } = {}): Promise<void> {
   const stat = await fs.stat(input);
 
   if (stat.isDirectory()) {
@@ -154,26 +163,41 @@ async function runMarkdownTests(input: string): Promise<void> {
 
     for (const file of markdownFiles) {
       console.log(`\n📄 Running: ${path.relative(process.cwd(), file)}`);
-      await runMarkdownTest(file);
+      await runMarkdownTest(file, options);
     }
   } else {
     // Run single markdown file
-    await runMarkdownTest(input);
+    await runMarkdownTest(input, options);
   }
 }
 
 // CLI usage
 if (require.main === module) {
-  const input = process.argv[2];
+  const args = process.argv.slice(2);
+  const input = args[0];
+
   if (!input) {
-    console.log('Usage: node run-markdown-test.js <markdown-file-or-directory>');
+    console.log('Usage: node run-markdown-test.js <markdown-file-or-directory> [options]');
+    console.log('Options:');
+    console.log('  --headed           Run tests in headed mode');
+    console.log('  --project=<name>   Run tests on specific project (e.g., chromium, firefox, webkit)');
     console.log('Examples:');
-    console.log('  node run-markdown-test.js tests/autodoc/login-markdown.md  # Single file');
-    console.log('  node run-markdown-test.js tests/autodoc/                   # All .md files in directory');
+    console.log('  node run-markdown-test.js tests/autodoc/login-markdown.md');
+    console.log('  node run-markdown-test.js tests/autodoc/ --headed --project=chromium');
     process.exit(1);
   }
 
-  runMarkdownTests(input).catch(console.error);
+  const options: { headed?: boolean; project?: string } = {};
+
+  for (const arg of args.slice(1)) {
+    if (arg === '--headed') {
+      options.headed = true;
+    } else if (arg.startsWith('--project=')) {
+      options.project = arg.split('=')[1];
+    }
+  }
+
+  runMarkdownTests(input, options).catch(console.error);
 }
 
 export { runMarkdownTest };
