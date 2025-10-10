@@ -11,6 +11,7 @@ import type {
   AutodocOptions,
   Step
 } from '../types/autodoc.types';
+import { highlightAndScreenshot } from './element-highlighter';
 
 export class AutodocTest {
   private page: Page;
@@ -191,69 +192,23 @@ export class AutodocTest {
 
     await this.page.locator(selector).waitFor({ state: 'visible', timeout: 10000 });
 
-    await this.page.addStyleTag({
-      content: `
-        .autodoc-highlight {
-          outline: 3px solid #ff6b35 !important;
-          outline-offset: 2px !important;
-          box-shadow: 0 0 10px rgba(255, 107, 53, 0.5) !important;
-        }
-      `
-    });
-
-    await this.page.locator(selector).evaluate(el => {
-      el.classList.add('autodoc-highlight');
-    });
-
-    await this.page.waitForTimeout(500);
-
-    if (elementOnly === true) {
-      const elementBox = await this.page.locator(selector).boundingBox();
-      if (elementBox) {
-        const viewport = this.page.viewportSize();
-        if (viewport) {
-          await this.page.screenshot({
-            path: screenshotPath,
-            clip: {
-              x: Math.max(0, elementBox.x - padding),
-              y: Math.max(0, elementBox.y - padding),
-              width: Math.min(viewport.width - Math.max(0, elementBox.x - padding), elementBox.width + (2 * padding)),
-              height: Math.min(viewport.height - Math.max(0, elementBox.y - padding), elementBox.height + (2 * padding))
-            }
-          });
-        }
-      } else {
-        await this.page.locator(selector).screenshot({ path: screenshotPath });
-      }
-    } else if (typeof elementOnly === 'string') {
-      const targetElement = this.page.locator(elementOnly);
-      const elementBox = await targetElement.boundingBox();
-      if (elementBox) {
-        const viewport = this.page.viewportSize();
-        if (viewport) {
-          await this.page.screenshot({
-            path: screenshotPath,
-            clip: {
-              x: Math.max(0, elementBox.x - padding),
-              y: Math.max(0, elementBox.y - padding),
-              width: Math.min(viewport.width - Math.max(0, elementBox.x - padding), elementBox.width + (2 * padding)),
-              height: Math.min(viewport.height - Math.max(0, elementBox.y - padding), elementBox.height + (2 * padding))
-            }
-          });
-        }
-      } else {
-        await targetElement.screenshot({ path: screenshotPath });
-      }
+    // Handle elementOnly string option (screenshot different element than highlighted one)
+    if (typeof elementOnly === 'string') {
+      await highlightAndScreenshot(
+        this.page,
+        selector,
+        { className: 'autodoc-highlight', color: '#0000ff' },
+        { path: screenshotPath, padding, elementOnly: true },
+        action ?? undefined
+      );
     } else {
-      await this.page.screenshot({ path: screenshotPath, fullPage: true });
-    }
-
-    await this.page.locator(selector).evaluate(el => {
-      el.classList.remove('autodoc-highlight');
-    });
-
-    if (action) {
-      await action();
+      await highlightAndScreenshot(
+        this.page,
+        selector,
+        { className: 'autodoc-highlight', color: '#ff6b35' },
+        { path: screenshotPath, padding, elementOnly: elementOnly === true },
+        action ?? undefined
+      );
     }
 
     return { stepNumber, numberedStepNumber, screenshot: screenshotName };

@@ -25,7 +25,6 @@ test.describe("Autodoc: How to Login", () => {
         { title: "Account Settings and Profile Management", url: "#account-settings" },
         { title: "Course Enrollment", url: "#course-enrollment" }
       ],
-      showNumbers: false
     });
     await autodoc.initialize();
 

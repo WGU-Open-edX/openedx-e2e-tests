@@ -136,15 +136,9 @@ npm run autodoc:markdown
 
 Documentation is saved to `artifacts/autodoc-output/`.
 
-## Test Data Management
-
-```bash
-# Create test users and courses
-npm run setup
-
 ## Project Structure
 
-```
+```bash
 openedx-e2e-tests/
 ├── tests/
 │   ├── auth/                 # Authentication tests

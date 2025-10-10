@@ -4,6 +4,7 @@ import { createHtmlReport } from 'axe-html-reporter';
 import { AxeResults } from 'axe-core';
 import * as fs from 'fs';
 import * as path from 'path';
+import { addHighlightStyles, highlightElement, removeHighlight } from '../../utils/element-highlighter';
 
 export interface A11yCheckOptions {
   /**
@@ -93,14 +94,9 @@ async function captureViolationScreenshots(
   }
 
   // Add highlight styles
-  await page.addStyleTag({
-    content: `
-      .a11y-violation-highlight {
-        outline: 3px solid #dc3545 !important;
-        outline-offset: 2px !important;
-        box-shadow: 0 0 10px rgba(220, 53, 69, 0.5) !important;
-      }
-    `
+  await addHighlightStyles(page, {
+    className: 'a11y-violation-highlight',
+    color: '#ff0000'
   });
 
   for (let i = 0; i < results.violations.length; i++) {
@@ -122,9 +118,7 @@ async function captureViolationScreenshots(
         if (count === 0) continue;
 
         // Highlight the element
-        await element.evaluate((el: Element) => {
-          el.classList.add('a11y-violation-highlight');
-        });
+        await highlightElement(page, selector, 'a11y-violation-highlight');
 
         await page.waitForTimeout(200);
 
@@ -157,9 +151,7 @@ async function captureViolationScreenshots(
         }
 
         // Remove highlight
-        await element.evaluate((el: Element) => {
-          el.classList.remove('a11y-violation-highlight');
-        });
+        await removeHighlight(page, selector, 'a11y-violation-highlight');
       } catch (error) {
         console.warn(`Could not capture screenshot for ${selector}:`, error);
       }
