@@ -8,12 +8,12 @@ import type {
   ClickConfig,
   FillConfig,
   RelatedTopic,
-  AutodocOptions,
+  TestdocOptions,
   Step
-} from '../types/autodoc.types';
+} from '../types/testdoc.types';
 import { highlightAndScreenshot } from './element-highlighter';
 
-export class AutodocTest {
+export class TestdocTest {
   private page: Page;
   private title: string;
   public steps: Step[];
@@ -26,11 +26,11 @@ export class AutodocTest {
   private relatedTopics: (string | RelatedTopic)[];
   private defaultShowNumbers: boolean;
 
-  constructor(page: Page, testName: string, options: AutodocOptions = {}) {
+  constructor(page: Page, testName: string, options: TestdocOptions = {}) {
     this.page = page;
     this.title = options.title || testName;
     this.steps = [];
-    this.screenshotDir = path.join(process.cwd(), 'artifacts', 'autodoc-output', testName);
+    this.screenshotDir = path.join(process.cwd(), 'artifacts', 'testdoc-output', testName);
     this.stepCounter = 1;
     this.numberedStepCounter = 1;
     this.overview = options.overview || '';
@@ -197,7 +197,7 @@ export class AutodocTest {
       await highlightAndScreenshot(
         this.page,
         selector,
-        { className: 'autodoc-highlight', color: '#0000ff' },
+        { className: 'testdoc-highlight', color: '#0000ff' },
         { path: screenshotPath, padding, elementOnly: true },
         action ?? undefined
       );
@@ -205,7 +205,7 @@ export class AutodocTest {
       await highlightAndScreenshot(
         this.page,
         selector,
-        { className: 'autodoc-highlight', color: '#ff6b35' },
+        { className: 'testdoc-highlight', color: '#ff6b35' },
         { path: screenshotPath, padding, elementOnly: elementOnly === true },
         action ?? undefined
       );

@@ -50,7 +50,7 @@ export interface RelatedTopic {
   url: string;
 }
 
-export interface AutodocOptions {
+export interface TestdocOptions {
   title?: string;
   overview?: string;
   prerequisites?: string[];

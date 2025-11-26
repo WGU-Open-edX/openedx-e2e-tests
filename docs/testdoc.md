@@ -1,15 +1,15 @@
-# AutodocTest Documentation
+# TestdocTest Documentation
 
-The AutodocTest framework allows you to generate professional user documentation automatically while running Playwright tests. This creates step-by-step guides with screenshots that read like official documentation.
+The TestdocTest framework allows you to generate professional user documentation automatically while running Playwright tests. This creates step-by-step guides with screenshots that read like official documentation.
 
 ## Getting Started
 
 ### Basic Usage
 
 ```javascript
-const { AutodocTest } = require('../utils/autodoc');
+const { TestdocTest } = require('../utils/testdoc');
 
-const autodoc = new AutodocTest(page, "folder-name", {
+const testdoc = new TestdocTest(page, "folder-name", {
   title: "How to Perform This Task",
   overview: "This guide explains...",
   prerequisites: ["Requirement 1", "Requirement 2"],
@@ -20,12 +20,12 @@ const autodoc = new AutodocTest(page, "folder-name", {
   ]
 });
 
-await autodoc.initialize();
+await testdoc.initialize();
 ```
 
 ## Constructor Options
 
-### AutodocTest(page, testName, options)
+### TestdocTest(page, testName, options)
 
 - **page**: Playwright page object
 - **testName**: Folder name for output (use kebab-case, e.g., "how-to-login")
@@ -59,12 +59,12 @@ Adds a step with optional screenshot to the documentation.
 
 ```javascript
 // Simple step
-await autodoc.step({
+await testdoc.step({
   title: "Navigate to login page"
 });
 
 // Detailed step with description
-await autodoc.step({
+await testdoc.step({
   title: "Navigate to login page",
   description: "Detailed explanation of what this step does",
   screenshot: false
@@ -86,7 +86,7 @@ Highlights an input field, fills it with a value, and documents the step.
 
 ```javascript
 // Recommended: Object parameters
-await autodoc.fill({
+await testdoc.fill({
   selector: 'input[name="email"]',
   value: 'user@example.com',
   title: 'Enter your email address',
@@ -96,7 +96,7 @@ await autodoc.fill({
 });
 
 // Screenshot a different element while highlighting the input
-await autodoc.fill({
+await testdoc.fill({
   selector: 'input[name="email"]',
   value: 'user@example.com',
   title: 'Enter email',
@@ -123,7 +123,7 @@ Highlights a clickable element, clicks it, and documents the step.
 
 ```javascript
 // Recommended: Object parameters
-await autodoc.click({
+await testdoc.click({
   selector: 'button[type="submit"]',
   title: 'Click the Submit button',
   description: 'This will submit your form data.',
@@ -147,13 +147,13 @@ Takes a screenshot without highlighting any elements.
 
 ```javascript
 // Recommended: Object parameters
-await autodoc.screenshot({
+await testdoc.screenshot({
   title: "Dashboard loaded",
   description: "The main dashboard is now visible"
 });
 
 // Element screenshot with custom selector
-await autodoc.screenshot({
+await testdoc.screenshot({
   title: "Login form visible",
   description: "The login form is displayed on the page",
   elementOnly: 'form#login-form',
@@ -175,8 +175,8 @@ await autodoc.screenshot({
 Adds a note to the most recently created step.
 
 ```javascript
-await autodoc.fill({ /* ... */ });
-await autodoc.note("This is an important tip about the previous step");
+await testdoc.fill({ /* ... */ });
+await testdoc.note("This is an important tip about the previous step");
 ```
 
 **Parameters:**
@@ -187,7 +187,7 @@ await autodoc.note("This is an important tip about the previous step");
 Highlights an element and optionally performs an action. Returns step data for manual documentation.
 
 ```javascript
-const { stepNumber, numberedStepNumber, screenshot } = await autodoc.highlight(
+const { stepNumber, numberedStepNumber, screenshot } = await testdoc.highlight(
   '.profile-menu',
   null,
   {
@@ -198,7 +198,7 @@ const { stepNumber, numberedStepNumber, screenshot } = await autodoc.highlight(
 );
 
 // Manually add to documentation
-autodoc.steps.push({
+testdoc.steps.push({
   stepNumber,
   numberedStepNumber,
   title: 'Profile menu highlighted',
@@ -226,14 +226,14 @@ autodoc.steps.push({
 
 ## Step Numbering
 
-The AutodocTest framework provides flexible step numbering options to control how steps are numbered and displayed in the generated documentation.
+The TestdocTest framework provides flexible step numbering options to control how steps are numbered and displayed in the generated documentation.
 
 ### Constructor Option: `showNumbers`
 
 Control the default numbering behavior for all steps:
 
 ```javascript
-const autodoc = new AutodocTest(page, "test-name", {
+const testdoc = new TestdocTest(page, "test-name", {
   title: "My Test",
   showNumbers: true   // Default: numbers are shown
   // showNumbers: false // Numbers are assigned but not displayed
@@ -246,27 +246,27 @@ Control numbering behavior for individual steps:
 
 ```javascript
 // Normal numbered step (follows constructor default)
-await autodoc.step({
+await testdoc.step({
   title: "Step with number"
   // Will be "1. Step with number" if showNumbers: true
 });
 
 // Hide number for this step (still gets assigned number 2)
-await autodoc.step({
+await testdoc.step({
   title: "Step without visible number",
   showNumber: false
   // Will be "Step without visible number" (no number shown)
 });
 
 // Skip numbering entirely (doesn't get a number)
-await autodoc.step({
+await testdoc.step({
   title: "Unnumbered informational step",
   skipNumber: true
   // Will be "Unnumbered informational step" (no number assigned)
 });
 
 // Next numbered step continues sequence
-await autodoc.step({
+await testdoc.step({
   title: "Next numbered step"
   // Will be "3. Next numbered step" (continues from step 1)
 });
@@ -326,8 +326,8 @@ Creates a professional markdown file with:
 - Related topics with links
 
 ```javascript
-await autodoc.generateMarkdown();
-// Creates: autodoc-output/{testName}/documentation.md
+await testdoc.generateMarkdown();
+// Creates: testdoc-output/{testName}/documentation.md
 ```
 
 ### generateRST()
@@ -335,14 +335,14 @@ await autodoc.generateMarkdown();
 Creates reStructuredText format for Sphinx documentation:
 
 ```javascript
-await autodoc.generateRST();
-// Creates: autodoc-output/{testName}/documentation.rst
+await testdoc.generateRST();
+// Creates: testdoc-output/{testName}/documentation.rst
 ```
 
 ## File Structure
 
 ```
-autodoc-output/
+testdoc-output/
 └── how-to-login/
     ├── documentation.md
     ├── documentation.rst
@@ -356,31 +356,31 @@ autodoc-output/
 ### 1. Use Descriptive Titles
 ```javascript
 // Good
-await autodoc.step("Enter your email address", "Type your email in the username field");
+await testdoc.step("Enter your email address", "Type your email in the username field");
 
 // Avoid
-await autodoc.step("Fill input");
+await testdoc.step("Fill input");
 ```
 
 ### 4. Use Element-Only Screenshots for UI Components
 ```javascript
 // Screenshot just the button with default 20px padding
-await autodoc.click('button', 'Click Submit', null, { elementOnly: true });
+await testdoc.click('button', 'Click Submit', null, { elementOnly: true });
 
 // Screenshot the entire form while highlighting just the input
-await autodoc.fill('input[name="email"]', 'user@example.com', 'Enter email', null, {
+await testdoc.fill('input[name="email"]', 'user@example.com', 'Enter email', null, {
   elementOnly: 'form',  // Screenshot the form
   padding: 30  // With 30px padding around the form
 });
 
 // For full page context
-await autodoc.step("Page loaded", "The dashboard page is now visible");
+await testdoc.step("Page loaded", "The dashboard page is now visible");
 ```
 
 ## Example: Complete Login Documentation
 
 ```javascript
-const autodoc = new AutodocTest(page, "user-login", {
+const testdoc = new TestdocTest(page, "user-login", {
   title: "How to Log In to Your Account",
   overview: "This guide shows you how to access your account using your email and password.",
   prerequisites: [
@@ -397,41 +397,41 @@ const autodoc = new AutodocTest(page, "user-login", {
   showNumbers: true  // Enable step numbering by default
 });
 
-await autodoc.initialize();
+await testdoc.initialize();
 
 // Recommended: Object parameters for clarity
-await autodoc.step({
+await testdoc.step({
   title: "Go to login page",
   description: "Navigate to the login form"
 });
 
-await autodoc.fill({
+await testdoc.fill({
   selector: 'input[name="email"]',
   value: 'user@example.com',
   title: 'Enter email',
   elementOnly: true
 });
 
-await autodoc.fill({
+await testdoc.fill({
   selector: 'input[name="password"]',
   value: 'password',
   title: 'Enter password',
   elementOnly: true
 });
-await autodoc.note("Make sure Caps Lock is off");
+await testdoc.note("Make sure Caps Lock is off");
 
-await autodoc.click({
+await testdoc.click({
   selector: 'button[type="submit"]',
   title: 'Click Sign In'
 });
 
-await autodoc.screenshot({
+await testdoc.screenshot({
   title: "Access dashboard",
   description: "You're now logged in and can see your dashboard"
 });
 
-await autodoc.generateMarkdown();
-await autodoc.generateRST();
+await testdoc.generateMarkdown();
+await testdoc.generateRST();
 ```
 
 This creates professional documentation that reads like official user guides with step-by-step instructions and screenshots.
@@ -442,7 +442,7 @@ You can now write tests directly as markdown files with embedded code blocks. Th
 
 ### Creating Markdown Tests
 
-Create a `.md` file in the `tests/autodoc/` directory:
+Create a `.md` file in the `tests/testdoc/` directory:
 
 ```markdown
 # How to Login to Open edX
@@ -455,7 +455,7 @@ Go to the login page from the main website. You can access this by clicking the 
 
 ```js
 await loginPage.navigate();
-await autodoc.screenshot({
+await testdoc.screenshot({
   title: "Login page loaded",
   description: "The Open edX login page is displayed"
 });
@@ -467,7 +467,7 @@ Click on the email field and enter your email address or username.
 
 ```js
 await loginPage.emailInput.fill("test@example.com");
-await autodoc.screenshot({
+await testdoc.screenshot({
   title: "Email entered",
   description: "Email address filled in the email field",
   elementOnly: 'input[name="emailOrUsername"]',
@@ -481,18 +481,18 @@ await autodoc.screenshot({
 Use the npm scripts to run markdown-driven tests:
 
 ```bash
-# Run all markdown files in tests/autodoc/
+# Run all markdown files in tests/testdoc/
 npm run test:markdown
 
 # Run a specific markdown file
-npm run test:markdown:file tests/autodoc/login-markdown.md
+npm run test:markdown:file tests/testdoc/login-markdown.md
 ```
 
 ### How It Works
 
 1. The markdown parser extracts headings as step titles and descriptions
 2. Code blocks are executed as Playwright test code
-3. Steps are automatically added to the documentation with `autodoc.step()`
+3. Steps are automatically added to the documentation with `testdoc.step()`
 4. The test generates both the interactive execution and the final documentation
 
 ### Benefits of Markdown-Driven Tests

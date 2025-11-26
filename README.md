@@ -122,19 +122,19 @@ test('my test', async ({ page }, testInfo) => {
 - `disabledRules: ['rule-id']` - Disable specific rules
 - `exclude: ['.selector']` - Exclude elements from scan
 
-## Auto-Documentation
+## Test Documentation
 
 Generate documentation from test execution with screenshots:
 
 ```bash
-# Run autodoc tests
-npm run autodoc
+# Run testdoc tests
+npm run testdoc
 
-# Convert autodoc to markdown
-npm run autodoc:markdown
+# Convert testdoc to markdown
+npm run testdoc:markdown
 ```
 
-Documentation is saved to `artifacts/autodoc-output/`.
+Documentation is saved to `artifacts/testdoc-output/`.
 
 ## Project Structure
 
@@ -142,21 +142,21 @@ Documentation is saved to `artifacts/autodoc-output/`.
 openedx-e2e-tests/
 ├── tests/
 │   ├── auth/                 # Authentication tests
-│   ├── autodoc/              # Auto-documentation tests
+│   ├── testdoc/              # Test documentation tests
 │   ├── common/
 │   │   ├── page-objects.ts   # Page object models
 │   │   └── a11y-helpers.ts   # Accessibility testing utilities
 │   ├── example.spec.ts
 │   └── debug.spec.ts
 ├── utils/
-│   └── autodoc.ts            # Auto-documentation framework
+│   └── testdoc.ts            # Test documentation framework
 ├── scripts/
 │   └── setup-test-data.sh    # Test data setup script
 ├── artifacts/                # Generated artifacts (gitignored)
 │   ├── test-results/         # Test execution artifacts
 │   ├── playwright-report/    # HTML test reports
 │   ├── a11y-reports/         # Accessibility reports
-│   └── autodoc-output/       # Auto-generated documentation
+│   └── testdoc-output/       # Auto-generated documentation
 ├── playwright.config.ts      # Playwright configuration
 └── package.json
 ```

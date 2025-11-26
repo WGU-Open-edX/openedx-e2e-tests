@@ -30,11 +30,11 @@ async function runMarkdownTest(markdownFile: string, options: { headed?: boolean
 
   // Generate a temporary test file
   const testName = path.basename(markdownFile, '.md');
-  const tempTestFile = path.join(__dirname, '..', 'tests', 'autodoc', `${testName}-temp.spec.ts`);
+  const tempTestFile = path.join(__dirname, '..', 'tests', 'testdoc', `${testName}-temp.spec.ts`);
 
   const testContent = `
 import { test, expect } from '@playwright/test';
-import { AutodocTest } from '../../utils/autodoc';
+import { TestdocTest } from '../../utils/testdoc';
 import { LoginPage } from '../common/page-objects';
 import { assertA11y } from '../common/a11y-helpers';
 import { MarkdownTestParser } from '../../utils/markdown-test-parser';
@@ -42,11 +42,11 @@ import { promises as fs } from 'fs';
 
 test.describe('${testName}', () => {
   test('markdown-driven test', async ({ page }, testInfo) => {
-    const autodoc = new AutodocTest(page, "${testName}", {
+    const testdoc = new TestdocTest(page, "${testName}", {
       title: "${testName}",
       overview: "This documentation was generated from a markdown test file."
     });
-    await autodoc.initialize();
+    await testdoc.initialize();
 
     const loginPage = new LoginPage(page);
     const testResults: string[] = [];
@@ -54,12 +54,12 @@ test.describe('${testName}', () => {
 ${codeBlocks.map((block, index) => `
     // Execute code block ${index + 1}
     {
-      const stepsBefore${index} = autodoc.steps.length;
+      const stepsBefore${index} = testdoc.steps.length;
       try {
         ${block.code}
 
         // Capture any new steps that were created
-        const newSteps${index} = autodoc.steps.slice(stepsBefore${index});
+        const newSteps${index} = testdoc.steps.slice(stepsBefore${index});
         if (newSteps${index}.length > 0) {
           const step${index} = newSteps${index}[newSteps${index}.length - 1]; // Get the latest step
 
@@ -92,15 +92,15 @@ ${codeBlocks.map((block, index) => `
     }
 `).join('')}
 
-    // Generate final documentation with original markdown + actual autodoc output
+    // Generate final documentation with original markdown + actual testdoc output
     const parser = new MarkdownTestParser('${markdownFile}');
     await parser.parseMarkdown();
     const finalMarkdown = await parser.createFinalMarkdown(testResults);
 
     // Write the final documentation
-    const outputDir = autodoc['screenshotDir'];
+    const outputDir = testdoc['screenshotDir'];
     await fs.writeFile(outputDir + '/documentation.md', finalMarkdown);
-    console.log('📄 Enhanced documentation generated with autodoc steps');
+    console.log('📄 Enhanced documentation generated with testdoc steps');
   });
 });
 `;
@@ -182,8 +182,8 @@ if (require.main === module) {
     console.log('  --headed           Run tests in headed mode');
     console.log('  --project=<name>   Run tests on specific project (e.g., chromium, firefox, webkit)');
     console.log('Examples:');
-    console.log('  node run-markdown-test.js tests/autodoc/login-markdown.md');
-    console.log('  node run-markdown-test.js tests/autodoc/ --headed --project=chromium');
+    console.log('  node run-markdown-test.js tests/testdoc/login-markdown.md');
+    console.log('  node run-markdown-test.js tests/testdoc/ --headed --project=chromium');
     process.exit(1);
   }
 

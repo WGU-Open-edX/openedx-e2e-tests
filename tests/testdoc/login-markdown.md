@@ -25,9 +25,9 @@ The first step is accessing the Open edX login page. You can reach this page in 
 - Follow a login link from an email invitation
 - Access it through a course enrollment link
 
-```js
+```testdoc
 await loginPage.navigate();
-await autodoc.screenshot({
+await testdoc.screenshot({
   title: "Login page loaded",
   description: "The Open edX login page is displayed with all necessary form elements"
 });
@@ -49,7 +49,7 @@ The login form includes several important elements:
 - **Forgot Password link**: For password recovery if needed
 - **Remember me option**: To stay logged in longer (if available)
 
-```js
+```testdoc
 await expect(loginPage.emailInput).toBeVisible();
 
 // Check accessibility of login page
@@ -59,7 +59,7 @@ await assertA11y(page, {
   reportName: 'login-page'
 }, testInfo);
 
-await autodoc.screenshot({
+await testdoc.screenshot({
   title: "Login form overview",
   description: "Complete view of the login form showing all input fields and buttons",
   elementOnly: 'form[id="sign-in-form"]',
@@ -75,8 +75,8 @@ Now you'll provide your account information to authenticate with the system.
 
 Click on the email field and carefully enter your login identifier. This can be either the email address you used when registering or your chosen username.
 
-```js
-await autodoc.fill({
+```testdoc
+await testdoc.fill({
   selector: 'input[name="emailOrUsername"]',
   value: 'testuser',
   title: 'Enter your email or username',
@@ -92,8 +92,8 @@ await autodoc.fill({
 
 Next, click on the password field and enter your account password. Make sure to type it exactly as you created it, paying attention to capitalization and special characters.
 
-```js
-await autodoc.fill({
+```testdoc
+await testdoc.fill({
   selector: 'input[name="password"]',
   value: 'password123',
   title: 'Enter your password',
@@ -115,8 +115,8 @@ With your credentials entered, you're ready to authenticate and access your acco
 
 Locate the "Sign In" button (usually prominently displayed) and click it to submit your login information to the server.
 
-```js
-await autodoc.click({
+```testdoc
+await testdoc.click({
   selector: 'button[name="sign-in"]',
   title: 'Click the Sign In button',
   description: 'Submit your credentials by clicking the Sign In button',
@@ -137,12 +137,12 @@ During authentication, the system:
 4. Creates a secure session for your browser
 5. Redirects you to your dashboard or intended destination
 
-```js
+```testdoc
 await page.waitForLoadState('networkidle');
 
 // Verify login succeeded - check for dashboard elements or absence of login form
 await expect(page.locator('input[name="emailOrUsername"]')).not.toBeVisible();
-await autodoc.step({
+await testdoc.step({
   title: 'Authentication completed',
   description: 'Your credentials have been verified and you are being redirected',
   screenshot: false,
@@ -165,8 +165,8 @@ Your dashboard is the central hub for your learning experience. From here, you c
 - **View announcements**: Stay updated with important information
 - **Manage notifications**: Control how you receive updates
 
-```js
-await autodoc.screenshot({
+```testdoc
+await testdoc.screenshot({
   title: "Dashboard successfully loaded",
   description: "Your personalized Open edX dashboard showing available courses and account options"
 });
@@ -294,7 +294,7 @@ Here we show **bold text** and *italicized text* along with `inline code` exampl
 
 Here's an inline `code snippet` and a fenced code block:
 
-```json
+```testdocon
 {
   "username": "student@example.com",
   "loginStatus": "authenticated",
