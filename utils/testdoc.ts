@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import * as path from 'path';
-import { Page } from '@playwright/test';
+import * as os from 'os';
+import { Page, Download } from '@playwright/test';
 import type {
   StepConfig,
   ScreenshotConfig,
@@ -425,4 +426,92 @@ export class TestdocTest {
     console.log(`📄 RST Documentation generated: ${rstPath}`);
     return rstPath;
   }
+
+  async downloadFromHref(selector: string, downloadPath?: string): Promise<string> {
+    // Get the href attribute from the element
+    const href = await this.page.locator(selector).getAttribute('href');
+    
+    if (!href) {
+      throw new Error(`No href attribute found on element: ${selector}`);
+    }
+
+    // Construct the full URL if href is relative
+    let fullUrl = href;
+    if (href.startsWith('/')) {
+      const baseUrl = this.page.url().split(/\/(?=[^\/]*$)/)[0]; // Get base URL
+      fullUrl = baseUrl + href;
+    } else if (!href.startsWith('http')) {
+      const baseUrl = this.page.url().split(/\/(?=[^\/]*$)/)[0];
+      fullUrl = baseUrl + '/' + href;
+    }
+
+    console.log(`📥 Downloading file from: ${fullUrl}`);
+
+    // Start waiting for download and click
+    let download: Download;
+    [download] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.locator(selector).click()
+    ]);
+
+    // Use provided path or default to artifacts/downloads
+    const finalPath = downloadPath || path.join(process.cwd(), 'artifacts', 'downloads', download.suggestedFilename());
+    await fs.mkdir(path.dirname(finalPath), { recursive: true });
+    await download.saveAs(finalPath);
+
+    console.log(`✅ File downloaded to: ${finalPath}`);
+    return finalPath;
+  }
+
+async uploadFile(selector: string, filePath: string): Promise<void> {
+ const absolutePath = path.isAbsolute(filePath)
+  ? filePath
+  : path.resolve(process.cwd(), filePath);
+
+  try {
+    console.log('Verifying file exists at path:', absolutePath);
+    await fs.access(absolutePath);
+  } catch {
+    throw new Error(`❌ File not found: ${absolutePath}`);
+  }
+
+  const { stepNumber, numberedStepNumber, screenshot } = await this.highlight(
+    selector,
+    async () => {
+      await this.page.setInputFiles(selector, absolutePath);
+      
+    },
+    { elementOnly: selector, title: `Upload file to ${selector}` }
+  );
+
+  console.log(`📤 Uploaded: ${absolutePath}`);
+}
+
+async uploadFileParagon(selector: string, filePath: string): Promise<void> {
+  const absolutePath = path.isAbsolute(filePath)
+    ? filePath
+    : path.resolve(process.cwd(), filePath);
+  try {
+    console.log('Verifying file exists at path:', absolutePath);
+    await fs.access(absolutePath);
+  } catch {
+    throw new Error(`❌ File not found: ${absolutePath}`);
+  }
+  const { stepNumber, numberedStepNumber, screenshot } = await this.highlight(
+    selector,
+    async () => {
+      // Start waiting for the file chooser before clicking
+      const fileChooserPromise = this.page.waitForEvent('filechooser');
+      // Click the dropzone to trigger the file chooser
+      await this.page.locator(selector).click();
+      // Wait for the file chooser and set the files
+      const fileChooser = await fileChooserPromise;
+      await fileChooser.setFiles(absolutePath);
+    },
+    { elementOnly: selector, title:`Upload file to ${selector} `}
+  );
+  console.log(`📤 Uploaded: ${absolutePath}`);
+}
+
+
 }
