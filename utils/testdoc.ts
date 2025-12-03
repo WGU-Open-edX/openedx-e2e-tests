@@ -1,6 +1,5 @@
 import { promises as fs } from 'fs';
 import * as path from 'path';
-import * as os from 'os';
 import { Page, Download } from '@playwright/test';
 import type {
   StepConfig,
@@ -10,7 +9,7 @@ import type {
   FillConfig,
   RelatedTopic,
   TestdocOptions,
-  Step
+  Step,
 } from '../types/testdoc.types';
 import { highlightAndScreenshot } from './element-highlighter';
 
@@ -55,7 +54,12 @@ export class TestdocTest {
       .substring(0, 50);
   }
 
-  async step(config: StepConfig | string, description?: string | null, action?: (() => Promise<void>) | null, options?: Partial<StepConfig>): Promise<void> {
+  async step(
+    config: StepConfig | string,
+    description?: string | null,
+    action?: (() => Promise<void>) | null,
+    options?: Partial<StepConfig>,
+  ): Promise<void> {
     let title: string;
     let desc: string | null;
     let act: (() => Promise<void>) | null;
@@ -67,7 +71,9 @@ export class TestdocTest {
       act = action ?? null;
       opts = options || {};
     } else {
-      ({ title, description: desc = null, action: act = null, ...opts } = config);
+      ({
+        title, description: desc = null, action: act = null, ...opts
+      } = config);
     }
 
     const { screenshot = true, showNumber = this.defaultShowNumbers, skipNumber = false } = opts;
@@ -102,11 +108,13 @@ export class TestdocTest {
       description: desc,
       screenshot: screenshotName,
       note: null,
-      showNumber
+      showNumber,
     });
 
     const displayNumber = showNumber && numberedStepNumber !== null ? numberedStepNumber : stepNumber;
     const icon = screenshot ? '📸' : '📝';
+
+    // eslint-disable-next-line no-console
     console.log(`${icon} Step ${displayNumber}: ${title}`);
   }
 
@@ -119,7 +127,10 @@ export class TestdocTest {
     }
   }
 
-  async screenshot(config: ScreenshotConfig | string, description?: string | null, options?: Partial<ScreenshotConfig>): Promise<void> {
+  async screenshot(
+    config: ScreenshotConfig | string, description?: string | null,
+    options?: Partial<ScreenshotConfig>,
+  ): Promise<void> {
     let title: string;
     let desc: string | null;
     let opts: Partial<ScreenshotConfig>;
@@ -132,7 +143,9 @@ export class TestdocTest {
       ({ title, description: desc = null, ...opts } = config);
     }
 
-    const { elementOnly = null, padding = 20, showNumber = this.defaultShowNumbers, skipNumber = false } = opts;
+    const {
+      elementOnly = null, padding = 20, showNumber = this.defaultShowNumbers, skipNumber = false,
+    } = opts;
     const stepNumber = this.stepCounter++;
     const numberedStepNumber = skipNumber ? null : this.numberedStepCounter++;
     const titleSlug = this.createSlug(title);
@@ -158,7 +171,7 @@ export class TestdocTest {
               y: Math.max(0, elementBox.y - padding),
               width: Math.min(viewport.width - Math.max(0, elementBox.x - padding), elementBox.width + (2 * padding)),
               height: Math.min(viewport.height - Math.max(0, elementBox.y - padding), elementBox.height + (2 * padding))
-            }
+            },
           });
         }
       } else {
@@ -179,12 +192,19 @@ export class TestdocTest {
     });
 
     const displayNumber = showNumber && numberedStepNumber !== null ? numberedStepNumber : stepNumber;
+    // eslint-disable-next-line no-console
     console.log(`📸 Step ${displayNumber}: ${title}`);
   }
 
-  async highlight(selector: string, action: (() => Promise<void>) | null = null, options: HighlightOptions = {}): Promise<{ stepNumber: number; numberedStepNumber: number | null; screenshot: string }> {
+  async highlight(
+    selector: string,
+    action: (() => Promise<void>) | null = null,
+    options: HighlightOptions = {},
+  ): Promise<{ stepNumber: number; numberedStepNumber: number | null; screenshot: string }> {
     const stepNumber = this.stepCounter++;
-    const { elementOnly = null, padding = 20, title = `highlight-${selector}`, showNumber = this.defaultShowNumbers, skipNumber = false } = options;
+    const {
+      elementOnly = null, padding = 20, title = `highlight-${selector}`, showNumber = this.defaultShowNumbers, skipNumber = false,
+    } = options;
     const numberedStepNumber = skipNumber ? null : this.numberedStepCounter++;
     const titleSlug = this.createSlug(title);
     const fileNumber = showNumber ? (numberedStepNumber ?? stepNumber) : stepNumber;
@@ -200,7 +220,7 @@ export class TestdocTest {
         selector,
         { className: 'testdoc-highlight', color: '#0000ff' },
         { path: screenshotPath, padding, elementOnly: true },
-        action ?? undefined
+        action ?? undefined,
       );
     } else {
       await highlightAndScreenshot(
@@ -208,14 +228,19 @@ export class TestdocTest {
         selector,
         { className: 'testdoc-highlight', color: '#ff6b35' },
         { path: screenshotPath, padding, elementOnly: elementOnly === true },
-        action ?? undefined
+        action ?? undefined,
       );
     }
 
     return { stepNumber, numberedStepNumber, screenshot: screenshotName };
   }
 
-  async click(config: ClickConfig | string, title?: string, description?: string | null, options?: Partial<ClickConfig>): Promise<void> {
+  async click(
+    config: ClickConfig | string,
+    title?: string,
+    description?: string | null,
+    options?: Partial<ClickConfig>,
+  ): Promise<void> {
     let selector: string;
     let titleStr: string;
     let desc: string | null;
@@ -227,7 +252,9 @@ export class TestdocTest {
       desc = description ?? null;
       opts = options || {};
     } else {
-      ({ selector, title: titleStr, description: desc = null, ...opts } = config);
+      ({
+        selector, title: titleStr, description: desc = null, ...opts
+      } = config);
     }
 
     const { showNumber = this.defaultShowNumbers, skipNumber = false } = opts;
@@ -247,10 +274,17 @@ export class TestdocTest {
     });
 
     const displayNumber = showNumber && numberedStepNumber !== null ? numberedStepNumber : stepNumber;
+    // eslint-disable-next-line no-console
     console.log(`🖱️  Step ${displayNumber}: ${titleStr || `Click on ${selector}`}`);
   }
 
-  async fill(config: FillConfig | string, value?: string, title?: string, description?: string | null, options?: Partial<FillConfig>): Promise<void> {
+  async fill(
+    config: FillConfig | string,
+    value?: string,
+    title?: string,
+    description?: string | null,
+    options?: Partial<FillConfig>,
+  ): Promise<void> {
     let selector: string;
     let val: string;
     let titleStr: string;
@@ -264,7 +298,9 @@ export class TestdocTest {
       desc = description ?? null;
       opts = options || {};
     } else {
-      ({ selector, value: val, title: titleStr, description: desc = null, ...opts } = config);
+      ({
+        selector, value: val, title: titleStr, description: desc = null, ...opts
+      } = config);
     }
 
     const { showNumber = this.defaultShowNumbers, skipNumber = false } = opts;
@@ -280,10 +316,11 @@ export class TestdocTest {
       description: desc,
       screenshot,
       note: null,
-      showNumber
+      showNumber,
     });
 
     const displayNumber = showNumber && numberedStepNumber !== null ? numberedStepNumber : stepNumber;
+    // eslint-disable-next-line no-console
     console.log(`⌨️  Step ${displayNumber}: ${titleStr || `Enter "${val}" in ${selector}`}`);
   }
 
@@ -297,12 +334,12 @@ export class TestdocTest {
     }
 
     if (this.prerequisites.length > 0) {
-      markdown += `## Prerequisites\n\n`;
-      markdown += `Before you begin, ensure that:\n\n`;
+      markdown += '## Prerequisites\n\n';
+      markdown += 'Before you begin, ensure that:\n\n';
       for (const prereq of this.prerequisites) {
         markdown += `- ${prereq}\n`;
       }
-      markdown += `\n`;
+      markdown += '\n';
     }
 
     if (this.notes.length > 0) {
@@ -311,8 +348,8 @@ export class TestdocTest {
       }
     }
 
-    markdown += `## Steps\n\n`;
-    markdown += `To complete this process, follow these steps:\n\n`;
+    markdown += '## Steps\n\n';
+    markdown += 'To complete this process, follow these steps:\n\n';
 
     for (const step of this.steps) {
       const heading = step.showNumber !== false && step.numberedStepNumber !== null
@@ -335,7 +372,7 @@ export class TestdocTest {
     }
 
     if (this.relatedTopics.length > 0) {
-      markdown += `## Related Topics\n\n`;
+      markdown += '## Related Topics\n\n';
       for (const topic of this.relatedTopics) {
         if (typeof topic === 'string') {
           markdown += `- ${topic}\n`;
@@ -343,13 +380,14 @@ export class TestdocTest {
           markdown += `- [${topic.title}](${topic.url})\n`;
         }
       }
-      markdown += `\n`;
+      markdown += '\n';
     }
 
-    markdown += `---\n\n`;
-    markdown += `*This documentation was automatically generated during testing.*\n`;
+    markdown += '---\n\n';
+    markdown += '*This documentation was automatically generated during testing.*\n';
 
     await fs.writeFile(markdownPath, markdown, 'utf8');
+    // eslint-disable-next-line no-console
     console.log(`📄 Documentation generated: ${markdownPath}`);
     return markdownPath;
   }
@@ -430,7 +468,6 @@ export class TestdocTest {
   async downloadFromHref(selector: string, downloadPath?: string): Promise<string> {
     // Get the href attribute from the element
     const href = await this.page.locator(selector).getAttribute('href');
-    
     if (!href) {
       throw new Error(`No href attribute found on element: ${selector}`);
     }
@@ -444,74 +481,48 @@ export class TestdocTest {
       const baseUrl = this.page.url().split(/\/(?=[^\/]*$)/)[0];
       fullUrl = baseUrl + '/' + href;
     }
-
+    // eslint-disable-next-line no-console
     console.log(`📥 Downloading file from: ${fullUrl}`);
 
     // Start waiting for download and click
     let download: Download;
     [download] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.locator(selector).click()
+      this.page.locator(selector).click(),
     ]);
 
     // Use provided path or default to artifacts/downloads
     const finalPath = downloadPath || path.join(process.cwd(), 'artifacts', 'downloads', download.suggestedFilename());
     await fs.mkdir(path.dirname(finalPath), { recursive: true });
     await download.saveAs(finalPath);
-
+    // eslint-disable-next-line no-console
     console.log(`✅ File downloaded to: ${finalPath}`);
     return finalPath;
   }
 
-async uploadFile(selector: string, filePath: string): Promise<void> {
- const absolutePath = path.isAbsolute(filePath)
-  ? filePath
-  : path.resolve(process.cwd(), filePath);
-
-  try {
-    console.log('Verifying file exists at path:', absolutePath);
-    await fs.access(absolutePath);
-  } catch {
-    throw new Error(`❌ File not found: ${absolutePath}`);
+  async uploadFileParagon(selector: string, filePath: string): Promise<void> {
+    const absolutePath = path.isAbsolute(filePath) ? filePath : path.resolve(process.cwd(), filePath);
+    try {
+      // eslint-disable-next-line no-console
+      console.log('Verifying file exists at path:', absolutePath);
+      await fs.access(absolutePath);
+    } catch {
+      throw new Error(`❌ File not found: ${absolutePath}`);
+    }
+    await this.highlight(
+      selector,
+      async () => {
+        // Start waiting for the file chooser before clicking
+        const fileChooserPromise = this.page.waitForEvent('filechooser');
+        // Click the dropzone to trigger the file chooser
+        await this.page.locator(selector).click();
+        // Wait for the file chooser and set the files
+        const fileChooser = await fileChooserPromise;
+        await fileChooser.setFiles(absolutePath);
+      },
+      { elementOnly: selector, title: `Upload file to ${selector}` },
+    );
+    // eslint-disable-next-line no-console
+    console.log(`📤 Uploaded: ${absolutePath}`);
   }
-
-  const { stepNumber, numberedStepNumber, screenshot } = await this.highlight(
-    selector,
-    async () => {
-      await this.page.setInputFiles(selector, absolutePath);
-      
-    },
-    { elementOnly: selector, title: `Upload file to ${selector}` }
-  );
-
-  console.log(`📤 Uploaded: ${absolutePath}`);
-}
-
-async uploadFileParagon(selector: string, filePath: string): Promise<void> {
-  const absolutePath = path.isAbsolute(filePath)
-    ? filePath
-    : path.resolve(process.cwd(), filePath);
-  try {
-    console.log('Verifying file exists at path:', absolutePath);
-    await fs.access(absolutePath);
-  } catch {
-    throw new Error(`❌ File not found: ${absolutePath}`);
-  }
-  const { stepNumber, numberedStepNumber, screenshot } = await this.highlight(
-    selector,
-    async () => {
-      // Start waiting for the file chooser before clicking
-      const fileChooserPromise = this.page.waitForEvent('filechooser');
-      // Click the dropzone to trigger the file chooser
-      await this.page.locator(selector).click();
-      // Wait for the file chooser and set the files
-      const fileChooser = await fileChooserPromise;
-      await fileChooser.setFiles(absolutePath);
-    },
-    { elementOnly: selector, title:`Upload file to ${selector} `}
-  );
-  console.log(`📤 Uploaded: ${absolutePath}`);
-}
-
-
 }

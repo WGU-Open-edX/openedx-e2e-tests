@@ -76,6 +76,7 @@ export async function checkA11y(page: Page, options: A11yCheckOptions = {}) {
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/return-await
   return await axeBuilder.analyze();
 }
 
@@ -85,7 +86,7 @@ export async function checkA11y(page: Page, options: A11yCheckOptions = {}) {
 async function captureViolationScreenshots(
   page: Page,
   results: AxeResults,
-  screenshotDir: string
+  screenshotDir: string,
 ): Promise<Map<string, string[]>> {
   const screenshotMap = new Map<string, string[]>();
 
@@ -96,7 +97,7 @@ async function captureViolationScreenshots(
   // Add highlight styles
   await addHighlightStyles(page, {
     className: 'a11y-violation-highlight',
-    color: '#ff0000'
+    color: '#ff0000',
   });
 
   for (let i = 0; i < results.violations.length; i++) {
@@ -112,10 +113,12 @@ async function captureViolationScreenshots(
 
       try {
         // Check if element exists
+        /* eslint-disable no-await-in-loop */
         const element = page.locator(selector);
         const count = await element.count();
 
-        if (count === 0) continue;
+        // eslint-disable-next-line no-continue
+        if (count === 0) { continue; }
 
         // Highlight the element
         await highlightElement(page, selector, 'a11y-violation-highlight');
@@ -138,13 +141,13 @@ async function captureViolationScreenshots(
                 y: Math.max(0, elementBox.y - padding),
                 width: Math.min(
                   viewport.width - Math.max(0, elementBox.x - padding),
-                  elementBox.width + 2 * padding
+                  elementBox.width + 2 * padding,
                 ),
                 height: Math.min(
                   viewport.height - Math.max(0, elementBox.y - padding),
-                  elementBox.height + 2 * padding
-                )
-              }
+                  elementBox.height + 2 * padding,
+                ),
+              },
             });
             screenshots.push(screenshotName);
           }
@@ -153,12 +156,13 @@ async function captureViolationScreenshots(
         // Remove highlight
         await removeHighlight(page, selector, 'a11y-violation-highlight');
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.warn(`Could not capture screenshot for ${selector}:`, error);
       }
     }
 
     if (screenshots.length > 0) {
-      screenshotMap.set(violation.id + '-' + i, screenshots);
+      screenshotMap.set(`${violation.id} '-' ${i}`, screenshots);
     }
   }
 
@@ -170,10 +174,10 @@ async function captureViolationScreenshots(
  */
 function addScreenshotsToReport(
   reportHtml: string,
-  screenshotMap: Map<string, string[]>
+  screenshotMap: Map<string, string[]>,
 ): string {
-  if (screenshotMap.size === 0) return reportHtml;
-
+  if (screenshotMap.size === 0) { return reportHtml; }
+  // TODO: check if this commented code is needed
   // Add custom styles for screenshots
   const screenshotStyles = `
     <style>
@@ -201,35 +205,35 @@ function addScreenshotsToReport(
   `;
 
   // Inject styles before closing head tag
-  reportHtml = reportHtml.replace('</head>', `${screenshotStyles}</head>`);
+  let reportHtmlCopy = reportHtml.replace('</head>', `${screenshotStyles}</head>`);
 
   // Add screenshot column header to each violation table
-  reportHtml = reportHtml.replace(
+  reportHtmlCopy = reportHtml.replace(
     /<th style="width: 49%">Issue Description<\/th>\s*<th style="width: 49%">\s*To solve this violation, you need to\.\.\.\s*<\/th>/g,
     `<th style="width: 30%">Issue Description</th>
                                     <th style="width: 30%">
                                         To solve this violation, you need to...
                                     </th>
-                                    <th style="width: 20%">Screenshot</th>`
+                                    <th style="width: 20%">Screenshot</th>`,
   );
 
   // Add screenshots to each violation node table row
   screenshotMap.forEach((screenshots, key) => {
-    const violationIndex = parseInt(key.split('-').pop() || '0'); // Extract violation index from end of key
+    const violationIndex = parseInt(key.split('-').pop() || '0', 10); // Extract violation index from end of key
     const violationId = violationIndex + 1; // IDs start at 1
 
     // Find the violation card
     const anchorPattern = `<a id="${violationId}">${violationId}.</a>`;
     const anchorIdx = reportHtml.indexOf(anchorPattern);
 
-    if (anchorIdx === -1) return;
+    if (anchorIdx === -1) { return; }
 
     // Find the tbody within this violation card
     const tbodyStart = reportHtml.indexOf('<tbody>', anchorIdx);
-    if (tbodyStart === -1) return;
+    if (tbodyStart === -1) { return; }
 
     const tbodyEnd = reportHtml.indexOf('</tbody>', tbodyStart);
-    if (tbodyEnd === -1) return;
+    if (tbodyEnd === -1) { return; }
 
     const tbodyContent = reportHtml.substring(tbodyStart, tbodyEnd);
 
@@ -237,8 +241,8 @@ function addScreenshotsToReport(
     let modifiedTbody = tbodyContent;
     screenshots.forEach((screenshot, nodeIndex) => {
       // Find the nth row (nodeIndex + 1 because we skip the first match)
-      const rowPattern = new RegExp(`(<tr>.*?)(</tr>)`, 'gs');
-      let matches = [...tbodyContent.matchAll(rowPattern)];
+      const rowPattern = /<tr>.*?<\/tr>/gs;
+      const matches = [...tbodyContent.matchAll(rowPattern)];
 
       if (matches[nodeIndex]) {
         const rowContent = matches[nodeIndex][0];
@@ -257,10 +261,10 @@ function addScreenshotsToReport(
     });
 
     // Replace the tbody content
-    reportHtml = reportHtml.substring(0, tbodyStart) + modifiedTbody + reportHtml.substring(tbodyEnd);
+    reportHtmlCopy = reportHtml.substring(0, tbodyStart) + modifiedTbody + reportHtml.substring(tbodyEnd);
   });
 
-  return reportHtml;
+  return reportHtmlCopy;
 }
 
 /**
@@ -270,7 +274,7 @@ async function saveReport(
   page: Page,
   results: AxeResults,
   reportPath: string,
-  pageUrl: string
+  // pageUrl: string,
 ): Promise<void> {
   const dir = path.dirname(reportPath);
   if (!fs.existsSync(dir)) {
@@ -286,8 +290,8 @@ async function saveReport(
       results,
       options: {
         projectKey: reportName,
-        doNotCreateReportFile: true  // Prevent auto-creation of artifacts/index.html
-      }
+        doNotCreateReportFile: true, // Prevent auto-creation of artifacts/index.html
+      },
     });
 
     // Capture screenshots and add them to the report
@@ -299,7 +303,7 @@ async function saveReport(
     // Default to JSON
     fs.writeFileSync(reportPath, JSON.stringify(results, null, 2), 'utf-8');
   }
-
+  // eslint-disable-next-line no-console
   console.log(`Accessibility report saved to: ${reportPath}`);
 }
 
@@ -322,7 +326,7 @@ function generateReportPath(testInfo: TestInfo | undefined, options: A11yCheckOp
   const testFile = testInfo.file
     .replace(testInfo.project.testDir, '')
     .replace(/\.(spec|test)\.(ts|js)$/, '')
-    .replace(/-temp$/, '')  // Remove -temp suffix from markdown tests
+    .replace(/-temp$/, '') // Remove -temp suffix from markdown tests
     .replace(/^\//, '')
     .replace(/\//g, '-');
 
@@ -346,7 +350,8 @@ function generateReportPath(testInfo: TestInfo | undefined, options: A11yCheckOp
 /**
  * Updates the main index.html file with all reports
  */
-function updateMainIndex(baseDir: string, reportPath: string, results: AxeResults, pageUrl: string, testInfo?: TestInfo): void {
+function updateMainIndex(baseDir: string, reportPath: string, results: AxeResults, pageUrl: string, testInfo?: TestInfo)
+  : void {
   const indexPath = path.join(baseDir, 'index.html');
   const timestamp = new Date().toISOString();
 
@@ -360,6 +365,7 @@ function updateMainIndex(baseDir: string, reportPath: string, results: AxeResult
         reports = JSON.parse(match[1]);
       }
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.warn('Could not parse existing index, creating new one');
     }
   }
@@ -378,7 +384,7 @@ function updateMainIndex(baseDir: string, reportPath: string, results: AxeResult
     url: pageUrl,
     violations: results.violations.length,
     passes: results.passes.length,
-    timestamp
+    timestamp,
   };
 
   if (existingIndex >= 0) {
@@ -491,6 +497,7 @@ function updateMainIndex(baseDir: string, reportPath: string, results: AxeResult
 </html>`;
 
   fs.writeFileSync(indexPath, html, 'utf-8');
+  // eslint-disable-next-line no-console
   console.log(`Main index updated: ${indexPath}`);
 }
 
@@ -503,7 +510,7 @@ function updateMainIndex(baseDir: string, reportPath: string, results: AxeResult
 export async function assertA11y(
   page: Page,
   options: A11yCheckOptions = {},
-  testInfo?: TestInfo
+  testInfo?: TestInfo,
 ) {
   const results = await checkA11y(page, options);
 
@@ -520,7 +527,7 @@ export async function assertA11y(
       reportPath = generateReportPath(testInfo, options);
     }
 
-    await saveReport(page, results, reportPath, page.url());
+    await saveReport(page, results, reportPath);
 
     // Update main index
     updateMainIndex(baseDir, reportPath, results, page.url(), testInfo);
@@ -532,12 +539,12 @@ export async function assertA11y(
       return `  - ${violation.id} (${violation.impact}): ${violation.description}\n    Affected elements:\n    ${targets}`;
     });
 
-    const message =
-      `Accessibility violations found:\n${violationMessages.join('\n\n')}\n\n` +
-      `Total violations: ${results.violations.length}`;
+    const message = `Accessibility violations found:\n${violationMessages.join('\n\n')}\n\n`
+      + `Total violations: ${results.violations.length}`;
 
     if (options.warnOnly) {
-      console.warn('\n' + message + '\n');
+      // eslint-disable-next-line no-console
+      console.warn(`\n ${message} \n`);
     } else {
       throw new Error(message);
     }

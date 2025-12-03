@@ -11,9 +11,9 @@ export default defineConfig({
   use: {
     baseURL: process.env.BASE_URL || 'http://apps.local.openedx.io:1996',
     trace: 'on-first-retry',
-     launchOptions: {
-          args: ['--disable-web-security'],
-        },
+    launchOptions: {
+      args: ['--disable-web-security'],
+    },
     // Record everything when RECORD_VIDEO env var is set, otherwise only on failure
     screenshot: process.env.RECORD_VIDEO ? 'on' : 'only-on-failure',
     video: process.env.RECORD_VIDEO ? 'on' : 'retain-on-failure',

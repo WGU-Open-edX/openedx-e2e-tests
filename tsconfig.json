@@ -19,11 +19,12 @@
     "tests/**/*",
     "utils/**/*",
     "scripts/**/*",
-    "playwright.config.ts"
+    "playwright.config.ts",
+    ".eslintrc.js"
 , "types/autodoc.types.ts", "types/markdown-test-parser.types.ts"  ],
   "exclude": [
     "node_modules",
     "dist",
-    "**/*.js"
+    //"**/*.js"
   ]
 }

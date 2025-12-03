@@ -16,7 +16,8 @@
     "report:a11y": "open artifacts/a11y-reports/index.html",
     "testdoc": "playwright test tests/testdoc/ --headed --project=firefox",
     "testdoc:markdown": "ts-node scripts/run-markdown-test.ts tests/testdoc/ --project=firefox",
-    "install:browsers": "playwright install"
+    "install:browsers": "playwright install",
+    "lint": "./node_modules/.bin/eslint ."
   },
   "keywords": [
     "edx",
@@ -28,10 +29,23 @@
   "license": "MIT",
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
-    "@playwright/test": "^1.40.0",
+    "@edx/eslint-config": "^4.4.0",
     "@types/node": "^24.6.0",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
     "axe-html-reporter": "^2.2.11",
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^17.1.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^4.6.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "axe-core": "^4.11.0",
+    "@playwright/test": "^1.40.0"
   }
 }

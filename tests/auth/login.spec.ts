@@ -26,6 +26,7 @@ test.describe('Authentication Tests', () => {
 
     // Check if we're on dashboard or got an error
     const currentUrl = page.url();
+    // eslint-disable-next-line no-console
     console.log('Current URL after login:', currentUrl);
 
     // Check for error messages
@@ -43,9 +44,7 @@ test.describe('Authentication Tests', () => {
 
     // Expect successful redirect to dashboard
     await expect(page).toHaveURL(/dashboard/);
-
     await assertA11y(page, { warnOnly: true, report: true, reportName: 'dashboard' }, testInfo);
-
   });
 
   test('user sees error with invalid credentials', async ({ page }) => {

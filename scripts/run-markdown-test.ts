@@ -10,6 +10,7 @@ async function findMarkdownFiles(dir: string): Promise<string[]> {
   const markdownFiles: string[] = [];
 
   for (const file of files) {
+    /* eslint-disable no-await-in-loop */
     const fullPath = path.join(dir, file);
     const stat = await fs.stat(fullPath);
 
