@@ -73,10 +73,13 @@ test.describe('Add Section to Course Test', () => {
       note: null,
       showNumber: true,
     });
-
+    await page.waitForLoadState('networkidle');
+    await page.evaluate(() => {
+  window.scrollTo(0, document.body.scrollHeight);
+});
     // create subsection: select the new section button
     await testDoc.click({
-      selector: '.section-card .section-card__subsections button:has-text("New subsection")',
+      selector: '(//div[contains(@class, "section-card")])[1]//button[contains(text(), "New subsection")]',
       title: 'Click on the New subsection button',
       description: 'This will create a new subsection in the selected section',
       elementOnly: true,

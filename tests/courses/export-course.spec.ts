@@ -17,7 +17,7 @@ test.describe('Export Course Tests', () => {
       prerequisites: [
         'User has valid authoring credentials',
         'User has access to the Open edX authoring environment',
-        'User has at least one course available for export'
+        'User has at least one course available for export',
       ],
       notes: [
         'Ensure that the authoring environment is accessible before running this test.',
@@ -47,7 +47,7 @@ test.describe('Export Course Tests', () => {
     await assertA11y(page, { warnOnly: true, report: true, reportName: 'export-course-page' }, testInfo);
 
     await testDoc.click({
-      selector: 'text=Automated TestCourse',
+      selector: '(//a[text()="Automated TestCourse"])[1]',
       title: 'Click on the course name to select it and be able to export',
       description: 'This will redirect to the course page where we can see the option to export.',
       elementOnly: true,
@@ -78,12 +78,10 @@ test.describe('Export Course Tests', () => {
       elementOnly: false,
     });
 
-
     // once the export is done, we can see a button to download the course
     // Wait for the download link to appear (export finished)
     await page.waitForSelector('a:has-text("Download exported course")', {
       state: 'visible',
-      timeout: 120_000,
     });
 
     // Download the exported course
@@ -91,12 +89,12 @@ test.describe('Export Course Tests', () => {
     await testDoc.highlight(
       '.course-stepper',
       null,
-      { elementOnly: true, padding: 15 }
+      { elementOnly: true, padding: 15 },
     );
     const { stepNumber, screenshot, numberedStepNumber } = await testDoc.highlight(
       'body',
       null,
-      { elementOnly: ".course-stepper'", padding: 15 }
+      { elementOnly: ".course-stepper'", padding: 15 },
     );
     testDoc.steps.push({
       stepNumber,

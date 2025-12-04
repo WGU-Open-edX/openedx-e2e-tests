@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page } from '@playwright/test';
 
 export interface HighlightStyle {
   /**
@@ -48,7 +48,7 @@ export interface ScreenshotOptions {
  */
 export async function addHighlightStyles(
   page: Page,
-  style: HighlightStyle
+  style: HighlightStyle,
 ): Promise<void> {
   const outlineWidth = style.outlineWidth ?? 3;
   const outlineOffset = style.outlineOffset ?? 2;
@@ -60,7 +60,7 @@ export async function addHighlightStyles(
         outline-offset: ${outlineOffset}px !important;
         box-shadow: 0 0 10px ${style.color}80 !important;
       }
-    `
+    `,
   });
 }
 
@@ -70,7 +70,7 @@ export async function addHighlightStyles(
 export async function highlightElement(
   page: Page,
   selector: string,
-  className: string
+  className: string,
 ): Promise<void> {
   await page.locator(selector).evaluate((el: Element, cls: string) => {
     el.classList.add(cls);
@@ -83,7 +83,7 @@ export async function highlightElement(
 export async function removeHighlight(
   page: Page,
   selector: string,
-  className: string
+  className: string,
 ): Promise<void> {
   await page.locator(selector).evaluate((el: Element, cls: string) => {
     el.classList.remove(cls);
@@ -96,7 +96,7 @@ export async function removeHighlight(
 export async function captureHighlightedScreenshot(
   page: Page,
   selector: string,
-  options: ScreenshotOptions
+  options: ScreenshotOptions,
 ): Promise<void> {
   const padding = options.padding ?? 20;
   const locator = page.locator(selector);
@@ -113,13 +113,13 @@ export async function captureHighlightedScreenshot(
             y: Math.max(0, elementBox.y - padding),
             width: Math.min(
               viewport.width - Math.max(0, elementBox.x - padding),
-              elementBox.width + 2 * padding
+              elementBox.width + 2 * padding,
             ),
             height: Math.min(
               viewport.height - Math.max(0, elementBox.y - padding),
-              elementBox.height + 2 * padding
-            )
-          }
+              elementBox.height + 2 * padding,
+            ),
+          },
         });
       }
     } else {
@@ -138,7 +138,7 @@ export async function highlightAndScreenshot(
   selector: string,
   highlightStyle: HighlightStyle,
   screenshotOptions: ScreenshotOptions,
-  action?: () => Promise<void>
+  action?: () => Promise<void>,
 ): Promise<void> {
   // Add styles if not already added
   await addHighlightStyles(page, highlightStyle);

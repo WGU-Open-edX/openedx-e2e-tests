@@ -7,12 +7,12 @@ test.describe('Testdoc: How to Login', () => {
   test('generate login documentation', async ({ page }, testInfo) => {
     const testdoc = new TestdocTest(page, 'How-to-Login-to-Open-edX', {
       title: 'How to Log In to Your Open edX Account',
-      overview: `This guide explains how to log in to your Open edX account. Once you log in, you can access your enrolled courses, track your progress, and manage your account settings.`,
+      overview: 'This guide explains how to log in to your Open edX account. Once you log in, you can access your enrolled courses, track your progress, and manage your account settings.',
 
       prerequisites: [
         'You have created an Open edX account',
         'You have your email address or username and password ready',
-        'Your web browser has JavaScript enabled'
+        'Your web browser has JavaScript enabled',
       ],
 
       notes: [
@@ -23,7 +23,7 @@ test.describe('Testdoc: How to Login', () => {
         { title: 'Creating an Open edX Account', url: '#creating-account' },
         { title: 'Resetting Your Password', url: '#reset-password' },
         { title: 'Account Settings and Profile Management', url: '#account-settings' },
-        { title: 'Course Enrollment', url: '#course-enrollment' }
+        { title: 'Course Enrollment', url: '#course-enrollment' },
       ],
     });
     await testdoc.initialize();
@@ -46,7 +46,7 @@ test.describe('Testdoc: How to Login', () => {
     await testdoc.step({
       title: 'Locate the login form',
       description: 'The form contains two main fields: an email/username field and a password field, along with a "Sign In" button.',
-      screenshot: false
+      screenshot: false,
     });
 
     // Step 3: Fill in email
@@ -55,7 +55,7 @@ test.describe('Testdoc: How to Login', () => {
       value: 'testuser',
       title: 'Enter your email or username',
       description: 'Enter either the email address you registered with or your chosen username in the first field.',
-      elementOnly: 'form[id="sign-in-form"]'
+      elementOnly: 'form[id="sign-in-form"]',
     });
     await testdoc.note('If you are unsure which one to use, try the email address you used when creating your account first.');
 
@@ -65,7 +65,7 @@ test.describe('Testdoc: How to Login', () => {
       value: 'password123',
       title: 'Enter your password',
       description: 'Type your password in the password field.',
-      elementOnly: 'form[id="sign-in-form"]'
+      elementOnly: 'form[id="sign-in-form"]',
     });
     await testdoc.note('Your password is case-sensitive, so make sure your Caps Lock is in the correct position.');
 
@@ -88,7 +88,7 @@ test.describe('Testdoc: How to Login', () => {
     const { stepNumber, numberedStepNumber, screenshot } = await testdoc.highlight(
       'body',
       null,
-      { elementOnly: 'main', padding: 15 }
+      { elementOnly: 'main', padding: 15 },
     );
 
     testdoc.steps.push({
@@ -105,7 +105,7 @@ test.describe('Testdoc: How to Login', () => {
     await testdoc.step({
       title: 'Explore your account options',
       description: 'From the dashboard, you can navigate to different sections like My Courses, Account Settings, or Profile.',
-      screenshot: false
+      screenshot: false,
     });
     await testdoc.note('Look for navigation menus or buttons to access different features.');
 

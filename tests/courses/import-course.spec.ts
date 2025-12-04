@@ -86,7 +86,7 @@ test.describe('Testdoc: How To Import a Course', () => {
     });
     // todo: validate we are on the export page
     // upload the course file
-    const filePath = 'artifacts/downloads/course.2b3_4ccr.tar.gz';
+    const filePath = 'artifacts/downloads/course.n3597ean.tar.gz';
     // TODO: Fix upload issue (not working manually either with the PW playground browser)
     await testDoc.uploadFileParagon('[data-testid="dropzone"]', filePath);
   });

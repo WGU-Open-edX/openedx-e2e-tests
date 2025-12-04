@@ -15,15 +15,25 @@ import { highlightAndScreenshot } from './element-highlighter';
 
 export class TestdocTest {
   private page: Page;
+
   private title: string;
+
   public steps: Step[];
+
   private screenshotDir: string;
+
   private stepCounter: number;
+
   private numberedStepCounter: number;
+
   private overview: string;
+
   private prerequisites: string[];
+
   private notes: string[];
+
   private relatedTopics: (string | RelatedTopic)[];
+
   private defaultShowNumbers: boolean;
 
   constructor(page: Page, testName: string, options: TestdocOptions = {}) {
@@ -128,7 +138,8 @@ export class TestdocTest {
   }
 
   async screenshot(
-    config: ScreenshotConfig | string, description?: string | null,
+    config: ScreenshotConfig | string,
+    description?: string | null,
     options?: Partial<ScreenshotConfig>,
   ): Promise<void> {
     let title: string;
@@ -171,6 +182,7 @@ export class TestdocTest {
               y: Math.max(0, elementBox.y - padding),
               width: Math.min(viewport.width - Math.max(0, elementBox.x - padding), elementBox.width + (2 * padding)),
               height: Math.min(viewport.height - Math.max(0, elementBox.y - padding), elementBox.height + (2 * padding))
+              ,
             },
           });
         }
@@ -188,7 +200,7 @@ export class TestdocTest {
       description: desc,
       screenshot: screenshotName,
       note: null,
-      showNumber
+      showNumber,
     });
 
     const displayNumber = showNumber && numberedStepNumber !== null ? numberedStepNumber : stepNumber;
@@ -270,7 +282,7 @@ export class TestdocTest {
       description: desc,
       screenshot,
       note: null,
-      showNumber
+      showNumber,
     });
 
     const displayNumber = showNumber && numberedStepNumber !== null ? numberedStepNumber : stepNumber;
@@ -396,7 +408,7 @@ export class TestdocTest {
     const rstPath = path.join(this.screenshotDir, 'documentation.rst');
 
     let rst = `${this.title}\n`;
-    rst += '='.repeat(this.title.length) + '\n\n';
+    rst += `${'='.repeat(this.title.length)}\n\n`;
 
     if (this.overview) {
       rst += `${this.overview}\n\n`;
@@ -479,13 +491,13 @@ export class TestdocTest {
       fullUrl = baseUrl + href;
     } else if (!href.startsWith('http')) {
       const baseUrl = this.page.url().split(/\/(?=[^\/]*$)/)[0];
-      fullUrl = baseUrl + '/' + href;
+      fullUrl = `${baseUrl} '/' ${href}`;
     }
     // eslint-disable-next-line no-console
     console.log(`📥 Downloading file from: ${fullUrl}`);
 
     // Start waiting for download and click
-    let download: Download;
+    let download: Download | null = null;
     [download] = await Promise.all([
       this.page.waitForEvent('download'),
       this.page.locator(selector).click(),
