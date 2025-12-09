@@ -314,7 +314,6 @@ export class TestdocTest {
         selector, value: val, title: titleStr, description: desc = null, ...opts
       } = config);
     }
-
     const { showNumber = this.defaultShowNumbers, skipNumber = false } = opts;
     const numberedStepNumber = skipNumber ? null : this.numberedStepCounter++;
     const { stepNumber, screenshot } = await this.highlight(selector, async () => {
@@ -504,7 +503,7 @@ export class TestdocTest {
     ]);
 
     // Use provided path or default to artifacts/downloads
-    const finalPath = downloadPath || path.join(process.cwd(), 'artifacts', 'downloads', download.suggestedFilename());
+    const finalPath = downloadPath || path.join(process.cwd(), 'artifacts', 'downloads', 'testCourseToImport.tar.gz');
     await fs.mkdir(path.dirname(finalPath), { recursive: true });
     await download.saveAs(finalPath);
     // eslint-disable-next-line no-console
@@ -536,5 +535,26 @@ export class TestdocTest {
     );
     // eslint-disable-next-line no-console
     console.log(`📤 Uploaded: ${absolutePath}`);
+  }
+  // This hides an element
+
+  async hideElement(selector: string) : Promise<void> {
+    await this.page.addStyleTag({
+      content: `
+          ${selector} {
+            display: none !important;
+          }
+        `,
+    });
+  }
+
+  async Showlement(selector: string, display: string) : Promise<void> {
+    await this.page.addStyleTag({
+      content: `
+          ${selector} {
+            display: ${display} !important;
+          }
+        `,
+    });
   }
 }

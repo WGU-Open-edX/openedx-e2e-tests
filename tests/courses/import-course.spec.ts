@@ -28,7 +28,7 @@ test.describe('Testdoc: How To Import a Course', () => {
     });
     await testDoc.initialize();
     // login
-    const user = 'jesus.balderramapala@wgu.edu';
+    const user = 'jesus.balderrama';
     const pass = 'avena';
     await loginPage.login(user, pass);
     await page.waitForLoadState('networkidle');
@@ -86,7 +86,7 @@ test.describe('Testdoc: How To Import a Course', () => {
     });
     // todo: validate we are on the export page
     // upload the course file
-    const filePath = 'artifacts/downloads/course.n3597ean.tar.gz';
+    const filePath = 'artifacts/downloads/testCourseToImport.tar.gz';
     // TODO: Fix upload issue (not working manually either with the PW playground browser)
     await testDoc.uploadFileParagon('[data-testid="dropzone"]', filePath);
   });

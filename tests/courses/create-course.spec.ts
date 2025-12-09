@@ -108,16 +108,15 @@ test.describe('Testdoc: How To Create a Course', () => {
     });
 
     // Step 7: Click on 'Create' button to create the course
-    const createBtn = page.locator('button:has-text("Create")');
-    await expect(createBtn).toBeVisible();
-    await createBtn.click();
-
+    await page.locator('button:has-text("create")').scrollIntoViewIfNeeded();
     await testDoc.click({
       selector: 'button:has-text("create")',
       title: 'Click the create course button',
       description: 'This will show create course form with the information provided.',
       elementOnly: true,
     });
+
+    // Step 8: Todo: Add Redirect to course outline page
 
     // Generate documentation
     await testDoc.generateMarkdown();
