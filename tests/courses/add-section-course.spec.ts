@@ -16,20 +16,20 @@ test.describe('Add Section to Course Test', () => {
       prerequisites: [
         'User has valid authoring credentials',
         'User has access to the Open edX authoring environment',
-        'User has at least one course created'
+        'User has at least one course created',
       ],
       notes: [
-        'Ensure that the authoring environment is accessible before running this test.'
+        'Ensure that the authoring environment is accessible before running this test.',
       ],
       relatedTopics: [
         { title: 'Create a Course', url: '#managing-courses' },
-        { title: 'Import a Course', url: '#course-settings' }
+        { title: 'Import a Course', url: '#course-settings' },
       ],
     });
     await testDoc.initialize();
     // login
-    const user = 'adminuser';
-    const pass = 'admin123';
+    const user = 'jesus.balderrama';
+    const pass = 'avena';
     await loginPage.login(user, pass);
     await page.waitForLoadState('networkidle');
 
@@ -64,6 +64,7 @@ test.describe('Add Section to Course Test', () => {
       null,
       { elementOnly: '.section-card', padding: 15 },
     );
+
     testDoc.steps.push({
       stepNumber,
       numberedStepNumber,
@@ -75,8 +76,8 @@ test.describe('Add Section to Course Test', () => {
     });
     await page.waitForLoadState('networkidle');
     await page.evaluate(() => {
-  window.scrollTo(0, document.body.scrollHeight);
-});
+      window.scrollTo(0, document.body.scrollHeight);
+    });
     // create subsection: select the new section button
     await testDoc.click({
       selector: '(//div[contains(@class, "section-card")])[1]//button[contains(text(), "New subsection")]',

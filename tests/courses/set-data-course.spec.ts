@@ -241,7 +241,7 @@ test.describe('Set Start Date to a course', () => {
       showNumber: true,
     });
     // showing the save button
-    await testDoc.Showlement('.alert-content', 'flex');
+    await testDoc.ShowElement('.alert-content', 'flex');
     testDoc.note('You can save anytime by clicking on the button "Save changes" inside the yellow alert');
     const { stepNumber, numberedStepNumber, screenshot } = await testDoc.highlight(
       '.alert-content',

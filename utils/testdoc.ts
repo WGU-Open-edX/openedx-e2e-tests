@@ -548,7 +548,7 @@ export class TestdocTest {
     });
   }
 
-  async Showlement(selector: string, display: string) : Promise<void> {
+  async ShowElement(selector: string, display: string) : Promise<void> {
     await this.page.addStyleTag({
       content: `
           ${selector} {
