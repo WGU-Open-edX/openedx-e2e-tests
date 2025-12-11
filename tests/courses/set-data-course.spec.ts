@@ -16,7 +16,7 @@ test.describe('Set Start Date to a course', () => {
   test('User can set the course start date ', async ({ page }, testInfo) => {
     const testDoc = new TestdocTest(page, 'Set-Date-Course', {
       title: 'Adding a Unit to a Course in Open edX',
-      overview: 'This test automates the process of adding a unit to  a course in the Open edX authoring environment. It covers navigating to the course page, selecting the desired course, and initiating the creation of the the unit process.',
+      overview: 'This test demonstrates how to set the start date for a course in the Open edX authoring environment. It covers navigating to the course management page, selecting a course, and updating its start date to control when learners can access the content.',
       prerequisites: [
         'User has valid authoring credentials',
         'User has access to the Open edX authoring environment',
@@ -39,8 +39,8 @@ test.describe('Set Start Date to a course', () => {
     const authoringTarget = 'http://apps.local.openedx.io:2001/authoring/home';
     await page.goto(authoringTarget);
     await testDoc.step({
-      title: 'Select the desired course to set the start date',
-      description: 'From the list of available courses, select the one you wish to set the start date by clicking on its title.',
+      title: 'Select the Course to Set Start Date',
+      description: 'From the list of available courses, click the course title to open its details and begin setting the start date.',
       screenshot: true,
     });
     // Basic URL assertion to confirm navigation reached the authoring area
@@ -49,8 +49,8 @@ test.describe('Set Start Date to a course', () => {
     await testDoc.hideElement('.alert-content');
     await testDoc.click({
       selector: '(//a[text()="Automated TestCourse"])[1]',
-      title: 'Click on the course name to select it and be able to set the date',
-      description: 'This will select the course',
+      title: 'Open the Selected Course',
+      description: 'Navigates to the selected course page, where you can access scheduling options.',
       elementOnly: true,
     });
     await page.waitForLoadState('networkidle');
@@ -64,8 +64,8 @@ test.describe('Set Start Date to a course', () => {
     testDoc.steps.push({
       stepNumber: sectionCard.stepNumber,
       numberedStepNumber: sectionCard.numberedStepNumber,
-      title: 'Set the date',
-      description: 'To set the date click on the Set Date',
+      title: 'Set the Course Start Date',
+      description: 'Click the "Set Date" button to open the date picker and select the desired start date for the course.',
       screenshot: sectionCard.screenshot,
       note: null,
       showNumber: true,
@@ -91,7 +91,7 @@ test.describe('Set Start Date to a course', () => {
       stepNumber: courseSchedule.stepNumber,
       numberedStepNumber: courseSchedule.numberedStepNumber,
       title: 'Course Schedule',
-      description: 'It is important to fill this form with the different dates',
+      description: 'Fill out the course schedule form by entering the start date, end date, enrollment start, and enrollment end dates as required.',
       screenshot: courseSchedule.screenshot,
       note: null,
       showNumber: true,
@@ -149,8 +149,8 @@ test.describe('Set Start Date to a course', () => {
     testDoc.steps.push({
       stepNumber: courseDetails.stepNumber,
       numberedStepNumber: courseDetails.numberedStepNumber,
-      title: 'Course language',
-      description: 'we select here the language of the course',
+      title: 'Course Language',
+      description: 'Select the language in which the course will be delivered from the available options.',
       screenshot: courseDetails.screenshot,
       note: null,
       showNumber: true,
@@ -165,8 +165,8 @@ test.describe('Set Start Date to a course', () => {
     testDoc.steps.push({
       stepNumber: courseDescription.stepNumber,
       numberedStepNumber: courseDescription.numberedStepNumber,
-      title: 'Introducing your course',
-      description: 'In this part of the form we can add the course description. First a short one and then a complete overview of the course.',
+      title: 'Course Introduction',
+      description: 'Add a short description and a complete overview of the course to help learners understand its objectives and content.',
       screenshot: courseDescription.screenshot,
       note: null,
       showNumber: true,
@@ -183,8 +183,8 @@ test.describe('Set Start Date to a course', () => {
     testDoc.steps.push({
       stepNumber: courseImage.stepNumber,
       numberedStepNumber: courseImage.numberedStepNumber,
-      title: 'Course card image',
-      description: 'In this part of the form we can add the course description. First a short one and then a complete overview of the course.',
+      title: 'Course Card Image',
+      description: 'Upload an image to represent the course on the course card. This helps visually distinguish the course in listings.',
       screenshot: courseImage.screenshot,
       note: null,
       showNumber: true,
@@ -201,8 +201,8 @@ test.describe('Set Start Date to a course', () => {
     testDoc.steps.push({
       stepNumber: courseVideo.stepNumber,
       numberedStepNumber: courseVideo.numberedStepNumber,
-      title: 'Course Introduction video',
-      description: 'In this part of the form we can add the course description. First a short one and then a complete overview of the course.',
+      title: 'Course Introduction Video',
+      description: 'Add a video introduction to give learners an overview of the course and its key features.',
       screenshot: courseVideo.screenshot,
       note: null,
       showNumber: true,
@@ -217,8 +217,8 @@ test.describe('Set Start Date to a course', () => {
     testDoc.steps.push({
       stepNumber: courseRequeriments.stepNumber,
       numberedStepNumber: courseRequeriments.numberedStepNumber,
-      title: 'Course Requeriments',
-      description: 'In this part of the form we can add the amount of effort inhours per week that is needes, also if there is a prerequisite for this course and if the students need to pass an exam before beginning the course',
+      title: 'Course Requirements',
+      description: 'Specify the expected weekly effort, any prerequisites, and whether students must pass an exam before starting the course.',
       screenshot: courseRequeriments.screenshot,
       note: null,
       showNumber: true,
@@ -234,8 +234,8 @@ test.describe('Set Start Date to a course', () => {
     testDoc.steps.push({
       stepNumber: courseSection.stepNumber,
       numberedStepNumber: courseSection.numberedStepNumber,
-      title: 'Course content license',
-      description: 'The last part allows to select the type of license, just click on the option that you prefer.',
+      title: 'Course Content License',
+      description: 'Select the appropriate license type for your course content from the available options.',
       screenshot: courseSection.screenshot,
       note: null,
       showNumber: true,
@@ -251,8 +251,8 @@ test.describe('Set Start Date to a course', () => {
     testDoc.steps.push({
       stepNumber,
       numberedStepNumber,
-      title: 'Saving changes',
-      description: 'Now you will save the changes that you have made',
+      title: 'Save Changes',
+      description: 'Click the "Save changes" button to persist all updates made to the course configuration.',
       screenshot,
       note: null,
       showNumber: true,

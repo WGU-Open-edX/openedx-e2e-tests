@@ -13,7 +13,7 @@ test.describe('Export Course Tests', () => {
   test('user can export a course', async ({ page }, testInfo) => {
     const testDoc = new TestdocTest(page, 'Create-Course-Test', {
       title: 'Exporting a Course in Open edX',
-      overview: 'This test automates the process of exporting a course in the Open edX authoring environment. It covers navigating to the course export page, selecting the desired course, and initiating the export process',
+      overview: 'This test automates the export workflow for a course in the Open edX authoring environment. It demonstrates how to access the export page, select a course, and initiate the export process to generate a downloadable course archive.',
       prerequisites: [
         'User has valid authoring credentials',
         'User has access to the Open edX authoring environment',
@@ -38,8 +38,8 @@ test.describe('Export Course Tests', () => {
     const authoringTarget = 'http://apps.local.openedx.io:2001/authoring/home';
     await page.goto(authoringTarget);
     await testDoc.step({
-      title: 'Select the desired course to export',
-      description: 'From the list of available courses, select the one you wish to export by clicking on its title.',
+      title: 'Select the Course to Export',
+      description: 'From the list of available courses, click the course title to open its details and begin the export process.',
       screenshot: true,
     });
     // Basic URL assertion to confirm navigation reached the authoring area
@@ -48,22 +48,22 @@ test.describe('Export Course Tests', () => {
 
     await testDoc.click({
       selector: '(//a[text()="Automated TestCourse"])[1]',
-      title: 'Click on the course name to select it and be able to export',
-      description: 'This will redirect to the course page where we can see the option to export.',
+      title: 'Open the Selected Course',
+      description: 'Navigates to the selected course page, where you can access export options.',
       elementOnly: true,
     });
 
     await testDoc.click({
       selector: 'button#Tools-dropdown-menu',
-      title: 'Open Tools menu',
-      description: 'Click on Tools option menu in the navbar to see more options',
+      title: 'Open the Tools Menu',
+      description: 'Click the Tools option in the navigation bar to reveal additional course management actions.',
       elementOnly: true,
     });
     // when the dropdown is open, click Export Course
     await testDoc.click({
       selector: '.dropdown-menu a:has-text("Export Course")',
-      title: 'Select Export Course option',
-      description: 'Then select Export Course from the dropdown menu to navigate to the export page.',
+      title: 'Select Export Course Option',
+      description: 'Choose "Export Course" from the dropdown menu to navigate to the export page.',
       elementOnly: true,
     });
     // Todo: validate we are on the export page
@@ -73,8 +73,8 @@ test.describe('Export Course Tests', () => {
     await page.locator('button:has-text("Export course content")').scrollIntoViewIfNeeded();
     await testDoc.click({
       selector: 'button:has-text("Export course content")',
-      title: 'Click Export Course button',
-      description: 'Finally you will see the export course page with the Export Course button to start the process.',
+      title: 'Export the Course',
+      description: 'On the export course page, click the "Export Course" button to begin generating the course archive. Once the export is complete, a download link will be provided.',
       elementOnly: false,
     });
 
@@ -99,8 +99,8 @@ test.describe('Export Course Tests', () => {
     testDoc.steps.push({
       stepNumber,
       numberedStepNumber,
-      title: 'Download the exported course',
-      description: 'Click on Download exported course button, to dowload the course package to your local machine',
+      title: 'Download the Exported Course',
+      description: 'Click the "Download exported course" button to download the course package to your local machine.',
       screenshot,
       note: null,
       showNumber: true,

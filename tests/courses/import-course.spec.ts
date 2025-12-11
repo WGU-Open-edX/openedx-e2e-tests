@@ -13,7 +13,7 @@ test.describe('Testdoc: How To Import a Course', () => {
   test('user can import a course', async ({ page }, testInfo) => {
     const testDoc = new TestdocTest(page, 'Import-Course-Test', {
       title: 'Importing a Course in Open edX',
-      overview: 'This test automates the process of importing a course in the Open edX authoring environment. It covers navigating to the course importing page, selecting the desired course, and initiating the export process.',
+      overview: 'This test automates the process of importing a course package into the Open edX authoring environment. It walks through accessing the import interface, selecting a course, and uploading a course archive for import.',
       prerequisites: [
         'User has valid authoring credentials',
         'User has access to the Open edX authoring environment',
@@ -37,8 +37,8 @@ test.describe('Testdoc: How To Import a Course', () => {
     const authoringTarget = 'http://apps.local.openedx.io:2001/authoring/home';
     await page.goto(authoringTarget);
     await testDoc.step({
-      title: 'Select the desired course to import',
-      description: 'add description here.',
+      title: 'Select the Course to Import Into',
+      description: 'From the list of available courses, click the course title into which you want to import content.',
       screenshot: false,
     });
     // Basic URL assertion to confirm navigation reached the authoring area
@@ -55,8 +55,8 @@ test.describe('Testdoc: How To Import a Course', () => {
     testDoc.steps.push({
       stepNumber,
       numberedStepNumber,
-      title: 'Select the desired course to export',
-      description: 'The webpage will show a list of courses.',
+      title: 'Course List Overview',
+      description: 'The page displays a list of available courses. Select the appropriate course to proceed with the import process.',
       screenshot,
       note: null,
       showNumber: true,
@@ -64,24 +64,24 @@ test.describe('Testdoc: How To Import a Course', () => {
     // even though we are goint to import, we need to first select the course to see the navigation options
     await testDoc.click({
       selector: `${xpathFirst}//a[contains(concat(" ", normalize-space(@class), " "), " card-item-title ")]`,
-      title: 'Click to select a course and then be able to export it',
-      description: 'This will redirect to the course page where we can see the option to export.',
+      title: 'Open the Selected Course',
+      description: 'Navigates to the selected course page, where you can access import and export options.',
       elementOnly: true,
 
     });
     // select at the navbar Tools
     await testDoc.click({
       selector: 'button#Tools-dropdown-menu',
-      title: 'Open Tools menu',
-      description: 'Open the Tools dropdown in the header',
+      title: 'Open the Tools Menu',
+      description: 'Click the Tools dropdown in the header to reveal additional course management options.',
       elementOnly: true,
     });
 
     // when the dropdown is open, click Import
     await testDoc.click({
       selector: '.dropdown-menu a:has-text("Import")',
-      title: 'Select Import option',
-      description: 'This will navigate to the course import page.',
+      title: 'Select Import Option',
+      description: 'Choose the Import option from the dropdown to navigate to the course import page.',
       elementOnly: true,
     });
     // todo: validate we are on the export page

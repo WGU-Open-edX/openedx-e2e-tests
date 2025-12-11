@@ -13,7 +13,7 @@ test.describe('Add Unit to Course Test', () => {
   test('user can add a Unit to a course', async ({ page }, testInfo) => {
     const testDoc = new TestdocTest(page, 'Add-Unit-Course', {
       title: 'Adding a Unit to a Course in Open edX',
-      overview: 'This test automates the process of adding a unit to  a course in the Open edX authoring environment. It covers navigating to the course page, selecting the desired course, and initiating the creation of the the unit process.',
+      overview: 'This test details the steps required to add a new unit to an existing course in the Open edX authoring environment. It includes navigating to the course, selecting the appropriate section, and using the interface to create a new unit.',
       prerequisites: [
         'User has valid authoring credentials',
         'User has access to the Open edX authoring environment',
@@ -38,8 +38,8 @@ test.describe('Add Unit to Course Test', () => {
     const authoringTarget = 'http://apps.local.openedx.io:2001/authoring/home';
     await page.goto(authoringTarget);
     await testDoc.step({
-      title: 'Select the desired course to create a section',
-      description: 'From the list of available courses, select the one you wish to add a section by clicking on its title.',
+      title: 'Select the Course to Add a Unit',
+      description: 'From the list of available courses, click the course title to open its details and begin adding a new unit.',
       screenshot: true,
     });
     // Basic URL assertion to confirm navigation reached the authoring area
@@ -49,8 +49,8 @@ test.describe('Add Unit to Course Test', () => {
 
     await testDoc.click({
       selector: '(//a[text()="Automated TestCourse"])[1]',
-      title: 'Click on the course name to select it and be able to add a section',
-      description: 'This will create a new Section where we can add subsections later.',
+      title: 'Open the Selected Course',
+      description: 'Navigates to the selected course page, where you can add sections and units as needed.',
       elementOnly: true,
     });
     await page.waitForLoadState('networkidle');
@@ -64,8 +64,8 @@ test.describe('Add Unit to Course Test', () => {
     testDoc.steps.push({
       stepNumber: sectionCard.stepNumber,
       numberedStepNumber: sectionCard.numberedStepNumber,
-      title: 'Create a Unit',
-      description: 'To create a new unit please locate the Section > Subsection form',
+      title: 'Create a New Unit',
+      description: 'Locate the Section > Subsection form to begin the process of creating a new unit within the course.',
       screenshot: sectionCard.screenshot,
       note: null,
       showNumber: true,
@@ -74,8 +74,8 @@ test.describe('Add Unit to Course Test', () => {
     // select a subsection inside the secion
     await testDoc.click({
       selector: 'text=New unit',
-      title: 'Click on the New unit button',
-      description: 'Then you will see this button which will redirect to a new page to create a unit',
+      title: 'Add a New Unit',
+      description: 'Click the "New Unit" button to open the unit creation page, where you can enter the unit details and save your changes.',
       elementOnly: true,
 
     });
@@ -100,8 +100,8 @@ test.describe('Add Unit to Course Test', () => {
 
     await testDoc.click({
       selector: '.new-component-type li:first-child',
-      title: 'Click on the New unit button',
-      description: 'Then you will see this button which will redirect to a new page to create a unit',
+      title: 'Select Text Component',
+      description: 'Click the first item in the component list to add a Text component to the new unit.',
       elementOnly: true,
     });
     await page.locator('.pgn__form-control-set div:first-child input[type="radio"][value="html"]').check();
@@ -114,8 +114,8 @@ test.describe('Add Unit to Course Test', () => {
     // clicking on Text option
     await testDoc.click({
       selector: '.pgn__action-row button:has-text("Select")',
-      title: 'Click on Select button',
-      description: 'Then you will see this button which will redirect to a new page to create a unit',
+      title: 'Confirm Component Selection',
+      description: 'Click the "Select" button to confirm your choice and proceed to the unit editing page.',
       elementOnly: true,
     });
     await page.waitForLoadState('networkidle');

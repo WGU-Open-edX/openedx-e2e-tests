@@ -12,7 +12,7 @@ test.describe('Complete Course CheckList', () => {
   test('user can complete the checklist of a course', async ({ page }, testInfo) => {
     const testDoc = new TestdocTest(page, 'Complete-Checklist-Course', {
       title: 'Complete the checklists of a course',
-      overview: 'After the course is created we need to configure it to use it properly, to do that we need to add the pending checklists',
+      overview: 'Once a course is created, it must be properly configured by completing all required checklists. This test guides you through the process of accessing a course and fulfilling its configuration checklists to ensure it is ready for use.',
       prerequisites: [
         'User has valid authoring credentials',
         'User has access to the Open edX authoring environment',
@@ -36,12 +36,10 @@ test.describe('Complete Course CheckList', () => {
     // Step 1:  Navigate to the authoring/create pag
     const authoringTarget = 'http://apps.local.openedx.io:2001';
     // current path
-    const path = new URL(page.url()).pathname;
-    const checklistPath = `${path.replace(/\/[^/]+$/, '')}/checklists`;
     await page.goto(`${authoringTarget}/authoring/home/`);
     await testDoc.step({
-      title: 'Select the desired course to complete the checklist',
-      description: 'From the list of available courses, select the one you wish by clicking on its title.',
+      title: 'Select the course to complete the checklist',
+      description: 'From the list of available courses, click the course title to open its details and begin the checklist completion process.',
       screenshot: true,
     });
     // Basic URL assertion to confirm navigation reached the authoring area
@@ -50,15 +48,15 @@ test.describe('Complete Course CheckList', () => {
     await testDoc.hideElement('.alert-content');
     await testDoc.click({
       selector: '(//a[text()="Automated TestCourse"])[1]',
-      title: 'Click on the course name to select it and be able to complete the checklist',
-      description: 'This will redirect to the selected course page',
+      title: 'Open the selected course',
+      description: 'Navigates to the selected course page, where you can access and complete the checklist items.',
       elementOnly: true,
     });
     // select the checklist button
     await testDoc.click({
       selector: '//h5[normalize-space()="Checklists"]/following::a[1]',
-      title: 'Click on the New section button',
-      description: 'This will a new section in the selected course',
+      title: 'Open the Checklists section',
+      description: 'Click to access the Checklists section for the selected course, where configuration tasks are listed.',
       elementOnly: true,
     });
 
@@ -72,8 +70,8 @@ test.describe('Complete Course CheckList', () => {
     testDoc.steps.push({
       stepNumber: launchChecklist.stepNumber,
       numberedStepNumber: launchChecklist.numberedStepNumber,
-      title: 'Checklist to complete',
-      description: 'Now you will see a this view this the launch checklist and the best practices checklist',
+      title: 'Checklist Overview',
+      description: 'You should now see the Launch Checklist and Best Practices Checklist, which outline the essential steps and recommendations for course setup.',
       screenshot: launchChecklist.screenshot,
       note: null,
       showNumber: true,
@@ -88,8 +86,8 @@ test.describe('Complete Course CheckList', () => {
     testDoc.steps.push({
       stepNumber: welcomeMessage.stepNumber,
       numberedStepNumber: welcomeMessage.numberedStepNumber,
-      title: 'Add a welcome message',
-      description: 'First we are going to add the welcome message, please click on the update button inside this card',
+      title: 'Add a Welcome Message',
+      description: 'Begin by adding a welcome message. Click the update button inside the Welcome Message card to proceed.',
       screenshot: welcomeMessage.screenshot,
       note: null,
       showNumber: true,
@@ -97,15 +95,15 @@ test.describe('Complete Course CheckList', () => {
 
     await testDoc.click({
       selector: '#checklist-item-welcomeMessage a',
-      title: 'Click on update',
-      description: 'This will a redirect us to the course info page where we can add our desired information',
+      title: 'Update Welcome Message',
+      description: 'Redirects to the course info page, where you can enter and save your welcome message for students.',
       elementOnly: true,
     });
 
     await testDoc.click({
       selector: '.sub-header button:has-text("New update")',
-      title: 'Add the welcome message',
-      description: 'You can add the welcome message by clicking on the button new update at the right top',
+      title: 'Add the Welcome Message',
+      description: 'Click the "New Update" button at the top right to add your welcome message for the course.',
       elementOnly: null,
     });
 
@@ -118,19 +116,21 @@ test.describe('Complete Course CheckList', () => {
     // todo: check CORS error, is not saving it but the flow is completed
     await testDoc.click({
       selector: '.update-form button:has-text("Post")',
-      title: 'Adding the welcome message',
-      description: 'Type your welcome message and then click on the Post button to save the message.',
+      title: 'Post the Welcome Message',
+      description: 'Type your welcome message and click the Post button to save it to the course information page.',
       elementOnly: null,
     });
     await page.waitForLoadState('networkidle');
+    const path = new URL(page.url()).pathname;
+    const checklistPath = `${path.replace(/\/[^/]+$/, '')}/checklists`;
     // checklist page
     await page.goto(`${authoringTarget}${checklistPath}`);
     // checklist updated
     testDoc.steps.push({
       stepNumber: launchChecklist.stepNumber,
       numberedStepNumber: launchChecklist.numberedStepNumber,
-      title: 'Checklist to complete',
-      description: 'Now you will see that the welcome message task is completed',
+      title: 'Checklist Progress',
+      description: 'After posting the welcome message, return to the checklist page to verify that the task is marked as complete.',
       screenshot: launchChecklist.screenshot,
       note: null,
       showNumber: true,
@@ -139,8 +139,8 @@ test.describe('Complete Course CheckList', () => {
     // Course grading policy
     await testDoc.click({
       selector: '#checklist-item-gradingPolicy a:has(button:has-text("Update"))',
-      title: 'Add course grade policy',
-      description: 'click on the update button to add the course grading policy',
+      title: 'Add Course Grading Policy',
+      description: 'Click the update button to configure the grading policy for the course, specifying grade segments and criteria.',
       elementOnly: null,
     });
 
@@ -153,7 +153,7 @@ test.describe('Complete Course CheckList', () => {
       stepNumber: courseSchedule.stepNumber,
       numberedStepNumber: courseSchedule.numberedStepNumber,
       title: 'Course Grading',
-      description: 'In this page we can add the grading to the course, first we will sea a bar with two colors, by default the course has two grades (Fail or Pass)',
+      description: 'On this page, configure the grading scheme for the course. By default, two grades (Fail and Pass) are present. You can add more grade segments as needed.',
       screenshot: courseSchedule.screenshot,
       note: null,
       showNumber: true,
@@ -170,8 +170,8 @@ test.describe('Complete Course CheckList', () => {
     for (const grade of gradesToHighlight) {
       await testDoc.click({
         selector: 'button[aria-label="Add new grading segment"]',
-        title: `Add ${grade} grade`,
-        description: 'By clicking in the + icon in the left of the bar, you can add more grades',
+        title: `Add ${grade} Grade`,
+        description: 'Click the + icon to add a new grade segment to the grading bar.',
         elementOnly: true,
       });
 
@@ -183,8 +183,8 @@ test.describe('Complete Course CheckList', () => {
       testDoc.steps.push({
         stepNumber: grades.stepNumber,
         numberedStepNumber: grades.numberedStepNumber,
-        title: `${grade} Grade`,
-        description: `after clicking the + button you will see the ${grade} grade added`,
+        title: `${grade} Grade Added`,
+        description: `After clicking the + button, the ${grade} grade segment appears in the grading bar.`,
         screenshot: grades.screenshot,
         note: null,
         showNumber: true,
@@ -196,7 +196,7 @@ test.describe('Complete Course CheckList', () => {
       stepNumber: 23,
       numberedStepNumber: 24,
       title: 'Assignment Types',
-      description: 'Now you will see a a list of default assignment types created by default, you can edit or remove these ones, even add new ones',
+      description: 'A list of default assignment types is displayed. You can edit, remove, or add new assignment types as needed for your course.',
       screenshot: null,
       note: null,
       showNumber: true,
@@ -213,8 +213,8 @@ test.describe('Complete Course CheckList', () => {
       testDoc.steps.push({
         stepNumber: assigmentItems.stepNumber,
         numberedStepNumber: assigmentItems.numberedStepNumber,
-        title: `Assignment ${assignment}`,
-        description: `This is the ${assignment} form, it has values by default but you can change it if you prefer`,
+        title: `Assignment: ${assignment}`,
+        description: `This form allows you to configure the ${assignment} assignment type. Default values are provided, but you can modify them as needed.`,
         screenshot: assigmentItems.screenshot,
         note: null,
         showNumber: true,
@@ -225,8 +225,8 @@ test.describe('Complete Course CheckList', () => {
     await testDoc.ShowElement('.alert-content', 'flex');
     await testDoc.click({
       selector: '.alert-toast > .alert-content',
-      title: 'Saving changes',
-      description: 'Anytime you want to save any data you can click in the blue button "Save changes" to update the information',
+      title: 'Save Changes',
+      description: 'Click the blue "Save changes" button at any time to update and persist your course configuration.',
       elementOnly: true,
     });
 
