@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { LoginPage } from '../common/page-objects';
 import { TestdocTest } from '../../utils/testdoc';
 import { assertA11y } from '../common/a11y-helpers';
+import { formatDate, shiftDate } from '../../utils/dates';
 
 test.describe('Complete Course CheckList', () => {
   let loginPage: LoginPage;
@@ -224,7 +225,7 @@ test.describe('Complete Course CheckList', () => {
     // save Data
     await testDoc.ShowElement('.alert-content', 'flex');
     await testDoc.click({
-      selector: '.alert-toast > .alert-content',
+      selector: '.alert-content button.btn-primary:has-text("Save changes")',
       title: 'Save Changes',
       description: 'Click the blue "Save changes" button at any time to update and persist your course configuration.',
       elementOnly: true,
@@ -232,7 +233,193 @@ test.describe('Complete Course CheckList', () => {
 
     // going back to checklist page
     await page.goto(`${authoringTarget}${checklistPath}`);
+    // checklist updated
+    testDoc.steps.push({
+      stepNumber: launchChecklist.stepNumber,
+      numberedStepNumber: launchChecklist.numberedStepNumber,
+      title: 'Checklist Progress',
+      description: 'After posting the welcome message, return to the checklist page to verify that the task is marked as complete.',
+      screenshot: launchChecklist.screenshot,
+      note: null,
+      showNumber: true,
+    });
 
+    // Course grading policy
+    await testDoc.click({
+      selector: '#checklist-item-courseDates a:has(button:has-text("Update"))',
+      title: 'Add Course Grading Policy',
+      description: 'Click the update button to configure the grading policy for the course, specifying grade segments and criteria.',
+      elementOnly: null,
+    });
+
+    // FILL THE FORM
+    const courseScheduleForm = await testDoc.highlight(
+      '.schedule-section',
+      null,
+      { elementOnly: '.setting-items', padding: 15 },
+    );
+    testDoc.steps.push({
+      stepNumber: courseScheduleForm.stepNumber,
+      numberedStepNumber: courseScheduleForm.numberedStepNumber,
+      title: 'Course Schedule',
+      description: 'Fill out the course schedule form by entering the start date, end date, enrollment start, and enrollment end dates as required.',
+      screenshot: courseScheduleForm.screenshot,
+      note: null,
+      showNumber: true,
+    });
+    // we will fill the form based on today's date
+    const today: Date = new Date();
+    const startDate: Date = shiftDate(today, 1); // tomorrow
+    const endDate: Date = shiftDate(today, 7); // one week later
+    const enrollmentStartDate: Date = shiftDate(today, -7); // enrollment a week before the course starts
+    const enrollmentEndDate: Date = shiftDate(today, -1); // enrollment end a day before the course starts
+    await page.locator('input[name="startDate-date"]').scrollIntoViewIfNeeded();
+    await testDoc.fill({
+      selector: 'input[name="startDate-date"]',
+      value: formatDate(startDate),
+      title: 'Enter the course start date',
+      description: 'Click on the input to see a calendar and select the date',
+      elementOnly: 'form',
+      padding: 100,
+    });
+    await page.locator('input[name="endDate-date"]').scrollIntoViewIfNeeded();
+    await testDoc.fill({
+      selector: 'input[name="endDate-date"]',
+      value: formatDate(endDate),
+      title: 'Enter the course end date',
+      description: 'Click on the input to see a calendar and select the date',
+      elementOnly: 'form',
+      padding: 100,
+    });
+  
+    await testDoc.fill({
+      selector: 'input[name="enrollmentStart-date"]',
+      value: formatDate(enrollmentStartDate),
+      title: 'Enter the course enrollment start date',
+      description: 'Click on the input to see a calendar and select the date',
+      elementOnly: 'form',
+      padding: 40,
+    });
+
+    await testDoc.fill({
+      selector: 'input[name="enrollmentEnd-date"]',
+      value: formatDate(enrollmentEndDate),
+      title: 'Enter the course enrollment end date',
+      description: 'Click on the input to see a calendar and select the date',
+      elementOnly: 'form',
+      padding: 40,
+    });
+
+    await page.locator('.details-section').scrollIntoViewIfNeeded();
+    // Now we Select the Course details
+    const courseDetails = await testDoc.highlight(
+      '.details-section',
+      null,
+      { elementOnly: 'body', padding: 15 },
+    );
+    testDoc.steps.push({
+      stepNumber: courseDetails.stepNumber,
+      numberedStepNumber: courseDetails.numberedStepNumber,
+      title: 'Course Language',
+      description: 'Select the language in which the course will be delivered from the available options.',
+      screenshot: courseDetails.screenshot,
+      note: null,
+      showNumber: true,
+    });
+    await page.locator('.introducing-section').scrollIntoViewIfNeeded();
+    // Course Description
+    const courseDescription = await testDoc.highlight(
+      '.introducing-section',
+      null,
+      { elementOnly: 'body', padding: 15 },
+    );
+    testDoc.steps.push({
+      stepNumber: courseDescription.stepNumber,
+      numberedStepNumber: courseDescription.numberedStepNumber,
+      title: 'Course Introduction',
+      description: 'Add a short description and a complete overview of the course to help learners understand its objectives and content.',
+      screenshot: courseDescription.screenshot,
+      note: null,
+      showNumber: true,
+    });
+
+    testDoc.note('the course short descripcition can be empty and in the course overview you will find a useful template');
+    await page.locator('.introducing-section .pgn__form-group:nth-child(4)').scrollIntoViewIfNeeded();
+    // Course Card Image
+    const courseImage = await testDoc.highlight(
+      '.introducing-section .pgn__form-group:nth-child(4)',
+      null,
+      { elementOnly: 'body', padding: 15 },
+    );
+    testDoc.steps.push({
+      stepNumber: courseImage.stepNumber,
+      numberedStepNumber: courseImage.numberedStepNumber,
+      title: 'Course Card Image',
+      description: 'Upload an image to represent the course on the course card. This helps visually distinguish the course in listings.',
+      screenshot: courseImage.screenshot,
+      note: null,
+      showNumber: true,
+    });
+
+    // Course video introduction
+    await page.locator('.introducing-section .pgn__form-group:nth-child(5)').scrollIntoViewIfNeeded();
+    // Course Card Image
+    const courseVideo = await testDoc.highlight(
+      '.introducing-section .pgn__form-group:nth-child(5)',
+      null,
+      { elementOnly: 'body', padding: 15 },
+    );
+    testDoc.steps.push({
+      stepNumber: courseVideo.stepNumber,
+      numberedStepNumber: courseVideo.numberedStepNumber,
+      title: 'Course Introduction Video',
+      description: 'Add a video introduction to give learners an overview of the course and its key features.',
+      screenshot: courseVideo.screenshot,
+      note: null,
+      showNumber: true,
+    });
+    // Course Requirements
+    await page.locator('.requirements-section').scrollIntoViewIfNeeded();
+    const courseRequeriments = await testDoc.highlight(
+      '.requirements-section',
+      null,
+      { elementOnly: 'body', padding: 15 },
+    );
+    testDoc.steps.push({
+      stepNumber: courseRequeriments.stepNumber,
+      numberedStepNumber: courseRequeriments.numberedStepNumber,
+      title: 'Course Requirements',
+      description: 'Specify the expected weekly effort, any prerequisites, and whether students must pass an exam before starting the course.',
+      screenshot: courseRequeriments.screenshot,
+      note: null,
+      showNumber: true,
+    });
+
+    await page.locator('.license-section').scrollIntoViewIfNeeded();
+    const courseSection = await testDoc.highlight(
+      '.license-section',
+      null,
+      { elementOnly: 'body', padding: 15 },
+    );
+    // TODO: add the case for creative commons
+    testDoc.steps.push({
+      stepNumber: courseSection.stepNumber,
+      numberedStepNumber: courseSection.numberedStepNumber,
+      title: 'Course Content License',
+      description: 'Select the appropriate license type for your course content from the available options.',
+      screenshot: courseSection.screenshot,
+      note: null,
+      showNumber: true,
+    });
+    // showing the save button
+    // TODO: check why the button is not saving
+    // await testDoc.ShowElement('.alert-content', 'flex');
+    // await testDoc.click({
+    //   selector: '.alert-content button.btn-primary:has-text("Save changes")',
+    //   title: 'Save Changes',
+    //   description: 'Click the blue "Save changes" button at any time to update and persist your course configuration.',
+    //   elementOnly: true,
+    // });
     // Generate documentation
     await testDoc.generateMarkdown();
     await testDoc.generateRST();
