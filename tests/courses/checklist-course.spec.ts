@@ -29,8 +29,8 @@ test.describe('Complete Course CheckList', () => {
     });
     await testDoc.initialize();
     // login
-    const user = 'jesus.balderrama';
-    const pass = 'avena';
+    const user = 'adminuser';
+    const pass = 'admin123';
     await loginPage.login(user, pass);
     await page.waitForLoadState('networkidle');
 
