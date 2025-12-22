@@ -1,3 +1,4 @@
+
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import { Page, Download } from '@playwright/test';
@@ -509,6 +510,37 @@ export class TestdocTest {
     // eslint-disable-next-line no-console
     console.log(`✅ File downloaded to: ${finalPath}`);
     return finalPath;
+  }
+
+  async uploadFile(selector: string, filePath: string, title?: string, description?: string): Promise<void> {
+    const absolutePath = path.isAbsolute(filePath) ? filePath : path.resolve(process.cwd(), filePath);
+    try {
+      // eslint-disable-next-line no-console
+      console.log('Verifying file exists at path:', absolutePath);
+      await fs.access(absolutePath);
+    } catch {
+      throw new Error(`❌ File not found: ${absolutePath}`);
+    }
+    // Highlight the input before uploading
+    const { stepNumber, numberedStepNumber, screenshot } = await this.highlight(
+      selector,
+      null,
+      { title: title || `Upload file to ${selector}` }
+    );
+    // Set the file on the input
+    await this.page.setInputFiles(selector, absolutePath);
+    // Add a step for documentation
+    this.steps.push({
+      stepNumber,
+      numberedStepNumber,
+      title: title || `Upload file to ${selector}`,
+      description: description || `File uploaded: ${path.basename(filePath)}`,
+      screenshot,
+      note: null,
+      showNumber: this.defaultShowNumbers,
+    });
+    // eslint-disable-next-line no-console
+    console.log(`📤 Uploaded (direct input): ${absolutePath}`);
   }
 
   async uploadFileParagon(selector: string, filePath: string): Promise<void> {

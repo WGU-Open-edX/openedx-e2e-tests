@@ -12,6 +12,9 @@ test.describe('Testdoc: How To Create a Course', () => {
   });
 
   test('user can create a valid course', async ({ page }, testInfo) => {
+    const user = process.env.TEST_USER || 'adminuser';
+    const pass = process.env.TEST_PASS || 'admin123';
+    const authoringTarget = process.env.AUTHORING_URL || 'http://apps.local.openedx.io:2001/authoring/home';
     const testDoc = new TestdocTest(page, 'Create-Course-Test', {
       title: 'Creating a New Course in Open edX',
       overview: 'This test automates the end-to-end workflow for creating a new course in the Open edX authoring environment. It demonstrates how to access the course creation page, enter all required course details, and submit the form to successfully create a new course instance.',
@@ -28,14 +31,8 @@ test.describe('Testdoc: How To Create a Course', () => {
       ],
     });
     await testDoc.initialize();
-    // login
-    const user = 'adminuser';
-    const pass = 'admin123';
     await loginPage.login(user, pass);
     await page.waitForLoadState('networkidle');
-
-    // Step 1:  Navigate to the authoring/create pag
-    const authoringTarget = 'http://apps.local.openedx.io:2001/authoring/home';
     await page.goto(authoringTarget);
     await testDoc.step({
       title: 'Locate the New Course Button',

@@ -11,6 +11,9 @@ test.describe('Export Course Tests', () => {
     await loginPage.navigate();
   });
   test('user can export a course', async ({ page }, testInfo) => {
+    const user = process.env.TEST_USER || 'adminuser';
+    const pass = process.env.TEST_PASS || 'adminuser123';
+    const authoringTarget = process.env.AUTHORING_URL || 'http://apps.local.openedx.io:2001/authoring/home';
     const testDoc = new TestdocTest(page, 'Create-Course-Test', {
       title: 'Exporting a Course in Open edX',
       overview: 'This test automates the export workflow for a course in the Open edX authoring environment. It demonstrates how to access the export page, select a course, and initiate the export process to generate a downloadable course archive.',
@@ -28,14 +31,8 @@ test.describe('Export Course Tests', () => {
       ],
     });
     await testDoc.initialize();
-    // login
-    const user = 'adminuser';
-    const pass = 'admin123';
     await loginPage.login(user, pass);
     await page.waitForLoadState('networkidle');
-
-    // Step 1:  Navigate to the authoring/create pag
-    const authoringTarget = 'http://apps.local.openedx.io:2001/authoring/home';
     await page.goto(authoringTarget);
     await testDoc.step({
       title: 'Select the Course to Export',

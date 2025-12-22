@@ -10,6 +10,9 @@ test.describe('Add Section to Course Test', () => {
     await loginPage.navigate();
   });
   test('user can add a Section to a course', async ({ page }, testInfo) => {
+    const user = process.env.TEST_USER || 'adminuser';
+    const pass = process.env.TEST_PASS || 'adminuser123';
+    const authoringTarget = process.env.AUTHORING_URL || 'http://apps.local.openedx.io:2001/authoring/home';
     const testDoc = new TestdocTest(page, 'Add-Section-Course', {
       title: 'Adding section to a Course in Open edX',
       overview: 'This test walks through the process of adding a new section to an existing course in the Open edX authoring environment. It covers accessing the course, opening the section creation form, and saving the new section.',
@@ -27,14 +30,8 @@ test.describe('Add Section to Course Test', () => {
       ],
     });
     await testDoc.initialize();
-    // login
-    const user = 'adminuser';
-    const pass = 'adminuser123';
     await loginPage.login(user, pass);
     await page.waitForLoadState('networkidle');
-
-    // Step 1:  Navigate to the authoring/create pag
-    const authoringTarget = 'http://apps.local.openedx.io:2001/authoring/home';
     await page.goto(authoringTarget);
     await testDoc.step({
       title: 'Select the Course to Add a Section',
@@ -44,8 +41,6 @@ test.describe('Add Section to Course Test', () => {
     // Basic URL assertion to confirm navigation reached the authoring area
     await expect(page).toHaveURL(/authoring\/home|authoring/);
     await assertA11y(page, { warnOnly: true, report: true, reportName: 'add-section-course-page' }, testInfo);
-
-
     await testDoc.click({
       selector: '(//a[text()="Automated TestCourse"])[1]',
       title: 'Open the Selected Course',

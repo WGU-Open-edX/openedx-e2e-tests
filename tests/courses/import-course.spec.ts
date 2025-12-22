@@ -11,6 +11,12 @@ test.describe('Testdoc: How To Import a Course', () => {
     await loginPage.navigate();
   });
   test('user can import a course', async ({ page }, testInfo) => {
+    // Use environment variables or config for credentials and URLs
+    const user = process.env.TEST_USER || 'adminuser';
+    const pass = process.env.TEST_PASS || 'admin123';
+    const authoringTarget = process.env.AUTHORING_URL || 'http://apps.local.openedx.io:2001/authoring/home';
+    const filePath = 'artifacts/downloads/testCourseToImport.tar.gz';
+
     const testDoc = new TestdocTest(page, 'Import-Course-Test', {
       title: 'Importing a Course in Open edX',
       overview: 'This test automates the process of importing a course package into the Open edX authoring environment. It walks through accessing the import interface, selecting a course, and uploading a course archive for import.',
@@ -27,26 +33,23 @@ test.describe('Testdoc: How To Import a Course', () => {
       ],
     });
     await testDoc.initialize();
-    // login
-    const user = 'adminuser';
-    const pass = 'admin123';
+
+    // Login
     await loginPage.login(user, pass);
     await page.waitForLoadState('networkidle');
 
-    // Step 1:  Navigate to the authoring/create pag
-    const authoringTarget = 'http://apps.local.openedx.io:2001/authoring/home';
+    // Navigate to authoring home
     await page.goto(authoringTarget);
+    await expect(page).toHaveURL(/authoring\/home|authoring/);
     await testDoc.step({
       title: 'Select the Course to Import Into',
       description: 'From the list of available courses, click the course title into which you want to import content.',
       screenshot: false,
     });
-    // Basic URL assertion to confirm navigation reached the authoring area
-    await expect(page).toHaveURL(/authoring\/home|authoring/);
     await assertA11y(page, { warnOnly: true, report: true, reportName: 'import-course-page' }, testInfo);
 
+    // Highlight first course card
     const xpathFirst = '(//div[contains(concat(" ", normalize-space(@class), " "), " courses-tab-container ")]//div[contains(concat(" ", normalize-space(@class), " "), " w-100 ")])[1]';
-
     const { stepNumber, screenshot, numberedStepNumber } = await testDoc.highlight(
       'body',
       null,
@@ -84,10 +87,19 @@ test.describe('Testdoc: How To Import a Course', () => {
       description: 'Choose the Import option from the dropdown to navigate to the course import page.',
       elementOnly: true,
     });
-    // todo: validate we are on the export page
-    // upload the course file
-    const filePath = 'artifacts/downloads/testCourseToImport.tar.gz';
-    // TODO: Fix upload issue (not working manually either with the PW playground browser)
-    await testDoc.uploadFileParagon('[data-testid="dropzone"]', filePath);
+
+    // Assert navigation to import page
+    await expect(page).toHaveURL(/import/);
+    await assertA11y(page, { warnOnly: true, report: true, reportName: 'import-course-upload' }, testInfo);
+
+    // Upload course file
+    await page.waitForSelector('[data-testid="dropzone"] input[type="file"]', { timeout: 10000 });
+    await testDoc.uploadFile('[data-testid="dropzone"] input[type="file"]', filePath);
+
+    // Generate documentation
+    await testDoc.generateMarkdown();
+    await testDoc.generateRST();
+    // eslint-disable-next-line no-console
+    console.log('✅ exported course documentation generated successfully!');
   });
 });

@@ -11,6 +11,9 @@ test.describe('Complete Course CheckList', () => {
     await loginPage.navigate();
   });
   test('user can complete the checklist of a course', async ({ page }, testInfo) => {
+    const user = process.env.TEST_USER || 'adminuser';
+    const pass = process.env.TEST_PASS || 'adminuser123';
+    const authoringTarget = process.env.AUTHORING_URL || 'http://apps.local.openedx.io:2001/authoring/home';
     const testDoc = new TestdocTest(page, 'Complete-Checklist-Course', {
       title: 'Complete the checklists of a course',
       overview: 'Once a course is created, it must be properly configured by completing all required checklists. This test guides you through the process of accessing a course and fulfilling its configuration checklists to ensure it is ready for use.',
@@ -28,16 +31,9 @@ test.describe('Complete Course CheckList', () => {
       ],
     });
     await testDoc.initialize();
-    // login
-    const user = 'adminuser';
-    const pass = 'admin123';
     await loginPage.login(user, pass);
     await page.waitForLoadState('networkidle');
-
-    // Step 1:  Navigate to the authoring/create pag
-    const authoringTarget = 'http://apps.local.openedx.io:2001';
-    // current path
-    await page.goto(`${authoringTarget}/authoring/home/`);
+    await page.goto(authoringTarget);
     await testDoc.step({
       title: 'Select the course to complete the checklist',
       description: 'From the list of available courses, click the course title to open its details and begin the checklist completion process.',
