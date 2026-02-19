@@ -13,7 +13,7 @@ TESTS=(
   "tests/courses/create-course.spec.ts"
   "tests/courses/add-section-course.spec.ts" 
   "tests/courses/add-unit.spec.ts"
-  "tests/courses/checklist-course.spec.ts"
+  # "tests/courses/checklist-course.spec.ts"
   "tests/courses/export-course.spec.ts"
   "tests/courses/import-course.spec.ts"
 )

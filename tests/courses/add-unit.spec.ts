@@ -43,7 +43,6 @@ test.describe('Add Unit to Course Test', () => {
     await expect(page).toHaveURL(/authoring\/home|authoring/);
     await assertA11y(page, { warnOnly: true, report: true, reportName: 'add-section-course-page' }, testInfo);
 
-
     await testDoc.click({
       selector: '(//a[text()="Automated TestCourse"])[1]',
       title: 'Open the Selected Course',
@@ -51,12 +50,12 @@ test.describe('Add Unit to Course Test', () => {
       elementOnly: true,
     });
     await page.waitForLoadState('networkidle');
-    await page.locator('text=New unit').scrollIntoViewIfNeeded();// check this selector
+    await page.locator('.course-outline-section').scrollIntoViewIfNeeded();// check this selector
 
     const sectionCard = await testDoc.highlight(
       '(//div[contains(@class,"section-card")])[1]',
       null,
-      { elementOnly: ".course-outline-section'", padding: 15 }
+      { elementOnly: ".course-outline-section'", padding: 15 },
     );
     testDoc.steps.push({
       stepNumber: sectionCard.stepNumber,
@@ -68,23 +67,24 @@ test.describe('Add Unit to Course Test', () => {
       showNumber: true,
     });
 
-    // select a subsection inside the secion
+    // select the "New unit" button inside the first section-card
     await testDoc.click({
-      selector: 'text=New unit',
+      selector: 'xpath=(//div[contains(@class,"section-card")][1]//div[contains(@class,"section-card__subsections")][1]//div[contains(@class,"subsection-card")][1]//button[contains(text(),"New unit")])[1]',
       title: 'Add a New Unit',
       description: 'Click the "New Unit" button to open the unit creation page, where you can enter the unit details and save your changes.',
       elementOnly: true,
-
     });
 
     /*  NOTE:
         when a user creates a unit it makes a redirect after the request, but here there's no way to get the
-        blockId, so after some digginf I though in refresh the page and then edit the element that has the blockId 
-        making the redirect successfully being able to create unit
+        blockId, so after some digging I thought in refresh the page and then edit the element that has the blockId
+        making the redirect successfully being able to create unit.
+
+        UPDATE: We don't need this anymore.
     */
-    await page.reload();
-    await page.waitForLoadState('networkidle');
-    await page.locator('[data-testid="unit-card-header__title-link"]').first().click();
+    // await page.reload();
+    // await page.waitForLoadState('networkidle');
+    // await page.locator('[data-testid="unit-card-header__title-link"]').first().click();
 
     await page.waitForLoadState('networkidle');
 
