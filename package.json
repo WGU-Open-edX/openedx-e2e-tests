@@ -16,6 +16,7 @@
     "report:a11y": "open artifacts/a11y-reports/index.html",
     "testdoc": "playwright test tests/testdoc/ --headed --project=firefox",
     "testdoc:markdown": "ts-node scripts/run-markdown-test.ts tests/testdoc/ --project=firefox",
+    "test:courses": "./scripts/run-course-tests.sh",
     "install:browsers": "playwright install",
     "lint": "./node_modules/.bin/eslint ."
   },

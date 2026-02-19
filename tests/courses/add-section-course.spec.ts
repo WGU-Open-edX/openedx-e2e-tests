@@ -42,7 +42,7 @@ test.describe('Add Section to Course Test', () => {
     await expect(page).toHaveURL(/authoring\/home|authoring/);
     await assertA11y(page, { warnOnly: true, report: true, reportName: 'add-section-course-page' }, testInfo);
     await testDoc.click({
-      selector: '(//a[text()="Automated TestCourse"])[1]',
+      selector: 'xpath=(//a[text()="Automated TestCourse"])[1]',
       title: 'Open the Selected Course',
       description: 'Navigates to the selected course page, where you can add sections and subsections as needed.',
       elementOnly: true,
