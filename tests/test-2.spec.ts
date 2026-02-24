@@ -4,7 +4,7 @@ test('test', async ({ page }) => {
   await page.goto('http://studio.local.openedx.io:8001/');
   await page.getByRole('textbox', { name: 'Username or email' }).click();
   await page.getByRole('textbox', { name: 'Username or email' }).fill('jesus.balderrama.wgu@gmail.com');
-  await page.getByRole('textbox', { name: 'Password' }).fill('Win7vbnet');
+  await page.getByRole('textbox', { name: 'Password' }).fill('password');
   await page.getByRole('button', { name: 'Sign in' }).click();
   await expect(page.getByRole('heading', { name: 'Studio home' })).toBeVisible();
 

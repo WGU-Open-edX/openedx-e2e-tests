@@ -33,7 +33,7 @@ test.describe('Testdoc: Instructor Data Downloads Test', () => {
 
     await testdoc.fill({
       selector: 'input[placeholder*="Password"], input[aria-label="Password"]',
-      value: 'Win7vbnet',
+      value: 'password',
       title: 'Enter text in "Password" field',
       description: 'Fill the textbox field with the value',
     });
