@@ -19,9 +19,8 @@
     "test:courses": "./scripts/run-course-tests.sh",
     "install:browsers": "playwright install",
     "lint": "./node_modules/.bin/eslint .",
-    "convert-to-testdoc": "ts-node scripts/convert-to-testdoc.ts",
-    "record-test": "ts-node scripts/record-test.ts",
-    "testdoc-codegen": "ts-node scripts/testdoc-codegen.ts"
+    "convert-to-testdoc": "ts-node scripts/convert-to-testdoc.ts"
+    
   },
   "keywords": [
     "edx",

@@ -14,6 +14,7 @@ test.describe('Complete Course CheckList', () => {
     const user = process.env.TEST_USER || 'adminuser';
     const pass = process.env.TEST_PASS || 'adminuser123';
     const authoringTarget = process.env.AUTHORING_URL || 'http://apps.local.openedx.io:2001/authoring/home';
+    const openEdxUrl = 'http://apps.local.openedx.io:2001';
     const testDoc = new TestdocTest(page, 'Complete-Checklist-Course', {
       title: 'Complete the checklists of a course',
       overview: 'Once a course is created, it must be properly configured by completing all required checklists. This test guides you through the process of accessing a course and fulfilling its configuration checklists to ensure it is ready for use.',
@@ -104,13 +105,25 @@ test.describe('Complete Course CheckList', () => {
       elementOnly: null,
     });
 
-    // fill the textarea
-    // Wait for the iframe to be ready
+    // --- TinyMCE debug and robust wait ---
+    // Wait for the iframe to be attached
+    await page.waitForSelector('iframe[id^="tiny-react_"]', { state: 'attached', timeout: 10000 });
+    // List all frames for debug
+    for (const f of page.frames()) {
+      console.log('Frame:', f.url());
+    }
+    // Get the frame
     const frame = await page.frameLocator('iframe[id^="tiny-react_"]');
-
-    // Type into the TinyMCE body
+    // Check if body#tinymce exists
+    const exists = await frame.locator('body#tinymce').count();
+    console.log('body#tinymce exists:', exists);
+    // Wait for the body to be visible (longer timeout)
+    await frame.locator('body#tinymce').waitFor({ state: 'visible', timeout: 10000 });
+    // Focus and fill
+    await frame.locator('body#tinymce').click();
     await frame.locator('body#tinymce').fill('Welcome to this course');
-    // todo: check CORS error, is not saving it but the flow is completed
+    // --- end TinyMCE robust logic ---
+
     await testDoc.click({
       selector: '.update-form button:has-text("Post")',
       title: 'Post the Welcome Message',
@@ -121,7 +134,7 @@ test.describe('Complete Course CheckList', () => {
     const path = new URL(page.url()).pathname;
     const checklistPath = `${path.replace(/\/[^/]+$/, '')}/checklists`;
     // checklist page
-    await page.goto(`${authoringTarget}${checklistPath}`);
+    await page.goto(`${openEdxUrl}${checklistPath}`);
     // checklist updated
     testDoc.steps.push({
       stepNumber: launchChecklist.stepNumber,
@@ -135,7 +148,7 @@ test.describe('Complete Course CheckList', () => {
 
     // Course grading policy
     await testDoc.click({
-      selector: '#checklist-item-gradingPolicy a:has(button:has-text("Update"))',
+      selector: '#checklist-item-gradingPolicy a[data-testid="update-link"] > button:has-text("Update")',
       title: 'Add Course Grading Policy',
       description: 'Click the update button to configure the grading policy for the course, specifying grade segments and criteria.',
       elementOnly: null,
@@ -155,6 +168,7 @@ test.describe('Complete Course CheckList', () => {
       note: null,
       showNumber: true,
     });
+  
     // await testDoc.click({
     //   selector: 'button[aria-label="Add new grading segment"]',
     //   title: 'Add more grades',
@@ -228,7 +242,7 @@ test.describe('Complete Course CheckList', () => {
     });
 
     // going back to checklist page
-    await page.goto(`${authoringTarget}${checklistPath}`);
+    await page.goto(`${openEdxUrl}${checklistPath}`);
     // checklist updated
     testDoc.steps.push({
       stepNumber: launchChecklist.stepNumber,
@@ -287,7 +301,7 @@ test.describe('Complete Course CheckList', () => {
       elementOnly: 'form',
       padding: 100,
     });
-  
+
     await testDoc.fill({
       selector: 'input[name="enrollmentStart-date"]',
       value: formatDate(enrollmentStartDate),
@@ -340,10 +354,10 @@ test.describe('Complete Course CheckList', () => {
     });
 
     testDoc.note('the course short descripcition can be empty and in the course overview you will find a useful template');
-    await page.locator('.introducing-section .pgn__form-group:nth-child(4)').scrollIntoViewIfNeeded();
+    await page.locator('.introducing-section .pgn__form-group.w-100').scrollIntoViewIfNeeded();
     // Course Card Image
     const courseImage = await testDoc.highlight(
-      '.introducing-section .pgn__form-group:nth-child(4)',
+      '.introducing-section .pgn__form-group.w-100',
       null,
       { elementOnly: 'body', padding: 15 },
     );
@@ -358,10 +372,10 @@ test.describe('Complete Course CheckList', () => {
     });
 
     // Course video introduction
-    await page.locator('.introducing-section .pgn__form-group:nth-child(5)').scrollIntoViewIfNeeded();
+    await page.locator('.introducing-section .pgn__form-group.form-group-custom:last-of-type').scrollIntoViewIfNeeded();
     // Course Card Image
     const courseVideo = await testDoc.highlight(
-      '.introducing-section .pgn__form-group:nth-child(5)',
+      '.introducing-section .pgn__form-group.form-group-custom:last-of-type',
       null,
       { elementOnly: 'body', padding: 15 },
     );
@@ -374,8 +388,10 @@ test.describe('Complete Course CheckList', () => {
       note: null,
       showNumber: true,
     });
+
     // Course Requirements
     await page.locator('.requirements-section').scrollIntoViewIfNeeded();
+    
     const courseRequeriments = await testDoc.highlight(
       '.requirements-section',
       null,
@@ -407,6 +423,7 @@ test.describe('Complete Course CheckList', () => {
       note: null,
       showNumber: true,
     });
+
     // showing the save button
     // TODO: check why the button is not saving
     // await testDoc.ShowElement('.alert-content', 'flex');
