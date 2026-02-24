@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../common/page-objects';
 import { assertA11y } from '../common/a11y-helpers';
+import { VisualRegression } from '../common/visual-regression-helpers';
 
 test.describe('Authentication Tests', () => {
   let loginPage: LoginPage;
@@ -11,10 +12,18 @@ test.describe('Authentication Tests', () => {
   });
 
   test('user can login with valid credentials', async ({ page }, testInfo) => {
+    const vr = new VisualRegression(page, testInfo);
+
     // Wait for login form to be fully loaded
     await expect(loginPage.emailInput).toBeVisible();
     await expect(loginPage.passwordInput).toBeVisible();
     await expect(loginPage.loginButton).toBeVisible();
+
+    // Capture login page baseline
+    await vr.captureAndCompare({
+      name: 'login-page-initial',
+      fullPage: true,
+    });
 
     await assertA11y(page, { warnOnly: true, report: true, reportName: 'login-page' }, testInfo);
 
@@ -44,7 +53,25 @@ test.describe('Authentication Tests', () => {
 
     // Expect successful redirect to dashboard
     await expect(page).toHaveURL(/dashboard/);
-    await assertA11y(page, { warnOnly: true, report: true, reportName: 'dashboard' }, testInfo);
+
+    // Navigate to account settings page for visual regression demo
+    await page.goto('http://apps.local.openedx.io:1997/account/');
+    await page.waitForLoadState('networkidle');
+
+    // Capture account page state after successful login
+    // Mask dynamic content like timestamps and user-specific data
+    await vr.captureAndCompare({
+      name: 'account-page-after-login',
+      fullPage: true,
+      threshold: 0.15, // Allow minor rendering differences (anti-aliasing, fonts)
+      mask: [
+        '.timestamp',
+        '[data-testid="user-greeting"]',
+        '.last-login-time',
+      ],
+    });
+
+    await assertA11y(page, { warnOnly: true, report: true, reportName: 'account-page' }, testInfo);
   });
 
   test('user sees error with invalid credentials', async ({ page }) => {

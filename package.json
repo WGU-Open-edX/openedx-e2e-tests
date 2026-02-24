@@ -18,7 +18,10 @@
     "testdoc:markdown": "ts-node scripts/run-markdown-test.ts tests/testdoc/ --project=firefox",
     "test:courses": "./scripts/run-course-tests.sh",
     "install:browsers": "playwright install",
-    "lint": "./node_modules/.bin/eslint ."
+    "lint": "./node_modules/.bin/eslint .",
+    "convert-to-testdoc": "ts-node scripts/convert-to-testdoc.ts",
+    "record-test": "ts-node scripts/record-test.ts",
+    "testdoc-codegen": "ts-node scripts/testdoc-codegen.ts"
   },
   "keywords": [
     "edx",
@@ -32,6 +35,7 @@
     "@axe-core/playwright": "^4.10.2",
     "@edx/eslint-config": "^4.4.0",
     "@types/node": "^24.6.0",
+    "@types/pngjs": "^6.0.5",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "axe-html-reporter": "^2.2.11",
@@ -42,6 +46,8 @@
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^4.6.2",
+    "pixelmatch": "^7.1.0",
+    "pngjs": "^7.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   },

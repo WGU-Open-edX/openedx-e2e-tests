@@ -122,8 +122,6 @@ test('my test', async ({ page }, testInfo) => {
 - `disabledRules: ['rule-id']` - Disable specific rules
 - `exclude: ['.selector']` - Exclude elements from scan
 
-## Test Documentation
-
 Generate documentation from test execution with screenshots:
 
 ```bash

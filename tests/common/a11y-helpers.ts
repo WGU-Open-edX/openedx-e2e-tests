@@ -134,22 +134,30 @@ async function captureViolationScreenshots(
           const padding = 20;
           const viewport = page.viewportSize();
           if (viewport) {
-            await page.screenshot({
-              path: screenshotPath,
-              clip: {
-                x: Math.max(0, elementBox.x - padding),
-                y: Math.max(0, elementBox.y - padding),
-                width: Math.min(
-                  viewport.width - Math.max(0, elementBox.x - padding),
-                  elementBox.width + 2 * padding,
-                ),
-                height: Math.min(
-                  viewport.height - Math.max(0, elementBox.y - padding),
-                  elementBox.height + 2 * padding,
-                ),
-              },
-            });
-            screenshots.push(screenshotName);
+            const clipX = Math.max(0, elementBox.x - padding);
+            const clipY = Math.max(0, elementBox.y - padding);
+            const clipWidth = Math.min(
+              viewport.width - clipX,
+              elementBox.width + 2 * padding,
+            );
+            const clipHeight = Math.min(
+              viewport.height - clipY,
+              elementBox.height + 2 * padding,
+            );
+            if (clipWidth <= 0 || clipHeight <= 0) {
+              console.warn(`Skipping screenshot for ${selector}: clip area has zero or negative dimensions`);
+            } else {
+              await page.screenshot({
+                path: screenshotPath,
+                clip: {
+                  x: clipX,
+                  y: clipY,
+                  width: clipWidth,
+                  height: clipHeight,
+                },
+              });
+              screenshots.push(screenshotName);
+            }
           }
         }
 

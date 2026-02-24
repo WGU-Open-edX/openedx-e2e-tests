@@ -25,6 +25,14 @@ export class LoginPage {
     await this.loginButton.click();
   }
 
+  /** Login and wait for the auth redirect to complete (use when navigating immediately after login) */
+  async loginAndWait(emailOrUsername: string, password: string): Promise<void> {
+    await this.login(emailOrUsername, password);
+    // Wait for the login redirect to complete so the session cookie is set
+    // before any subsequent page.goto() calls
+    await this.page.waitForURL((url) => !url.pathname.includes('/authn/'), { timeout: 15000 });
+  }
+
   async togglePasswordVisibility(): Promise<void> {
     await this.page.locator('button[name="passwordIcon"]').click();
   }
