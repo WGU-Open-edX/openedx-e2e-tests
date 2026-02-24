@@ -26,14 +26,14 @@ test.describe('Testdoc: Instructor Data Downloads Test', () => {
 
     await testdoc.fill({
       selector: 'input[placeholder*="Username or email"], input[aria-label="Username or email"]',
-      value: 'jesus.balderrama.wgu@gmail.com',
+      value: 'jessestewart',
       title: 'Enter text in "Username or email" field',
       description: 'Fill the textbox field with the value',
     });
 
     await testdoc.fill({
       selector: 'input[placeholder*="Password"], input[aria-label="Password"]',
-      value: 'password',
+      value: 'g0ldb0nd',
       title: 'Enter text in "Password" field',
       description: 'Fill the textbox field with the value',
     });

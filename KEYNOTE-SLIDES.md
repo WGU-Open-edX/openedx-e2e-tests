@@ -3,6 +3,8 @@ marp: true
 theme: default
 paginate: true
 backgroundColor: #fff
+header: '![width:200px](public/wgu-logo.png)'
+footer: 'Open edX E2E Testing Suite - Open edX Mini Summit - 2/25/2026'
 ---
 
 <!-- _class: lead -->
@@ -16,7 +18,6 @@ backgroundColor: #fff
 ## The Problem
 
 - Frontend code has a **short shelf life**
-- Documentation needs are **long shelf life**
 - Screenshots go stale within a single release cycle
 - Accessibility audits happen quarterly (if you're lucky)
 - Visual bugs slip through functional tests
@@ -51,18 +52,30 @@ So why maintain two separate efforts?
 ```
 openedx-e2e-tests/
 ├── tests/
-│   ├── auth/                 # Authentication tests
-│   ├── testdoc/              # Markdown-driven test docs
+│   ├── auth/                       # Authentication tests
+│   ├── courses/                    # Course management tests
+│   ├── testdoc/                    # Markdown-driven test docs
 │   ├── common/
 │   │   ├── page-objects.ts
 │   │   ├── a11y-helpers.ts
 │   │   └── visual-regression-helpers.ts
+│   └── __visual-baselines__/       # Baseline images for visual regression
 ├── utils/
-│   └── testdoc.ts            # Documentation framework
-├── artifacts/                # All outputs (gitignored)
-│   ├── testdoc-output/       # Auto-generated docs
-│   ├── a11y-reports/         # Accessibility reports
-│   └── visual-regression/    # Current screenshots & diffs
+│   ├── testdoc.ts                  # Documentation framework
+│   ├── element-highlighter.ts      # UI element highlighting
+│   ├── markdown-test-parser.ts     # Markdown test parser
+│   └── dates.ts                    # Date utilities
+├── artifacts/                      # All outputs (gitignored)
+│   ├── testdoc-output/             # Auto-generated docs
+│   ├── a11y-reports/               # Accessibility reports
+│   ├── visual-regression/          # Current screenshots & diffs
+│   ├── playwright-report/          # Test execution reports
+│   ├── test-results/               # Test result artifacts
+│   └── downloads/                  # Downloaded files from tests
+├── docs/                           # Project documentation
+└── scripts/                        # Setup & utility scripts
+
+
 ```
 
 ---
@@ -171,8 +184,6 @@ await testdoc.fill({
   padding: 30
 });
 ```
-
-**Pro Tip:** Use your email address as it's most common.
 ````
 
 ---
@@ -482,7 +493,7 @@ Reviewer downloads artifacts
 
 ## The Payoff
 
-**Short shelf-life code** attached to **long shelf-life problems**
+**Short shelf-life code**
 
 When the UI changes:
 1. Test fails ❌

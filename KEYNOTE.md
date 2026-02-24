@@ -16,11 +16,11 @@ The argument against E2E testing has always been cost: they're slow, they're fla
 
 ---
 
-## The Core Idea: Short Shelf-Life Code, Long Shelf-Life Problems
+## The Core Idea: Short Shelf-Life Code
 
 Frontend code has a short shelf life. Components get refactored. Design systems evolve. Frameworks get replaced. The instructor dashboard you shipped six months ago may already look different from the screenshots in your documentation.
 
-But the *need* for accurate documentation, accessibility compliance, and visual consistency doesn't expire. These are long shelf-life problems attached to short shelf-life code.
+But the *need* for accurate documentation, accessibility compliance, and visual consistency doesn't expire.
 
 Keeping documentation and screenshots up to date is one of the most manual, tedious, and frequently neglected tasks in any project. People write docs at launch and never touch them again. Screenshots go stale within a single release cycle. Accessibility audits happen quarterly if you're lucky.
 
