@@ -33,7 +33,7 @@ test.describe('Testdoc: Instructor Data Downloads Test', () => {
 
     await testdoc.fill({
       selector: 'input[placeholder*="Password"], input[aria-label="Password"]',
-      value: 'password',
+      value: 'Win7vbnet',
       title: 'Enter text in "Password" field',
       description: 'Fill the textbox field with the value',
     });
@@ -54,7 +54,7 @@ test.describe('Testdoc: Instructor Data Downloads Test', () => {
 
     await testdoc.fill({
       selector: 'input[placeholder*="Course name"], input[aria-label="Course name"]',
-      value: 'New Course4',
+      value: 'New Course5',
       title: 'Enter text in "Course name" field',
       description: 'Fill the textbox field with the value',
     });
@@ -64,7 +64,7 @@ test.describe('Testdoc: Instructor Data Downloads Test', () => {
 
     await testdoc.fill({
       selector: 'input[placeholder*="Course number"], input[aria-label="Course number"]',
-      value: '4',
+      value: '5',
       title: 'Enter text in "Course number" field',
       description: 'Fill the textbox field with the value',
     });
@@ -82,7 +82,7 @@ test.describe('Testdoc: Instructor Data Downloads Test', () => {
       description: 'Click the button labeled "Create"',
     });
 
-    await expect(page.getByTestId('course-lock-up-block')).toContainText('New Course4');
+    await expect(page.getByTestId('course-lock-up-block')).toContainText('New Course5');
 
     // Generate documentation
     await testdoc.generateMarkdown();

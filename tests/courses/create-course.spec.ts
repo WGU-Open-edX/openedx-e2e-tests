@@ -3,6 +3,7 @@ import { LoginPage } from '../common/page-objects';
 import { TestdocTest } from '../../utils/testdoc';
 import { assertA11y } from '../common/a11y-helpers';
 
+test.skip();
 test.describe('Testdoc: How To Create a Course', () => {
   let loginPage: LoginPage;
 

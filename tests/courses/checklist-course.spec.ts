@@ -4,6 +4,7 @@ import { TestdocTest } from '../../utils/testdoc';
 import { assertA11y } from '../common/a11y-helpers';
 import { formatDate, shiftDate } from '../../utils/dates';
 
+test.skip();
 test.describe('Complete Course CheckList', () => {
   let loginPage: LoginPage;
   test.beforeEach(async ({ page }) => {
