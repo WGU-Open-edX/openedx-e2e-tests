@@ -3,7 +3,7 @@ marp: true
 theme: default
 paginate: true
 backgroundColor: #fff
-header: '![width:200px](public/wgu-logo.png)'
+header: '![width:200px](public/wgu-logo.png)  ![width:160px](public/edx-logo.png)'
 footer: 'Open edX E2E Testing Suite - Open edX Mini Summit - 2/25/2026'
 ---
 
@@ -311,6 +311,24 @@ test('account settings visual regression', async ({ page }, testInfo) => {
 **Output:**
 - `artifacts/visual-regression/.../current/account-page.png`
 - `artifacts/visual-regression/.../diff/account-page-diff.png`
+
+---
+
+`/tests/__visual-baselines__/chromium/auth_login_spec_ts-Authentication_Tests-user_can_login_with_valid_credentials/account-page-after-login.png`
+
+![width:800px](public/account-page-after-login-baseline.png)
+
+---
+
+`artifacts/visual-regression/.../current/account-page.png`
+
+![width:800px](public/account-page-after-login.png)
+
+---
+
+`artifacts/visual-regression/.../diff/account-page-diff.png`
+
+![width:800px](public/account-page-after-login-diff.png)
 
 ---
 
