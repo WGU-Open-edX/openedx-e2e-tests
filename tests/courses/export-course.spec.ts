@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../common/page-objects';
-import { TestdocTest } from '../../utils/testdoc';
-import { assertA11y } from '../common/a11y-helpers';
+import { TestdocTest, assertA11y } from '../../src';
 
 test.skip();
 test.describe('Export Course Tests', () => {

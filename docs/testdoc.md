@@ -2,12 +2,18 @@
 
 The TestdocTest framework allows you to generate professional user documentation automatically while running Playwright tests. This creates step-by-step guides with screenshots that read like official documentation.
 
+## Installation
+
+```bash
+npm install @wgu-jesse-stewart/openedx-e2e-tests
+```
+
 ## Getting Started
 
 ### Basic Usage
 
-```javascript
-const { TestdocTest } = require('../utils/testdoc');
+```typescript
+import { TestdocTest } from '@wgu-jesse-stewart/openedx-e2e-tests';
 
 const testdoc = new TestdocTest(page, "folder-name", {
   title: "How to Perform This Task",
@@ -21,6 +27,14 @@ const testdoc = new TestdocTest(page, "folder-name", {
 });
 
 await testdoc.initialize();
+```
+
+### In This Repository (Examples)
+
+If you're working with the example tests in this repository:
+
+```typescript
+import { TestdocTest } from '../../src';
 ```
 
 ## Constructor Options

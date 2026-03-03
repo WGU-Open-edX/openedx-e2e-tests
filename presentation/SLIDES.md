@@ -17,10 +17,10 @@ footer: 'Open edX E2E Testing Suite - Open edX Mini Summit - 2/25/2026'
 
 ## The Problem
 
-- Frontend code has a **short shelf life**
 - Screenshots go stale within a single release cycle
 - Accessibility audits happen quarterly (if you're lucky)
 - Visual bugs slip through functional tests
+- Documentation drifts from what actually shipped
 
 ---
 
@@ -51,31 +51,27 @@ So why maintain two separate efforts?
 
 ```
 openedx-e2e-tests/
-├── tests/
-│   ├── auth/                       # Authentication tests
-│   ├── courses/                    # Course management tests
-│   ├── testdoc/                    # Markdown-driven test docs
-│   ├── common/
-│   │   ├── page-objects.ts
-│   │   ├── a11y-helpers.ts
-│   │   └── visual-regression-helpers.ts
-│   └── __visual-baselines__/       # Baseline images for visual regression
-├── utils/
-│   ├── testdoc.ts                  # Documentation framework
-│   ├── element-highlighter.ts      # UI element highlighting
-│   ├── markdown-test-parser.ts     # Markdown test parser
-│   └── dates.ts                    # Date utilities
-├── artifacts/                      # All outputs (gitignored)
-│   ├── testdoc-output/             # Auto-generated docs
-│   ├── a11y-reports/               # Accessibility reports
-│   ├── visual-regression/          # Current screenshots & diffs
-│   ├── playwright-report/          # Test execution reports
-│   ├── test-results/               # Test result artifacts
-│   └── downloads/                  # Downloaded files from tests
-├── docs/                           # Project documentation
-└── scripts/                        # Setup & utility scripts
-
-
+├── src/                      # Library source code (published to npm)
+│   ├── index.ts              # Main exports
+│   ├── testdoc.ts            # Test documentation framework
+│   ├── a11y-helpers.ts       # Accessibility utilities
+│   ├── visual-regression-helpers.ts
+│   └── types/                # TypeScript definitions
+├── bin/                      # CLI tools (published)
+│   └── run-markdown-test.ts  # Markdown test runner
+├── tests/                    # Example tests (not published)
+│   ├── auth/                 # Authentication examples
+│   ├── courses/              # Course management examples
+│   ├── testdoc/              # Documentation generation examples
+│   └── __visual-baselines__  # Visual regression baselines
+├── docs/                     # Documentation guides
+├── artifacts/                # Generated artifacts (gitignored)
+│   ├── a11y-reports/         # Accessibility reports
+│   ├── playwright-report/    # HTML test reports
+│   ├── testdoc-output/       # Auto-generated documentation
+│   └── visual-regression/    # Visual diffs
+├── dist/                     # Compiled library (published)
+└── package.json
 ```
 
 ---
@@ -511,9 +507,8 @@ Reviewer downloads artifacts
 
 ## The Payoff
 
-**Short shelf-life code**
+**When the UI changes:**
 
-When the UI changes:
 1. Test fails ❌
 2. Fix the selector ✅
 3. Documentation updates automatically 📚

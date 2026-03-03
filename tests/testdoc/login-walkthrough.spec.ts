@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { TestdocTest } from '../../utils/testdoc';
+import { TestdocTest, assertA11y } from '../../src';
 import { LoginPage } from '../common/page-objects';
-import { assertA11y } from '../common/a11y-helpers';
 
 test.describe('Testdoc: How to Login', () => {
   test('generate login documentation', async ({ page }, testInfo) => {

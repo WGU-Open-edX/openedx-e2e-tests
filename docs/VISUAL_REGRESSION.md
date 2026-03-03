@@ -4,6 +4,12 @@
 
 The visual regression utility uses `pixelmatch` to perform pixel-by-pixel comparison of screenshots. It captures baseline images, stores them in version control, and generates diff images with red highlights showing exactly which pixels changed between runs.
 
+## Installation
+
+```bash
+npm install @wgu-jesse-stewart/openedx-e2e-tests
+```
+
 ## How It Works
 
 1. **First run**: Generates baseline screenshots stored in `tests/__visual-baselines__/{browser}/{test-name}/` (tracked in git)
@@ -19,7 +25,8 @@ The visual regression utility uses `pixelmatch` to perform pixel-by-pixel compar
 ### Basic Example
 
 ```typescript
-import { VisualRegression } from '../common/visual-regression-helpers';
+import { test } from '@playwright/test';
+import { VisualRegression } from '@wgu-jesse-stewart/openedx-e2e-tests';
 
 test('my visual test', async ({ page }, testInfo) => {
   const vr = new VisualRegression(page, testInfo);
@@ -32,6 +39,29 @@ test('my visual test', async ({ page }, testInfo) => {
     fullPage: true,
   });
 });
+```
+
+### Convenience Function
+
+```typescript
+import { assertVisualRegression } from '@wgu-jesse-stewart/openedx-e2e-tests';
+
+test('quick visual test', async ({ page }, testInfo) => {
+  await page.goto('/dashboard');
+
+  await assertVisualRegression(page, testInfo, {
+    name: 'dashboard-view',
+    fullPage: true
+  });
+});
+```
+
+### In This Repository (Examples)
+
+If you're working with the example tests in this repository:
+
+```typescript
+import { VisualRegression } from '../../src';
 ```
 
 ### Masking Dynamic Content

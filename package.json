@@ -1,7 +1,25 @@
 {
-  "name": "openedx-e2e-tests",
+  "name": "@wgu-jesse-stewart/openedx-e2e-tests",
   "version": "1.0.0",
   "description": "End-to-end tests for Open edX microservices and MFEs using Playwright",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "bin": {
+    "run-markdown-test": "dist/bin/run-markdown-test.js"
+  },
+  "files": [
+    "dist/src",
+    "dist/bin",
+    "src",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/src/index.js",
+      "require": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    }
+  },
   "scripts": {
     "test": "playwright test",
     "test:headed": "playwright test --headed",
@@ -18,9 +36,10 @@
     "testdoc:markdown": "ts-node scripts/run-markdown-test.ts tests/testdoc/ --project=firefox",
     "test:courses": "./scripts/run-course-tests.sh",
     "install:browsers": "playwright install",
-    "lint": "./node_modules/.bin/eslint .",
-    "convert-to-testdoc": "ts-node scripts/convert-to-testdoc.ts"
-    
+    "lint": "eslint .",
+    "convert-to-testdoc": "ts-node scripts/convert-to-testdoc.ts",
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "edx",

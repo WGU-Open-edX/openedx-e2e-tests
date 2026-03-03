@@ -59,7 +59,7 @@ export interface A11yCheckOptions {
  * @param options - Configuration options for the accessibility check
  * @returns Axe accessibility scan results
  */
-export async function checkA11y(page: Page, options: A11yCheckOptions = {}) {
+export async function checkA11y(page: Page, options: A11yCheckOptions = {}): Promise<AxeResults> {
   let axeBuilder = new AxeBuilder({ page });
 
   if (options.disabledRules && options.disabledRules.length > 0) {

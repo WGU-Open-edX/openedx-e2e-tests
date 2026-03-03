@@ -1,8 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../common/page-objects';
-import { TestdocTest } from '../../utils/testdoc';
-import { assertA11y } from '../common/a11y-helpers';
-import { formatDate, shiftDate } from '../../utils/dates';
+import { TestdocTest, assertA11y, formatDate, shiftDate } from '../../src';
 
 test.skip();
 test.describe('Complete Course CheckList', () => {

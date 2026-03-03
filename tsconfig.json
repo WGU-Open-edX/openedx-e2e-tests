@@ -13,18 +13,23 @@
     "types": ["node", "@playwright/test"],
     "outDir": "./dist",
     "rootDir": "./",
-    "sourceMap": true
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true
   },
   "include": [
+    "src/**/*",
+    "bin/**/*",
     "tests/**/*",
     "utils/**/*",
     "scripts/**/*",
     "playwright.config.ts",
-    ".eslintrc.js"
-, "types/autodoc.types.ts", "types/markdown-test-parser.types.ts"  ],
+    ".eslintrc.js",
+    "types/autodoc.types.ts",
+    "types/markdown-test-parser.types.ts"
+  ],
   "exclude": [
     "node_modules",
-    "dist",
-    //"**/*.js"
+    "dist"
   ]
 }
