@@ -1,4 +1,3 @@
-
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import { Page, Download } from '@playwright/test';
@@ -103,10 +102,10 @@ export class TestdocTest {
       await this.page.waitForTimeout(1000);
 
       if (act) {
-        await this.page.screenshot({ path: screenshotPath, fullPage: true });
+        await this.page.screenshot({ path: screenshotPath, fullPage: true, scale: 'css' });
         await act();
       } else {
-        await this.page.screenshot({ path: screenshotPath, fullPage: true });
+        await this.page.screenshot({ path: screenshotPath, fullPage: true, scale: 'css' });
       }
     } else if (act) {
       await act();
@@ -178,6 +177,7 @@ export class TestdocTest {
         if (viewport) {
           await this.page.screenshot({
             path: screenshotPath,
+            scale: 'css',
             clip: {
               x: Math.max(0, elementBox.x - padding),
               y: Math.max(0, elementBox.y - padding),
@@ -188,10 +188,10 @@ export class TestdocTest {
           });
         }
       } else {
-        await targetElement.screenshot({ path: screenshotPath });
+        await targetElement.screenshot({ path: screenshotPath, scale: 'css' });
       }
     } else {
-      await this.page.screenshot({ path: screenshotPath, fullPage: true });
+      await this.page.screenshot({ path: screenshotPath, fullPage: true, scale: 'css' });
     }
 
     this.steps.push({
@@ -415,13 +415,13 @@ export class TestdocTest {
     }
 
     if (this.prerequisites.length > 0) {
-      rst += `Prerequisites\n`;
-      rst += '='.repeat('Prerequisites'.length) + '\n\n';
-      rst += `Before you begin, ensure that:\n\n`;
+      rst += 'Prerequisites\n';
+      rst += `${'='.repeat('Prerequisites'.length)}\n\n`;
+      rst += 'Before you begin, ensure that:\n\n';
       for (const prereq of this.prerequisites) {
         rst += `- ${prereq}\n`;
       }
-      rst += `\n`;
+      rst += '\n';
     }
 
     if (this.notes.length > 0) {
@@ -430,16 +430,16 @@ export class TestdocTest {
       }
     }
 
-    rst += `Steps\n`;
-    rst += '='.repeat('Steps'.length) + '\n\n';
-    rst += `To complete this process, follow these steps:\n\n`;
+    rst += 'Steps\n';
+    rst += `${'='.repeat('Steps'.length)}\n\n`;
+    rst += 'To complete this process, follow these steps:\n\n';
 
     for (const step of this.steps) {
       const heading = step.showNumber !== false && step.numberedStepNumber !== null
         ? `${step.numberedStepNumber}. ${step.title}`
         : step.title;
       rst += `${heading}\n`;
-      rst += '-'.repeat(heading.length) + '\n\n';
+      rst += `${'-'.repeat(heading.length)}\n\n`;
 
       if (step.description) {
         rst += `${step.description}\n\n`;
@@ -457,8 +457,8 @@ export class TestdocTest {
     }
 
     if (this.relatedTopics.length > 0) {
-      rst += `Related Topics\n`;
-      rst += '='.repeat('Related Topics'.length) + '\n\n';
+      rst += 'Related Topics\n';
+      rst += `${'='.repeat('Related Topics'.length)}\n\n`;
       for (const topic of this.relatedTopics) {
         if (typeof topic === 'string') {
           rst += `- ${topic}\n`;
@@ -466,11 +466,11 @@ export class TestdocTest {
           rst += `- \`${topic.title} <${topic.url}>\`_\n`;
         }
       }
-      rst += `\n`;
+      rst += '\n';
     }
 
-    rst += `----\n\n`;
-    rst += `*This documentation was automatically generated during testing.*\n`;
+    rst += '----\n\n';
+    rst += '*This documentation was automatically generated during testing.*\n';
 
     await fs.writeFile(rstPath, rst, 'utf8');
     console.log(`📄 RST Documentation generated: ${rstPath}`);
@@ -487,10 +487,10 @@ export class TestdocTest {
     // Construct the full URL if href is relative
     let fullUrl = href;
     if (href.startsWith('/')) {
-      const baseUrl = this.page.url().split(/\/(?=[^\/]*$)/)[0]; // Get base URL
+      const baseUrl = this.page.url().split(/\/(?=[^\\/]*$)/)[0]; // Get base URL
       fullUrl = baseUrl + href;
     } else if (!href.startsWith('http')) {
-      const baseUrl = this.page.url().split(/\/(?=[^\/]*$)/)[0];
+      const baseUrl = this.page.url().split(/\/(?=[^\\/]*$)/)[0];
       fullUrl = `${baseUrl} '/' ${href}`;
     }
     // eslint-disable-next-line no-console
@@ -525,7 +525,7 @@ export class TestdocTest {
     const { stepNumber, numberedStepNumber, screenshot } = await this.highlight(
       selector,
       null,
-      { title: title || `Upload file to ${selector}` }
+      { title: title || `Upload file to ${selector}` },
     );
     // Set the file on the input
     await this.page.setInputFiles(selector, absolutePath);

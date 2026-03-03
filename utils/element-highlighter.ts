@@ -108,6 +108,7 @@ export async function captureHighlightedScreenshot(
       if (viewport) {
         await page.screenshot({
           path: options.path,
+          scale: 'css',
           clip: {
             x: Math.max(0, elementBox.x - padding),
             y: Math.max(0, elementBox.y - padding),
@@ -123,10 +124,10 @@ export async function captureHighlightedScreenshot(
         });
       }
     } else {
-      await locator.screenshot({ path: options.path });
+      await locator.screenshot({ path: options.path, scale: 'css' });
     }
   } else {
-    await page.screenshot({ path: options.path, fullPage: true });
+    await page.screenshot({ path: options.path, fullPage: true, scale: 'css' });
   }
 }
 

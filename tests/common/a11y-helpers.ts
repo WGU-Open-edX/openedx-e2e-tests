@@ -170,7 +170,7 @@ async function captureViolationScreenshots(
     }
 
     if (screenshots.length > 0) {
-      screenshotMap.set(`${violation.id} '-' ${i}`, screenshots);
+      screenshotMap.set(`${violation.id}-${i}`, screenshots);
     }
   }
 
@@ -216,7 +216,7 @@ function addScreenshotsToReport(
   let reportHtmlCopy = reportHtml.replace('</head>', `${screenshotStyles}</head>`);
 
   // Add screenshot column header to each violation table
-  reportHtmlCopy = reportHtml.replace(
+  reportHtmlCopy = reportHtmlCopy.replace(
     /<th style="width: 49%">Issue Description<\/th>\s*<th style="width: 49%">\s*To solve this violation, you need to\.\.\.\s*<\/th>/g,
     `<th style="width: 30%">Issue Description</th>
                                     <th style="width: 30%">
@@ -232,18 +232,18 @@ function addScreenshotsToReport(
 
     // Find the violation card
     const anchorPattern = `<a id="${violationId}">${violationId}.</a>`;
-    const anchorIdx = reportHtml.indexOf(anchorPattern);
+    const anchorIdx = reportHtmlCopy.indexOf(anchorPattern);
 
     if (anchorIdx === -1) { return; }
 
     // Find the tbody within this violation card
-    const tbodyStart = reportHtml.indexOf('<tbody>', anchorIdx);
+    const tbodyStart = reportHtmlCopy.indexOf('<tbody>', anchorIdx);
     if (tbodyStart === -1) { return; }
 
-    const tbodyEnd = reportHtml.indexOf('</tbody>', tbodyStart);
+    const tbodyEnd = reportHtmlCopy.indexOf('</tbody>', tbodyStart);
     if (tbodyEnd === -1) { return; }
 
-    const tbodyContent = reportHtml.substring(tbodyStart, tbodyEnd);
+    const tbodyContent = reportHtmlCopy.substring(tbodyStart, tbodyEnd);
 
     // Find all <tr> elements and add screenshot cell to each
     let modifiedTbody = tbodyContent;
@@ -269,7 +269,7 @@ function addScreenshotsToReport(
     });
 
     // Replace the tbody content
-    reportHtmlCopy = reportHtml.substring(0, tbodyStart) + modifiedTbody + reportHtml.substring(tbodyEnd);
+    reportHtmlCopy = reportHtmlCopy.substring(0, tbodyStart) + modifiedTbody + reportHtmlCopy.substring(tbodyEnd);
   });
 
   return reportHtmlCopy;
