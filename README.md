@@ -11,7 +11,7 @@ A comprehensive testing toolkit that goes beyond functional testing to help you 
 Rich Playwright HTML reports with screenshots, traces, and detailed test results to help you debug failures quickly.
 
 <p align="center">
-  <img src="docs/assets/playwright-report.png" alt="Playwright Test Report" width="70%" />
+  <img src="https://github.com/WGU-Open-edX/openedx-e2e-tests/raw/main/docs/assets/playwright-report.png" alt="Playwright Test Report" width="70%" />
 </p>
 
 ### Accessibility Testing
@@ -21,8 +21,8 @@ Built-in accessibility checks using axe-core with detailed HTML reports. Catch W
 [Accessibility Testing Documentation →](docs/A11Y_TESTING.md)
 
 <p align="center">
-  <img src="docs/assets/a11y-report-1.png" alt="Accessibility Report Overview" width="45%" />
-  <img src="docs/assets/a11y-report-2.png" alt="Accessibility Report Details" width="45%" />
+  <img src="https://github.com/WGU-Open-edX/openedx-e2e-tests/raw/main/docs/assets/a11y-report-1.png" alt="Accessibility Report Overview" width="45%" />
+  <img src="https://github.com/WGU-Open-edX/openedx-e2e-tests/raw/main/docs/assets/a11y-report-2.png" alt="Accessibility Report Details" width="45%" />
 </p>
 
 ### Test Documentation Generation
@@ -32,9 +32,9 @@ Auto-generate professional user documentation with screenshots directly from you
 [TestDoc Documentation →](docs/testdoc.md)
 
 <p align="center">
-  <img src="docs/assets/testdoc-markdown.png" alt="Markdown Output" width="30%" />
-  <img src="docs/assets/testdoc-preview.png" alt="Preview" width="30%" />
-  <img src="docs/assets/testdoc-rst.png" alt="reStructuredText Output" width="30%" />
+  <img src="https://github.com/WGU-Open-edX/openedx-e2e-tests/raw/main/docs/assets/testdoc-markdown.png" alt="Markdown Output" width="30%" />
+  <img src="https://github.com/WGU-Open-edX/openedx-e2e-tests/raw/main/docs/assets/testdoc-preview.png" alt="Preview" width="30%" />
+  <img src="https://github.com/WGU-Open-edX/openedx-e2e-tests/raw/main/docs/assets/testdoc-rst.png" alt="reStructuredText Output" width="30%" />
 </p>
 
 ### Visual Regression Testing
@@ -44,9 +44,9 @@ Pixel-perfect screenshot comparison with diff highlighting. Automatically detect
 [Visual Regression Testing Documentation →](docs/VISUAL_REGRESSION.md)
 
 <p align="center">
-  <img src="docs/assets/visual-regression-1.png" alt="Visual Regression Baseline vs Current" width="30%" />
-  <img src="docs/assets/visual-regression-2.png" alt="Visual Regression Diff" width="30%" />
-  <img src="docs/assets/visual-regression-3.png" alt="Visual Regression Results" width="30%" />
+  <img src="https://github.com/WGU-Open-edX/openedx-e2e-tests/raw/main/docs/assets/visual-regression-1.png" alt="Visual Regression Baseline vs Current" width="30%" />
+  <img src="https://github.com/WGU-Open-edX/openedx-e2e-tests/raw/main/docs/assets/visual-regression-2.png" alt="Visual Regression Diff" width="30%" />
+  <img src="https://github.com/WGU-Open-edX/openedx-e2e-tests/raw/main/docs/assets/visual-regression-3.png" alt="Visual Regression Results" width="30%" />
 </p>
 
 
@@ -374,7 +374,7 @@ npm run report:a11y         # View accessibility reports
 npm run clean               # Clean all artifacts
 ```
 
-![Playwright Test Report](docs/assets/playwright-report.png)
+![Playwright Test Report](https://github.com/WGU-Open-edX/openedx-e2e-tests/raw/main/docs/assets/playwright-report.png)
 
 ## Contributing
 

@@ -344,9 +344,9 @@ await testdoc.generateMarkdown();
 // Creates: testdoc-output/{testName}/documentation.md
 ```
 
-![Markdown Output](assets/testdoc-markdown.png)
+![Markdown Output](https://github.com/WGU-Open-edX/openedx-e2e-tests/raw/main/docs/assets/testdoc-markdown.png)
 
-![Markdown Preview](assets/testdoc-preview.png)
+![Markdown Preview](https://github.com/WGU-Open-edX/openedx-e2e-tests/raw/main/docs/assets/testdoc-preview.png)
 
 ### generateRST()
 
@@ -357,7 +357,7 @@ await testdoc.generateRST();
 // Creates: testdoc-output/{testName}/documentation.rst
 ```
 
-![reStructuredText Output](assets/testdoc-rst.png)
+![reStructuredText Output](https://github.com/WGU-Open-edX/openedx-e2e-tests/raw/main/docs/assets/testdoc-rst.png)
 
 ## File Structure
 
