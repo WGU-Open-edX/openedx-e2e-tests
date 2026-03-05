@@ -26,8 +26,10 @@ test.describe('Authentication Tests', () => {
 
     await assertA11y(page, { warnOnly: true, report: true, reportName: 'login-page' }, testInfo);
 
-    // Attempt login
-    await loginPage.login('testuser', 'password123');
+    // Attempt login with credentials from environment
+    const username = process.env.TEST_USER || 'testuser';
+    const password = process.env.TEST_PASS || 'password123';
+    await loginPage.login(username, password);
 
     // Wait for navigation or error
     await page.waitForLoadState('networkidle');

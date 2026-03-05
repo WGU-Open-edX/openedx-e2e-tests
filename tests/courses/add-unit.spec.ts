@@ -107,7 +107,7 @@ test.describe('Add Unit to Course Test', () => {
       description: 'One the Text component is selected this modal will show up with different options of texts to select',
       elementOnly: '.pgn__modal',
     });
-    testDoc.note('We will select Text option in this case')
+    testDoc.note('We will select Text option in this case');
     // clicking on Text option
     await testDoc.click({
       selector: '.pgn__action-row button:has-text("Select")',

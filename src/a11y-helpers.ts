@@ -145,6 +145,7 @@ async function captureViolationScreenshots(
               elementBox.height + 2 * padding,
             );
             if (clipWidth <= 0 || clipHeight <= 0) {
+              // eslint-disable-next-line no-console
               console.warn(`Skipping screenshot for ${selector}: clip area has zero or negative dimensions`);
             } else {
               await page.screenshot({
