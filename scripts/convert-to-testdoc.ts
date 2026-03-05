@@ -160,7 +160,6 @@ import { TestdocTest } from '../utils/testdoc';
    */
   private convertTestBody(lines: string[]): string {
     let output = '';
-    let stepCounter = 1;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
@@ -195,7 +194,6 @@ import { TestdocTest } from '../utils/testdoc';
         output += `      title: 'Navigate to ${this.escapeQuotes(this.getPageTitle(url))}',\n`;
         output += `      description: 'Open the page at ${url}',\n`;
         output += '    });\n\n';
-        stepCounter++;
         continue;
       }
 
@@ -211,7 +209,6 @@ import { TestdocTest } from '../utils/testdoc';
           output += `      title: 'Click "${escapedName}"',\n`;
           output += `      description: 'Click the ${role} labeled "${escapedName}"',\n`;
           output += '    });\n\n';
-          stepCounter++;
           continue;
         }
       }
@@ -232,7 +229,6 @@ import { TestdocTest } from '../utils/testdoc';
           output += `      title: 'Enter text in "${escapedName}" field',\n`;
           output += `      description: 'Fill the ${role} field with the value',\n`;
           output += '    });\n\n';
-          stepCounter++;
           continue;
         }
       }
@@ -268,7 +264,6 @@ import { TestdocTest } from '../utils/testdoc';
           output += `      title: 'Switch to "${escapedName}" tab',\n`;
           output += `      description: 'Navigate to the ${escapedName} section',\n`;
           output += '    });\n\n';
-          stepCounter++;
           continue;
         }
       }

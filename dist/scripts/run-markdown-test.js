@@ -148,7 +148,7 @@ ${codeBlocks.map((block, index) => `
     // Run the test
     const playwright = (0, child_process_1.spawn)('npx', args, {
         stdio: 'inherit',
-        cwd: path.join(__dirname, '..')
+        cwd: path.join(__dirname, '..'),
     });
     await new Promise((resolve, reject) => {
         playwright.on('close', async (code) => {
@@ -213,7 +213,7 @@ if (require.main === module) {
             options.headed = true;
         }
         else if (arg.startsWith('--project=')) {
-            options.project = arg.split('=')[1];
+            [, options.project] = arg.split('=');
         }
     }
     runMarkdownTests(input, options).catch(console.error);

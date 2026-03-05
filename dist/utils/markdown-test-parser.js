@@ -27,14 +27,14 @@ class MarkdownTestParser {
                 codeBlocks.push({
                     code: codeAccumulator.trim(),
                     startLine: blockStartLine,
-                    endLine: i
+                    endLine: i,
                 });
                 codeAccumulator = '';
                 inTestdocCodeBlock = false;
                 continue;
             }
             if (inTestdocCodeBlock) {
-                codeAccumulator += line + '\n';
+                codeAccumulator += `${line}\n`;
             }
         }
         this.codeBlocks = codeBlocks;

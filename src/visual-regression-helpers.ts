@@ -119,7 +119,9 @@ export class VisualRegression {
       Array.from(document.images)
         .filter((img) => !img.complete)
         .map((img) => new Promise((resolve) => {
-          img.onload = img.onerror = resolve;
+          const element = img;
+          element.addEventListener('load', () => resolve(undefined));
+          element.addEventListener('error', () => resolve(undefined));
         })),
     ));
 
@@ -278,7 +280,9 @@ export class VisualRegression {
       Array.from(document.images)
         .filter((img) => !img.complete)
         .map((img) => new Promise((resolve) => {
-          img.onload = img.onerror = resolve;
+          const element = img;
+          element.addEventListener('load', () => resolve(undefined));
+          element.addEventListener('error', () => resolve(undefined));
         })),
     ));
 

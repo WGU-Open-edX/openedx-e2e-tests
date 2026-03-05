@@ -29,7 +29,7 @@ test_1.test.describe('Testdoc: How to Login', () => {
         await loginPage.navigate();
         await testdoc.step({
             title: 'Navigate to the Open edX login page',
-            description: 'You can access the login page by clicking "Sign In" from the main Open edX website or by going directly to the login URL.'
+            description: 'You can access the login page by clicking "Sign In" from the main Open edX website or by going directly to the login URL.',
         });
         // Step 2: Show the login form
         await (0, test_1.expect)(loginPage.emailInput).toBeVisible();

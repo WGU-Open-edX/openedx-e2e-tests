@@ -431,7 +431,8 @@ test.describe('Complete Course CheckList', () => {
     // await testDoc.click({
     //   selector: '.alert-content button.btn-primary:has-text("Save changes")',
     //   title: 'Save Changes',
-    //   description: 'Click the blue "Save changes" button at any time to update and persist your course configuration.',
+    //   description: 'Click the blue "Save changes" button at any time to update and persist your course '
+    //     + 'configuration.',
     //   elementOnly: true,
     // });
     // Generate documentation
