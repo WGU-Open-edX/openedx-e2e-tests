@@ -20,11 +20,11 @@ npm install openedx-e2e-tests
    - Light red pixels = subtle differences
 4. **All artifacts**: Current screenshots and diffs are saved to `artifacts/visual-regression/` (gitignored)
 
-![Visual Regression - Baseline vs Current](assets/visual-regression-1.png)
+![Visual Regression - Baseline vs Current](https://github.com/WGU-Open-edX/openedx-e2e-tests/raw/main/docs/assets/visual-regression-1.png)
 
-![Visual Regression - Diff with Highlights](assets/visual-regression-2.png)
+![Visual Regression - Diff with Highlights](https://github.com/WGU-Open-edX/openedx-e2e-tests/raw/main/docs/assets/visual-regression-2.png)
 
-![Visual Regression - Test Results](assets/visual-regression-3.png)
+![Visual Regression - Test Results](https://github.com/WGU-Open-edX/openedx-e2e-tests/raw/main/docs/assets/visual-regression-3.png)
 
 ## Usage
 

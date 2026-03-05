@@ -81,9 +81,9 @@ This opens `artifacts/a11y-reports/index.html` which shows:
 - Detailed descriptions of each violation
 - Remediation guidance
 
-![Accessibility Report Overview](assets/a11y-report-1.png)
+![Accessibility Report Overview](https://github.com/WGU-Open-edX/openedx-e2e-tests/raw/main/docs/assets/a11y-report-1.png)
 
-![Accessibility Report Details](assets/a11y-report-2.png)
+![Accessibility Report Details](https://github.com/WGU-Open-edX/openedx-e2e-tests/raw/main/docs/assets/a11y-report-2.png)
 
 ## Report Location
 
