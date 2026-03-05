@@ -1,5 +1,7 @@
 # Open edX E2E Tests Library
 
+[![npm version](https://badge.fury.io/js/openedx-e2e-tests.svg)](https://www.npmjs.com/package/openedx-e2e-tests)
+
 A comprehensive Playwright testing library for Open edX with automated documentation generation, accessibility testing, and visual regression capabilities.
 
 ## Features

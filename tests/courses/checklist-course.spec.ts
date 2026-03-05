@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../common/page-objects';
-import { TestdocTest, assertA11y, formatDate, shiftDate } from '../../src';
+import {
+  TestdocTest, assertA11y, formatDate, shiftDate,
+} from '../../src';
 
 test.skip();
 test.describe('Complete Course CheckList', () => {
@@ -167,7 +169,7 @@ test.describe('Complete Course CheckList', () => {
       note: null,
       showNumber: true,
     });
-  
+
     // await testDoc.click({
     //   selector: 'button[aria-label="Add new grading segment"]',
     //   title: 'Add more grades',
@@ -390,7 +392,7 @@ test.describe('Complete Course CheckList', () => {
 
     // Course Requirements
     await page.locator('.requirements-section').scrollIntoViewIfNeeded();
-    
+
     const courseRequeriments = await testDoc.highlight(
       '.requirements-section',
       null,

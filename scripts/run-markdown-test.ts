@@ -123,7 +123,7 @@ ${codeBlocks.map((block, index) => `
   // Run the test
   const playwright = spawn('npx', args, {
     stdio: 'inherit',
-    cwd: path.join(__dirname, '..')
+    cwd: path.join(__dirname, '..'),
   });
 
   await new Promise<void>((resolve, reject) => {

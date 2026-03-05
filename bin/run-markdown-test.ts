@@ -25,7 +25,10 @@ async function findMarkdownFiles(dir: string): Promise<string[]> {
   return markdownFiles;
 }
 
-async function runMarkdownTest(markdownFile: string, options: { headed?: boolean; project?: string } = {}): Promise<void> {
+async function runMarkdownTest(
+  markdownFile: string,
+  options: { headed?: boolean; project?: string } = {},
+): Promise<void> {
   const parser = new MarkdownTestParser(markdownFile);
   const codeBlocks = await parser.parseMarkdown();
 
@@ -123,7 +126,7 @@ ${codeBlocks.map((block, index) => `
   // Run the test
   const playwright = spawn('npx', args, {
     stdio: 'inherit',
-    cwd: path.join(__dirname, '..')
+    cwd: path.join(__dirname, '..'),
   });
 
   await new Promise<void>((resolve, reject) => {
@@ -194,7 +197,7 @@ if (require.main === module) {
     if (arg === '--headed') {
       options.headed = true;
     } else if (arg.startsWith('--project=')) {
-      options.project = arg.split('=')[1];
+      [, options.project] = arg.split('=');
     }
   }
 
