@@ -5,7 +5,7 @@ The TestdocTest framework allows you to generate professional user documentation
 ## Installation
 
 ```bash
-npm install @wgu-jesse-stewart/openedx-e2e-tests
+npm install openedx-e2e-tests
 ```
 
 ## Getting Started
@@ -13,7 +13,7 @@ npm install @wgu-jesse-stewart/openedx-e2e-tests
 ### Basic Usage
 
 ```typescript
-import { TestdocTest } from '@wgu-jesse-stewart/openedx-e2e-tests';
+import { TestdocTest } from 'openedx-e2e-tests';
 
 const testdoc = new TestdocTest(page, "folder-name", {
   title: "How to Perform This Task",
@@ -344,6 +344,10 @@ await testdoc.generateMarkdown();
 // Creates: testdoc-output/{testName}/documentation.md
 ```
 
+![Markdown Output](assets/testdoc-markdown.png)
+
+![Markdown Preview](assets/testdoc-preview.png)
+
 ### generateRST()
 
 Creates reStructuredText format for Sphinx documentation:
@@ -352,6 +356,8 @@ Creates reStructuredText format for Sphinx documentation:
 await testdoc.generateRST();
 // Creates: testdoc-output/{testName}/documentation.rst
 ```
+
+![reStructuredText Output](assets/testdoc-rst.png)
 
 ## File Structure
 

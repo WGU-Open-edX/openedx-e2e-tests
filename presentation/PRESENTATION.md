@@ -59,7 +59,7 @@ openedx-e2e-tests/
 
 A few things to notice about this structure:
 
-- **`src/`** - The published library code. Anyone can `npm install @wgu-jesse-stewart/openedx-e2e-tests` and import these utilities.
+- **`src/`** - The published library code. Anyone can `npm install openedx-e2e-tests` and import these utilities.
 - **`bin/`** - CLI tools for running markdown-driven tests.
 - **`tests/`** - Example implementations showing how to use the library. Not published to npm.
 - **`docs/`** - Comprehensive guides for using each feature.

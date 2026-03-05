@@ -1,5 +1,5 @@
 {
-  "name": "@wgu-jesse-stewart/openedx-e2e-tests",
+  "name": "openedx-e2e-tests",
   "version": "1.0.0",
   "description": "End-to-end tests for Open edX microservices and MFEs using Playwright",
   "main": "dist/src/index.js",

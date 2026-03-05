@@ -4,22 +4,63 @@ A comprehensive Playwright testing library for Open edX with automated documenta
 
 ## Features
 
-- 📝 **Test Documentation Generation** - Auto-generate user docs with screenshots from your tests
-- ♿ **Accessibility Testing** - Built-in a11y checks with detailed HTML reports
-- 📸 **Visual Regression Testing** - Pixel-perfect screenshot comparison with diff highlighting
-- 📄 **Markdown-Driven Tests** - Write and execute tests in markdown format
+A comprehensive testing toolkit that goes beyond functional testing to help you create documentation, ensure accessibility compliance, and catch visual regressions before they reach production.
+
+### Comprehensive Test Reports
+
+Rich Playwright HTML reports with screenshots, traces, and detailed test results to help you debug failures quickly.
+
+<p align="center">
+  <img src="docs/assets/playwright-report.png" alt="Playwright Test Report" width="70%" />
+</p>
+
+### Accessibility Testing
+
+Built-in accessibility checks using axe-core with detailed HTML reports. Catch WCAG violations early and get clear remediation guidance with visual highlighting of problematic elements.
+
+[Accessibility Testing Documentation →](docs/A11Y_TESTING.md)
+
+<p align="center">
+  <img src="docs/assets/a11y-report-1.png" alt="Accessibility Report Overview" width="45%" />
+  <img src="docs/assets/a11y-report-2.png" alt="Accessibility Report Details" width="45%" />
+</p>
+
+### Test Documentation Generation
+
+Auto-generate professional user documentation with screenshots directly from your Playwright tests. Write your tests once and get beautiful markdown or reStructuredText documentation automatically.
+
+[TestDoc Documentation →](docs/testdoc.md)
+
+<p align="center">
+  <img src="docs/assets/testdoc-markdown.png" alt="Markdown Output" width="30%" />
+  <img src="docs/assets/testdoc-preview.png" alt="Preview" width="30%" />
+  <img src="docs/assets/testdoc-rst.png" alt="reStructuredText Output" width="30%" />
+</p>
+
+### Visual Regression Testing
+
+Pixel-perfect screenshot comparison with diff highlighting. Automatically detect visual changes between test runs and get clear visual diffs showing exactly what changed.
+
+[Visual Regression Testing Documentation →](docs/VISUAL_REGRESSION.md)
+
+<p align="center">
+  <img src="docs/assets/visual-regression-1.png" alt="Visual Regression Baseline vs Current" width="30%" />
+  <img src="docs/assets/visual-regression-2.png" alt="Visual Regression Diff" width="30%" />
+  <img src="docs/assets/visual-regression-3.png" alt="Visual Regression Results" width="30%" />
+</p>
+
 
 ## Installation
 
 ```bash
-npm install @wgu-jesse-stewart/openedx-e2e-tests
+npm install openedx-e2e-tests
 ```
 
 ## Quick Start
 
 ```typescript
 import { test } from '@playwright/test';
-import { TestdocTest, assertA11y } from '@wgu-jesse-stewart/openedx-e2e-tests';
+import { TestdocTest, assertA11y } from 'openedx-e2e-tests';
 
 test('generate documentation', async ({ page }, testInfo) => {
   const testdoc = new TestdocTest(page, 'my-feature', {
@@ -50,7 +91,7 @@ test('generate documentation', async ({ page }, testInfo) => {
 Generate user documentation from your tests with automatic screenshots.
 
 ```typescript
-import { TestdocTest } from '@wgu-jesse-stewart/openedx-e2e-tests';
+import { TestdocTest } from 'openedx-e2e-tests';
 
 const testdoc = new TestdocTest(page, 'test-name', {
   title: 'Feature Title',
@@ -91,7 +132,7 @@ await testdoc.generateRST();       // Outputs documentation.rst
 Run comprehensive accessibility checks with axe-core.
 
 ```typescript
-import { assertA11y, checkA11y } from '@wgu-jesse-stewart/openedx-e2e-tests';
+import { assertA11y, checkA11y } from 'openedx-e2e-tests';
 
 // Assert no violations (throws error if violations found)
 await assertA11y(page, {
@@ -119,7 +160,7 @@ if (results.violations.length > 0) {
 Pixel-perfect screenshot comparison with automatic baseline management.
 
 ```typescript
-import { VisualRegression, assertVisualRegression } from '@wgu-jesse-stewart/openedx-e2e-tests';
+import { VisualRegression, assertVisualRegression } from 'openedx-e2e-tests';
 
 // Using the class
 const vr = new VisualRegression(page, testInfo);
@@ -153,7 +194,7 @@ import {
   highlightElement,
   addHighlightStyles,
   highlightAndScreenshot
-} from '@wgu-jesse-stewart/openedx-e2e-tests';
+} from 'openedx-e2e-tests';
 
 // Date utilities
 const formatted = formatDate(new Date());        // "03/03/2026"
@@ -184,7 +225,7 @@ await highlightAndScreenshot(
 Run tests written in markdown files.
 
 ```typescript
-import { MarkdownTestParser } from '@wgu-jesse-stewart/openedx-e2e-tests';
+import { MarkdownTestParser } from 'openedx-e2e-tests';
 
 const parser = new MarkdownTestParser('path/to/test.md');
 const codeBlocks = await parser.parseMarkdown();
@@ -243,7 +284,7 @@ import type {
   // Parser types
   CodeBlock,
   ParsedStep
-} from '@wgu-jesse-stewart/openedx-e2e-tests';
+} from 'openedx-e2e-tests';
 ```
 
 ## Documentation
@@ -333,6 +374,8 @@ npm run report:a11y         # View accessibility reports
 npm run clean               # Clean all artifacts
 ```
 
+![Playwright Test Report](docs/assets/playwright-report.png)
+
 ## Contributing
 
 ### Building the Library
@@ -374,7 +417,3 @@ openedx-e2e-tests/
 ## License
 
 MIT
-
-## Support
-
-For issues, questions, or contributions, please visit the [GitHub repository](https://github.com/your-repo).

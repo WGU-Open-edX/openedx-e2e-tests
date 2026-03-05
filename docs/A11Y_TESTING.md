@@ -5,7 +5,7 @@ This library uses [axe-core](https://github.com/dequelabs/axe-core) via [@axe-co
 ## Installation
 
 ```bash
-npm install @wgu-jesse-stewart/openedx-e2e-tests
+npm install openedx-e2e-tests
 ```
 
 ## Usage
@@ -16,7 +16,7 @@ Import the `assertA11y` helper in your test files:
 
 ```typescript
 import { test } from '@playwright/test';
-import { assertA11y } from '@wgu-jesse-stewart/openedx-e2e-tests';
+import { assertA11y } from 'openedx-e2e-tests';
 
 test('my test', async ({ page }, testInfo) => {
   await page.goto('/my-page');
@@ -80,6 +80,10 @@ This opens `artifacts/a11y-reports/index.html` which shows:
 - Screenshots highlighting the problematic elements
 - Detailed descriptions of each violation
 - Remediation guidance
+
+![Accessibility Report Overview](assets/a11y-report-1.png)
+
+![Accessibility Report Details](assets/a11y-report-2.png)
 
 ## Report Location
 

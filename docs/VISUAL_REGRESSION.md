@@ -7,7 +7,7 @@ The visual regression utility uses `pixelmatch` to perform pixel-by-pixel compar
 ## Installation
 
 ```bash
-npm install @wgu-jesse-stewart/openedx-e2e-tests
+npm install openedx-e2e-tests
 ```
 
 ## How It Works
@@ -20,13 +20,19 @@ npm install @wgu-jesse-stewart/openedx-e2e-tests
    - Light red pixels = subtle differences
 4. **All artifacts**: Current screenshots and diffs are saved to `artifacts/visual-regression/` (gitignored)
 
+![Visual Regression - Baseline vs Current](assets/visual-regression-1.png)
+
+![Visual Regression - Diff with Highlights](assets/visual-regression-2.png)
+
+![Visual Regression - Test Results](assets/visual-regression-3.png)
+
 ## Usage
 
 ### Basic Example
 
 ```typescript
 import { test } from '@playwright/test';
-import { VisualRegression } from '@wgu-jesse-stewart/openedx-e2e-tests';
+import { VisualRegression } from 'openedx-e2e-tests';
 
 test('my visual test', async ({ page }, testInfo) => {
   const vr = new VisualRegression(page, testInfo);
@@ -44,7 +50,7 @@ test('my visual test', async ({ page }, testInfo) => {
 ### Convenience Function
 
 ```typescript
-import { assertVisualRegression } from '@wgu-jesse-stewart/openedx-e2e-tests';
+import { assertVisualRegression } from 'openedx-e2e-tests';
 
 test('quick visual test', async ({ page }, testInfo) => {
   await page.goto('/dashboard');
