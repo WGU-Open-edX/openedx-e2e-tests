@@ -2,23 +2,76 @@
   "name": "openedx-e2e-tests",
   "version": "1.0.0",
   "description": "End-to-end tests for Open edX microservices and MFEs using Playwright",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "bin": {
+    "run-markdown-test": "dist/bin/run-markdown-test.js"
+  },
+  "files": [
+    "dist/src",
+    "dist/bin",
+    "src",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/src/index.js",
+      "require": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    }
+  },
   "scripts": {
     "test": "playwright test",
     "test:headed": "playwright test --headed",
-    "test:debug": "playwright test --debug",
     "test:ui": "playwright test --ui",
-    "report": "playwright show-report",
-    "install:browsers": "playwright install",
-    "setup": "./scripts/setup-test-data.sh",
-    "test:record": "RECORD_VIDEO=1 playwright test --headed",
-    "test:record-all": "RECORD_VIDEO=1 playwright test",
+    "test:debug": "playwright test --debug",
     "test:full": "npm run setup && npm test",
-    "test:debug-only": "playwright test debug.spec.js --headed"
+    "test:clean": "npm run clean && npm test",
+    "test:record": "RECORD_VIDEO=1 playwright test --headed",
+    "setup": "./scripts/setup-test-data.sh",
+    "clean": "rm -rf artifacts",
+    "report": "playwright show-report artifacts/playwright-report",
+    "report:a11y": "open artifacts/a11y-reports/index.html",
+    "testdoc": "playwright test tests/testdoc/ --headed --project=firefox",
+    "testdoc:markdown": "ts-node scripts/run-markdown-test.ts tests/testdoc/ --project=firefox",
+    "test:courses": "./scripts/run-course-tests.sh",
+    "install:browsers": "playwright install",
+    "lint": "eslint .",
+    "convert-to-testdoc": "ts-node scripts/convert-to-testdoc.ts",
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
   },
-  "keywords": ["edx", "e2e", "playwright", "testing"],
+  "keywords": [
+    "edx",
+    "e2e",
+    "playwright",
+    "testing"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@playwright/test": "^1.40.0"
+    "@axe-core/playwright": "^4.10.2",
+    "@edx/eslint-config": "^4.4.0",
+    "@types/node": "^24.6.0",
+    "@types/pngjs": "^6.0.5",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "axe-html-reporter": "^2.2.11",
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^17.1.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "pixelmatch": "^7.1.0",
+    "pngjs": "^7.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.40.0",
+    "axe-core": "^4.11.0",
+    "dotenv": "^17.2.3"
   }
 }

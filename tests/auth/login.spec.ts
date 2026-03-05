@@ -1,0 +1,92 @@
+import { test, expect } from '@playwright/test';
+import { LoginPage } from '../common/page-objects';
+import { assertA11y, VisualRegression } from '../../src';
+
+test.describe('Authentication Tests', () => {
+  let loginPage: LoginPage;
+
+  test.beforeEach(async ({ page }) => {
+    loginPage = new LoginPage(page);
+    await loginPage.navigate();
+  });
+
+  test('user can login with valid credentials', async ({ page }, testInfo) => {
+    const vr = new VisualRegression(page, testInfo);
+
+    // Wait for login form to be fully loaded
+    await expect(loginPage.emailInput).toBeVisible();
+    await expect(loginPage.passwordInput).toBeVisible();
+    await expect(loginPage.loginButton).toBeVisible();
+
+    // Capture login page baseline
+    await vr.captureAndCompare({
+      name: 'login-page-initial',
+      fullPage: true,
+    });
+
+    await assertA11y(page, { warnOnly: true, report: true, reportName: 'login-page' }, testInfo);
+
+    // Attempt login
+    await loginPage.login('testuser', 'password123');
+
+    // Wait for navigation or error
+    await page.waitForLoadState('networkidle');
+
+    // Check if we're on dashboard or got an error
+    const currentUrl = page.url();
+    // eslint-disable-next-line no-console
+    console.log('Current URL after login:', currentUrl);
+
+    // Check for error messages
+    const errorMessage = page.locator('[role="alert"]');
+    const tryAgainButton = page.locator('button:has-text("Try again")');
+
+    if (await tryAgainButton.isVisible()) {
+      throw new Error('Login failed with "Try again" error page');
+    }
+
+    if (await errorMessage.isVisible()) {
+      const errorText = await errorMessage.textContent();
+      throw new Error(`Login failed with error: ${errorText}`);
+    }
+
+    // Expect successful redirect to dashboard
+    await expect(page).toHaveURL(/dashboard/);
+
+    // Navigate to account settings page for visual regression demo
+    await page.goto('http://apps.local.openedx.io:1997/account/');
+    await page.waitForLoadState('networkidle');
+
+    // Capture account page state after successful login
+    // Mask dynamic content like timestamps and user-specific data
+    await vr.captureAndCompare({
+      name: 'account-page-after-login',
+      fullPage: true,
+      threshold: 0.15, // Allow minor rendering differences (anti-aliasing, fonts)
+      mask: [
+        '.timestamp',
+        '[data-testid="user-greeting"]',
+        '.last-login-time',
+      ],
+    });
+
+    await assertA11y(page, { warnOnly: true, report: true, reportName: 'account-page' }, testInfo);
+  });
+
+  test('user sees error with invalid credentials', async ({ page }) => {
+    await loginPage.login('invalid@example.com', 'wrongpassword');
+    await expect(page.locator('[role="alert"]')).toBeVisible();
+  });
+
+  test('login form validation works', async ({ page }) => {
+    await loginPage.loginButton.click();
+    await expect(page.locator('.pgn__form-text-invalid')).toHaveCount(2);
+  });
+
+  test('password visibility toggle works', async () => {
+    await loginPage.passwordInput.fill('testpassword');
+    await expect(loginPage.passwordInput).toHaveAttribute('type', 'password');
+    await loginPage.togglePasswordVisibility();
+    await expect(loginPage.passwordInput).toHaveAttribute('type', 'text');
+  });
+});

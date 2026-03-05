@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": ["ES2020", "DOM"],
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "types": ["node", "@playwright/test"],
+    "outDir": "./dist",
+    "rootDir": "./",
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true
+  },
+  "include": [
+    "src/**/*",
+    "bin/**/*",
+    "tests/**/*",
+    "utils/**/*",
+    "scripts/**/*",
+    "playwright.config.ts",
+    ".eslintrc.js",
+    "types/autodoc.types.ts",
+    "types/markdown-test-parser.types.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
