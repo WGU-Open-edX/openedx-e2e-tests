@@ -119,12 +119,92 @@ openedx-e2e-tests/
 
 ## Release Process
 
-Releases are handled by maintainers:
+Releases are handled by maintainers. Follow these steps to create a new release:
 
-1. Version is bumped in package.json
-2. Changes are documented in CHANGELOG.md
-3. A git tag is created (e.g., v1.0.3)
-4. GitHub Actions automatically publishes to npm
+### 1. Prepare the Release
+
+```bash
+# Ensure you're on main and up to date
+git checkout main
+git pull origin main
+
+# Create a release branch
+git checkout -b release/v1.0.x
+```
+
+### 2. Update Version and Changelog
+
+1. Bump the version in `package.json` (following [semver](https://semver.org/)):
+   - Patch version (1.0.x): Bug fixes and minor changes
+   - Minor version (1.x.0): New features, backward compatible
+   - Major version (x.0.0): Breaking changes
+
+2. Update `CHANGELOG.md`:
+   - Add a new section for the version with today's date
+   - Document all changes under appropriate categories:
+     - `Added` for new features
+     - `Changed` for changes in existing functionality
+     - `Deprecated` for soon-to-be removed features
+     - `Removed` for removed features
+     - `Fixed` for bug fixes
+     - `Security` for security fixes
+
+3. Run the build to ensure everything compiles:
+   ```bash
+   npm run build
+   npm run lint
+   ```
+
+### 3. Commit and Create PR
+
+```bash
+# Commit the version bump
+git add package.json CHANGELOG.md
+git commit -m "chore: bump version to v1.0.x"
+
+# Push and create PR
+git push origin release/v1.0.x
+```
+
+Create a pull request to `main` with the title "Release v1.0.x"
+
+### 4. Merge and Tag
+
+Once the PR is approved and merged:
+
+```bash
+# Switch to main and pull the merge
+git checkout main
+git pull origin main
+
+# Create and push the version tag
+git tag v1.0.x
+git push origin v1.0.x
+```
+
+### 5. Create GitHub Release
+
+1. Go to https://github.com/WGU-Open-edX/openedx-e2e-tests/releases/new
+2. Select the tag you just created (v1.0.x)
+3. Release title: `v1.0.x`
+4. Description: Copy the relevant section from CHANGELOG.md
+5. Click "Publish release"
+
+### 6. Automated npm Publishing
+
+Once the tag is pushed, GitHub Actions will automatically:
+- Run lint and build checks
+- Publish the package to npm with provenance
+
+Monitor the [Actions tab](https://github.com/WGU-Open-edX/openedx-e2e-tests/actions) to ensure the publish workflow completes successfully.
+
+### Prerequisites for Automated Publishing
+
+The repository must have an `NPM_TOKEN` secret configured:
+1. Generate an npm token with "Automation" type from https://www.npmjs.com/settings/YOUR_USERNAME/tokens
+2. Add it to repository secrets at Settings → Secrets and variables → Actions → New repository secret
+3. Name: `NPM_TOKEN`
+4. Value: Your npm token
 
 ## Questions or Issues?
 
