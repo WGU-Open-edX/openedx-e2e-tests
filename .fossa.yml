@@ -1,0 +1,10 @@
+version: 3
+
+project:
+  id: openedx-e2e-tests
+  name: openedx-e2e-tests
+  link: https://github.com/WGU-Open-edX/openedx-e2e-tests
+
+targets:
+  only:
+    - type: npm
