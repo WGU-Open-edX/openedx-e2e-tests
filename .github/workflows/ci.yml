@@ -42,7 +42,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run FOSSA scan
+      - name: Run FOSSA scan and analysis
         uses: fossas/fossa-action@main
         with:
           api-key: ${{ secrets.FOSSA_API_KEY }}
+
+      - name: Run FOSSA test (check for license issues)
+        run: |
+          curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh | bash
+          fossa test --timeout 600
+        env:
+          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
