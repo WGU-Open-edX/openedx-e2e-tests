@@ -1,5 +1,7 @@
 import { Page, TestInfo } from '@playwright/test';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import {
+  existsSync, mkdirSync, readFileSync, writeFileSync,
+} from 'fs';
 import { join } from 'path';
 import { PNG } from 'pngjs';
 
@@ -37,7 +39,9 @@ export interface VisualRegressionOptions {
  */
 export class VisualRegression {
   private baselineDir: string;
+
   private currentDir: string;
+
   private diffDir: string;
 
   constructor(
@@ -111,15 +115,15 @@ export class VisualRegression {
     await this.page.waitForLoadState('domcontentloaded');
 
     // Wait for any images to load
-    await this.page.evaluate(() => {
-      return Promise.all(
-        Array.from(document.images)
-          .filter((img) => !img.complete)
-          .map((img) => new Promise((resolve) => {
-            img.onload = img.onerror = resolve;
-          })),
-      );
-    });
+    await this.page.evaluate(() => Promise.all(
+      Array.from(document.images)
+        .filter((img) => !img.complete)
+        .map((img) => new Promise((resolve) => {
+          const element = img;
+          element.addEventListener('load', () => resolve(undefined));
+          element.addEventListener('error', () => resolve(undefined));
+        })),
+    ));
 
     // Wait for fonts to load
     await this.page.evaluate(() => document.fonts.ready);
@@ -188,10 +192,10 @@ export class VisualRegression {
     // Ensure dimensions match
     if (baseline.width !== current.width || baseline.height !== current.height) {
       throw new Error(
-        `Image dimensions don't match!\n` +
-        `  Baseline: ${baseline.width}x${baseline.height}\n` +
-        `  Current:  ${current.width}x${current.height}\n` +
-        `  This usually means the viewport size changed or content height is different.`,
+        'Image dimensions don\'t match!\n'
+        + `  Baseline: ${baseline.width}x${baseline.height}\n`
+        + `  Current:  ${current.width}x${current.height}\n`
+        + '  This usually means the viewport size changed or content height is different.',
       );
     }
 
@@ -249,9 +253,9 @@ export class VisualRegression {
       console.log(`  Diff:     ${diffPath}`);
 
       throw new Error(
-        `Visual regression test failed for "${name}"\n` +
-        `  Changed pixels: ${numDiffPixels.toLocaleString()} (${diffPercentage.toFixed(2)}%)\n` +
-        `  Check the diff image at: ${diffPath}`,
+        `Visual regression test failed for "${name}"\n`
+        + `  Changed pixels: ${numDiffPixels.toLocaleString()} (${diffPercentage.toFixed(2)}%)\n`
+        + `  Check the diff image at: ${diffPath}`,
       );
     }
 
@@ -272,15 +276,15 @@ export class VisualRegression {
     await this.page.waitForLoadState('networkidle');
     await this.page.waitForLoadState('domcontentloaded');
 
-    await this.page.evaluate(() => {
-      return Promise.all(
-        Array.from(document.images)
-          .filter((img) => !img.complete)
-          .map((img) => new Promise((resolve) => {
-            img.onload = img.onerror = resolve;
-          })),
-      );
-    });
+    await this.page.evaluate(() => Promise.all(
+      Array.from(document.images)
+        .filter((img) => !img.complete)
+        .map((img) => new Promise((resolve) => {
+          const element = img;
+          element.addEventListener('load', () => resolve(undefined));
+          element.addEventListener('error', () => resolve(undefined));
+        })),
+    ));
 
     await this.page.evaluate(() => document.fonts.ready);
     await this.page.waitForTimeout(1000);

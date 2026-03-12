@@ -19,7 +19,9 @@ interface ConversionOptions {
 
 class PlaywrightToTestdocConverter {
   private source: string;
+
   private testName: string;
+
   private options: ConversionOptions;
 
   constructor(source: string, options: ConversionOptions = {}) {
@@ -96,14 +98,14 @@ import { TestdocTest } from '../utils/testdoc';
 
     // Generate testdoc version
     let output = `test.describe('Testdoc: ${this.options.title || this.testName}', () => {\n`;
-    output += `  test('generate documentation', async ({ page }, testInfo) => {\n`;
+    output += '  test(\'generate documentation\', async ({ page }, testInfo) => {\n';
     output += this.generateTestdocInit();
     output += this.convertTestBody(testBody);
-    output += `\n    // Generate documentation\n`;
-    output += `    await testdoc.generateMarkdown();\n`;
-    output += `    await testdoc.generateRST();\n`;
-    output += `  });\n`;
-    output += `});\n`;
+    output += '\n    // Generate documentation\n';
+    output += '    await testdoc.generateMarkdown();\n';
+    output += '    await testdoc.generateRST();\n';
+    output += '  });\n';
+    output += '});\n';
 
     return output;
   }
@@ -120,23 +122,23 @@ import { TestdocTest } from '../utils/testdoc';
     }
 
     if (this.options.prerequisites && this.options.prerequisites.length > 0) {
-      init += `      prerequisites: [\n`;
+      init += '      prerequisites: [\n';
       this.options.prerequisites.forEach(p => {
         init += `        '${this.escapeQuotes(p)}',\n`;
       });
-      init += `      ],\n`;
+      init += '      ],\n';
     }
 
     if (this.options.notes && this.options.notes.length > 0) {
-      init += `      notes: [\n`;
+      init += '      notes: [\n';
       this.options.notes.forEach(n => {
         init += `        '${this.escapeQuotes(n)}',\n`;
       });
-      init += `      ],\n`;
+      init += '      ],\n';
     }
 
     if (this.options.relatedTopics && this.options.relatedTopics.length > 0) {
-      init += `      relatedTopics: [\n`;
+      init += '      relatedTopics: [\n';
       this.options.relatedTopics.forEach(t => {
         if (typeof t === 'string') {
           init += `        '${this.escapeQuotes(t)}',\n`;
@@ -144,11 +146,11 @@ import { TestdocTest } from '../utils/testdoc';
           init += `        { title: '${this.escapeQuotes(t.title)}', url: '${t.url}' },\n`;
         }
       });
-      init += `      ],\n`;
+      init += '      ],\n';
     }
 
-    init += `    });\n`;
-    init += `    await testdoc.initialize();\n\n`;
+    init += '    });\n';
+    init += '    await testdoc.initialize();\n\n';
 
     return init;
   }
@@ -158,7 +160,6 @@ import { TestdocTest } from '../utils/testdoc';
    */
   private convertTestBody(lines: string[]): string {
     let output = '';
-    let stepCounter = 1;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
@@ -175,10 +176,10 @@ import { TestdocTest } from '../utils/testdoc';
         const currentRole = line.match(/getByRole\('([^']+)',\s*{\s*name:\s*'([^']+)'/);
         const nextRole = nextLine.match(/getByRole\('([^']+)',\s*{\s*name:\s*'([^']+)'/);
 
-        if (currentRole && nextRole &&
-            currentRole[1] === nextRole[1] &&
-            currentRole[2] === nextRole[2] &&
-            nextLine.includes('.fill(')) {
+        if (currentRole && nextRole
+            && currentRole[1] === nextRole[1]
+            && currentRole[2] === nextRole[2]
+            && nextLine.includes('.fill(')) {
           // Skip this click, the fill will handle it
           continue;
         }
@@ -189,11 +190,10 @@ import { TestdocTest } from '../utils/testdoc';
         const urlMatch = line.match(/goto\(['"](.*?)['"]\)/);
         const url = urlMatch ? urlMatch[1] : '';
         output += `    await page.goto('${url}');\n`;
-        output += `    await testdoc.step({\n`;
+        output += '    await testdoc.step({\n';
         output += `      title: 'Navigate to ${this.escapeQuotes(this.getPageTitle(url))}',\n`;
         output += `      description: 'Open the page at ${url}',\n`;
-        output += `    });\n\n`;
-        stepCounter++;
+        output += '    });\n\n';
         continue;
       }
 
@@ -204,12 +204,11 @@ import { TestdocTest } from '../utils/testdoc';
           const [, role, name] = roleMatch;
           const selector = this.convertLocatorToSelector(line);
           const escapedName = this.escapeQuotes(name);
-          output += `    await testdoc.click({\n`;
+          output += '    await testdoc.click({\n';
           output += `      selector: '${selector}',\n`;
           output += `      title: 'Click "${escapedName}"',\n`;
           output += `      description: 'Click the ${role} labeled "${escapedName}"',\n`;
-          output += `    });\n\n`;
-          stepCounter++;
+          output += '    });\n\n';
           continue;
         }
       }
@@ -224,20 +223,19 @@ import { TestdocTest } from '../utils/testdoc';
           const selector = this.convertLocatorToSelector(line);
           const escapedName = this.escapeQuotes(name);
           const escapedValue = this.escapeQuotes(value);
-          output += `    await testdoc.fill({\n`;
+          output += '    await testdoc.fill({\n';
           output += `      selector: '${selector}',\n`;
           output += `      value: '${escapedValue}',\n`;
           output += `      title: 'Enter text in "${escapedName}" field',\n`;
           output += `      description: 'Fill the ${role} field with the value',\n`;
-          output += `    });\n\n`;
-          stepCounter++;
+          output += '    });\n\n';
           continue;
         }
       }
 
       // Handle download events - keep as-is
-      if (line.includes('waitForEvent(\'download\')') || line.includes('= await downloadPromise') ||
-          line.includes('Promise') || line.includes('const download')) {
+      if (line.includes('waitForEvent(\'download\')') || line.includes('= await downloadPromise')
+          || line.includes('Promise') || line.includes('const download')) {
         output += `    ${line}\n`;
         continue;
       }
@@ -261,12 +259,11 @@ import { TestdocTest } from '../utils/testdoc';
           const tabName = nameMatch[1];
           const selector = this.convertLocatorToSelector(line);
           const escapedName = this.escapeQuotes(tabName);
-          output += `    await testdoc.click({\n`;
+          output += '    await testdoc.click({\n';
           output += `      selector: '${selector}',\n`;
           output += `      title: 'Switch to "${escapedName}" tab',\n`;
           output += `      description: 'Navigate to the ${escapedName} section',\n`;
-          output += `    });\n\n`;
-          stepCounter++;
+          output += '    });\n\n';
           continue;
         }
       }
@@ -314,7 +311,7 @@ import { TestdocTest } from '../utils/testdoc';
       case 'cell':
         return `[role="cell"]:has-text("${escapedName}")`;
       case 'alert':
-        return `[role="alert"]`;
+        return '[role="alert"]';
       case 'heading':
         return `h1:has-text("${escapedName}"), h2:has-text("${escapedName}"), h3:has-text("${escapedName}")`;
       default:
@@ -376,11 +373,11 @@ function main() {
 
   fs.writeFileSync(outputFile, converted, 'utf-8');
 
-  console.log(`✅ Conversion complete!`);
+  console.log('✅ Conversion complete!');
   console.log(`   Input:  ${inputFile}`);
   console.log(`   Output: ${outputFile}`);
-  console.log(`\n⚠️  Note: You may need to manually adjust selectors and step descriptions for accuracy.`);
-  console.log(`   Look for 'selector-needs-manual-adjustment' in the output file.`);
+  console.log('\n⚠️  Note: You may need to manually adjust selectors and step descriptions for accuracy.');
+  console.log('   Look for \'selector-needs-manual-adjustment\' in the output file.');
 }
 
 // Run if called directly

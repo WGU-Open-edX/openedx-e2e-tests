@@ -1,0 +1,127 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Check dist/ is up to date
+        run: |
+          if [ -n "$(git status --porcelain dist/)" ]; then
+            echo "Error: dist/ has uncommitted changes after build"
+            git status dist/
+            exit 1
+          fi
+
+  fossa-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run FOSSA scan and analysis
+        uses: fossas/fossa-action@main
+        with:
+          api-key: ${{ secrets.FOSSA_API_KEY }}
+
+      - name: Run FOSSA test (check for license issues)
+        id: fossa-test
+        continue-on-error: true
+        run: |
+          curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh | bash
+          fossa test --timeout 600 2>&1 | tee fossa-output.txt
+          echo "exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+        env:
+          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
+
+      - name: Comment PR on FOSSA failure
+        if: always() && github.event_name == 'pull_request' && steps.fossa-test.outputs.exit_code != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const output = fs.readFileSync('fossa-output.txt', 'utf8');
+
+            // Extract issue information
+            const issueMatch = output.match(/⚑\s+(.+?)\s+license detected in\s+(.+?)$/m);
+            const linkMatch = output.match(/More information:\s+(https:\/\/[^\s]+)/);
+            const reportMatch = output.match(/View FOSSA Report:\s+(https:\/\/[^\s]+)/);
+
+            let comment = '## ❌ FOSSA License Scan Failed\n\n';
+
+            if (issueMatch) {
+              comment += `**Issue:** ${issueMatch[1]} license flagged in \`${issueMatch[2]}\`\n\n`;
+            }
+
+            if (reportMatch) {
+              comment += `**Full Report:** ${reportMatch[1]}\n\n`;
+            }
+
+            if (linkMatch) {
+              comment += `**Issue Details:** ${linkMatch[1]}\n\n`;
+            }
+
+            comment += '**Next Steps:**\n';
+            comment += '1. Review the license issue in the FOSSA dashboard\n';
+            comment += '2. Either mark as "Ignored" in FOSSA if acceptable, or\n';
+            comment += '3. Replace the flagged dependency with an alternative\n\n';
+            comment += 'Once resolved in FOSSA, re-run this workflow.\n';
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Comment PR on FOSSA success
+        if: always() && github.event_name == 'pull_request' && steps.fossa-test.outputs.exit_code == '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const output = fs.readFileSync('fossa-output.txt', 'utf8');
+            const reportMatch = output.match(/View FOSSA Report:\s+(https:\/\/[^\s]+)/);
+
+            let comment = '## ✅ FOSSA License Scan Passed\n\n';
+            comment += 'No license compliance issues detected.\n\n';
+
+            if (reportMatch) {
+              comment += `**Full Report:** ${reportMatch[1]}\n`;
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Fail job if FOSSA test failed
+        if: steps.fossa-test.outputs.exit_code != '0'
+        run: exit 1

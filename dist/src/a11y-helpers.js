@@ -111,6 +111,7 @@ async function captureViolationScreenshots(page, results, screenshotDir) {
                         const clipWidth = Math.min(viewport.width - clipX, elementBox.width + 2 * padding);
                         const clipHeight = Math.min(viewport.height - clipY, elementBox.height + 2 * padding);
                         if (clipWidth <= 0 || clipHeight <= 0) {
+                            // eslint-disable-next-line no-console
                             console.warn(`Skipping screenshot for ${selector}: clip area has zero or negative dimensions`);
                         }
                         else {

@@ -4,9 +4,12 @@ How to extract maximum value from Playwright E2E tests in Open edX. This session
 
 ----
 
+bio:
 Jesse Stewart is a Staff Software Engineer at Western Governors University working on the Open edX platform. With a background in both software engineering and design, he focuses on building scalable systems and improving the tools and experiences used by educators, developers, and learners
 
 ----
+
+https://github.com/WGU-Open-edX/openedx-e2e-tests
 
 Target Audience: QA engineers, accessibility advocates, documentation writers, product managers, and developers who maintain Open edX instances and need to keep test coverage, accessibility audits, user documentation, and visual regression testing synchronized with rapidly changing codebases - anyone frustrated by the constant drift between what ships and what's documented.
 
@@ -48,6 +51,8 @@ Notes to Reviewers:
 
 I work at Western Governors University where we maintain Open edX instances and face these exact challenges. This library is ready production use, open source, and published to npm as [openedx-e2e-tests](https://www.npmjs.com/package/openedx-e2e-tests).
 
+codebase: https://github.com/WGU-Open-edX/openedx-e2e-tests
+
 **Installation is simple:**
 ```bash
 npm install openedx-e2e-tests
@@ -58,4 +63,4 @@ npm install openedx-e2e-tests
 import { TestdocTest, assertA11y, VisualRegression } from 'openedx-e2e-tests';
 ```
 
-It can be installed in any frontend repository — tests don't need to live in a separate repo, making adoption frictionless. The library includes full TypeScript definitions, comprehensive documentation, demo videos/screenshots, and a CLI tool for markdown-driven testing. I can provide live demos during the session using a local Tutor installation. The session is designed to be immediately actionable—attendees will leave with concrete patterns they can implement in their own testing workflows. I'm flexible on timing and can adapt to either a 30-minute talk or a 10-minute lightning talk format if needed. Happy to provide code samples or additional technical details upon request.
+It can be installed in any frontend repository - tests don't need to live in a separate repo, making adoption frictionless. The library includes full TypeScript definitions, comprehensive documentation, demo videos/screenshots, and a CLI tool for markdown-driven testing. I can provide live demos during the session using a local Tutor installation. The session is designed to be immediately actionable - attendees will leave with concrete patterns they can implement in their own testing workflows. I'm flexible on timing and can adapt to either a 30-minute talk or a 10-minute lightning talk format if needed. Happy to provide code samples or additional technical details upon request.
