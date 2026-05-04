@@ -12,10 +12,13 @@ test_1.test.describe('Testdoc: How To Import a Course', () => {
     });
     (0, test_1.test)('user can import a course', async ({ page }, testInfo) => {
         // Use environment variables or config for credentials and URLs
-        const user = process.env.TEST_USER || 'adminuser';
-        const pass = process.env.TEST_PASS || 'admin123';
+        const user = process.env.TEST_USER;
+        const pass = process.env.TEST_PASS;
         const authoringTarget = process.env.AUTHORING_URL || 'http://apps.local.openedx.io:2001/authoring/home';
         const filePath = 'artifacts/downloads/testCourseToImport.tar.gz';
+        if (!user || !pass) {
+            throw new Error('TEST_USER and TEST_PASS environment variables must be set');
+        }
         const testDoc = new src_1.TestdocTest(page, 'Import-Course-Test', {
             title: 'Importing a Course in Open edX',
             overview: 'This test automates the process of importing a course package into the Open edX authoring environment. It walks through accessing the import interface, selecting a course, and uploading a course archive for import.',

@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../common/page-objects';
-import { assertA11y, VisualRegression } from '../../src';
 
 test.describe('Authentication Tests', () => {
   let loginPage: LoginPage;

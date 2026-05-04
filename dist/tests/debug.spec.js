@@ -26,9 +26,14 @@ test_1.test.describe('Debug Tests', () => {
     (0, test_1.test)('verify form submission behavior', async ({ page }) => {
         const loginPage = new page_objects_1.LoginPage(page);
         await loginPage.navigate();
-        // Fill form with test credentials
-        await loginPage.emailInput.fill('testuser');
-        await loginPage.passwordInput.fill('password123');
+        // Fill form with test credentials from environment
+        const username = process.env.TEST_USER;
+        const password = process.env.TEST_PASS;
+        if (!username || !password) {
+            throw new Error('TEST_USER and TEST_PASS environment variables must be set');
+        }
+        await loginPage.emailInput.fill(username);
+        await loginPage.passwordInput.fill(password);
         // Log form values
         const emailValue = await loginPage.emailInput.inputValue();
         const passwordValue = await loginPage.passwordInput.inputValue();
