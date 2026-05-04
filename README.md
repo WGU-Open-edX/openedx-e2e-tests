@@ -318,17 +318,28 @@ This repository includes example tests for Open edX. To run them:
    npm run install:browsers
    ```
 
-2. **Setup test data:**
+2. **Configure environment variables:**
+   ```bash
+   # Copy the example environment file
+   cp .env.example .env
+
+   # Edit .env and set your credentials
+   # Required variables:
+   #   - TEST_USER, TEST_PASS
+   #   - TEST_USER_EMAIL, TEST_USER_USERNAME, TEST_USER_PASSWORD
+   #   - ADMIN_USER_EMAIL, ADMIN_USER_USERNAME, ADMIN_USER_PASSWORD
+   ```
+
+   **⚠️ Security Note:** Never commit the `.env` file to version control. It's already in `.gitignore`.
+
+3. **Setup test data:**
    ```bash
    npm run setup
    ```
 
-   This creates:
-   - Test user: `testuser` / `password123` (`test@example.com`)
-   - Admin user: `adminuser` / `admin123` (`admin@example.com`)
-   - Demo course and test course
+   This creates test users in your Open edX instance based on the credentials in your `.env` file.
 
-3. **Run tests:**
+4. **Run tests:**
    ```bash
    npm test                    # Run all tests
    npm run test:headed         # With visible browser

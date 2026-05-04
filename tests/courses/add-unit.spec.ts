@@ -11,9 +11,13 @@ test.describe('Add Unit to Course Test', () => {
     await loginPage.navigate();
   });
   test('user can add a Unit to a course', async ({ page }, testInfo) => {
-    const user = process.env.TEST_USER || 'adminuser';
-    const pass = process.env.TEST_PASS || 'admin123';
+    const user = process.env.TEST_USER;
+    const pass = process.env.TEST_PASS;
     const authoringTarget = process.env.AUTHORING_URL || 'http://apps.local.openedx.io:2001/authoring/home';
+
+    if (!user || !pass) {
+      throw new Error('TEST_USER and TEST_PASS environment variables must be set');
+    }
     const testDoc = new TestdocTest(page, 'Add-Unit-Course', {
       title: 'Adding a Unit to a Course in Open edX',
       overview: 'This test details the steps required to add a new unit to an existing course in the Open edX authoring environment. It includes navigating to the course, selecting the appropriate section, and using the interface to create a new unit.',

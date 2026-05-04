@@ -49,9 +49,16 @@ test.describe('Testdoc: How to Login', () => {
     });
 
     // Step 3: Fill in email
+    const username = process.env.TEST_USER;
+    const password = process.env.TEST_PASS;
+
+    if (!username || !password) {
+      throw new Error('TEST_USER and TEST_PASS environment variables must be set');
+    }
+
     await testdoc.fill({
       selector: 'input[name="emailOrUsername"]',
-      value: 'testuser',
+      value: username,
       title: 'Enter your email or username',
       description: 'Enter either the email address you registered with or your chosen username in the first field.',
       elementOnly: 'form[id="sign-in-form"]',
@@ -61,7 +68,7 @@ test.describe('Testdoc: How to Login', () => {
     // Step 4: Fill in password
     await testdoc.fill({
       selector: 'input[name="password"]',
-      value: 'password123',
+      value: password,
       title: 'Enter your password',
       description: 'Type your password in the password field.',
       elementOnly: 'form[id="sign-in-form"]',

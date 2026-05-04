@@ -13,14 +13,26 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Test user credentials
-TEST_USER_EMAIL="test@example.com"
-TEST_USER_USERNAME="testuser"
-TEST_USER_PASSWORD="password123"
+# Test user credentials - load from environment variables
+if [ -z "$TEST_USER_EMAIL" ] || [ -z "$TEST_USER_USERNAME" ] || [ -z "$TEST_USER_PASSWORD" ]; then
+    echo -e "${RED}❌ Error: Required test user environment variables are not set.${NC}"
+    echo "Please set the following environment variables:"
+    echo "  - TEST_USER_EMAIL"
+    echo "  - TEST_USER_USERNAME"
+    echo "  - TEST_USER_PASSWORD"
+    echo "  - ADMIN_USER_EMAIL"
+    echo "  - ADMIN_USER_USERNAME"
+    echo "  - ADMIN_USER_PASSWORD"
+    echo ""
+    echo "You can create a .env file in the openedx-e2e-tests directory with these values."
+    exit 1
+fi
 
-ADMIN_USER_EMAIL="admin@example.com"
-ADMIN_USER_USERNAME="adminuser"
-ADMIN_USER_PASSWORD="admin123"
+if [ -z "$ADMIN_USER_EMAIL" ] || [ -z "$ADMIN_USER_USERNAME" ] || [ -z "$ADMIN_USER_PASSWORD" ]; then
+    echo -e "${RED}❌ Error: Required admin user environment variables are not set.${NC}"
+    echo "Please set ADMIN_USER_EMAIL, ADMIN_USER_USERNAME, and ADMIN_USER_PASSWORD"
+    exit 1
+fi
 
 # Use tutor from the virtual environment
 TUTOR_CMD="../.venv/bin/tutor"

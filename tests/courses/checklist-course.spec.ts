@@ -12,10 +12,14 @@ test.describe('Complete Course CheckList', () => {
     await loginPage.navigate();
   });
   test('user can complete the checklist of a course', async ({ page }, testInfo) => {
-    const user = process.env.TEST_USER || 'adminuser';
-    const pass = process.env.TEST_PASS || 'adminuser123';
+    const user = process.env.TEST_USER;
+    const pass = process.env.TEST_PASS;
     const authoringTarget = process.env.AUTHORING_URL || 'http://apps.local.openedx.io:2001/authoring/home';
     const openEdxUrl = 'http://apps.local.openedx.io:2001';
+
+    if (!user || !pass) {
+      throw new Error('TEST_USER and TEST_PASS environment variables must be set');
+    }
     const testDoc = new TestdocTest(page, 'Complete-Checklist-Course', {
       title: 'Complete the checklists of a course',
       overview: 'Once a course is created, it must be properly configured by completing all required checklists. This test guides you through the process of accessing a course and fulfilling its configuration checklists to ensure it is ready for use.',
