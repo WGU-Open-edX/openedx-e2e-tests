@@ -258,7 +258,6 @@ export class TestdocTest {
             }
         }
         markdown += '## Steps\n\n';
-        markdown += 'To complete this process, follow these steps:\n\n';
         for (const step of this.steps) {
             const heading = step.showNumber !== false && step.numberedStepNumber !== null
                 ? `### ${step.numberedStepNumber}. ${step.title}\n\n`
@@ -319,7 +318,6 @@ export class TestdocTest {
         }
         rst += 'Steps\n';
         rst += `${'='.repeat('Steps'.length)}\n\n`;
-        rst += 'To complete this process, follow these steps:\n\n';
         for (const step of this.steps) {
             const heading = step.showNumber !== false && step.numberedStepNumber !== null
                 ? `${step.numberedStepNumber}. ${step.title}`
