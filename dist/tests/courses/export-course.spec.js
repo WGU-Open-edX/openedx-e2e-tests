@@ -1,23 +1,21 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const test_1 = require("@playwright/test");
-const page_objects_1 = require("../common/page-objects");
-const src_1 = require("../../src");
-test_1.test.skip();
-test_1.test.describe('Export Course Tests', () => {
+import { test, expect } from '@playwright/test';
+import { LoginPage } from '../common/page-objects';
+import { TestdocTest, assertA11y } from '../../src';
+test.skip();
+test.describe('Export Course Tests', () => {
     let loginPage;
-    test_1.test.beforeEach(async ({ page }) => {
-        loginPage = new page_objects_1.LoginPage(page);
+    test.beforeEach(async ({ page }) => {
+        loginPage = new LoginPage(page);
         await loginPage.navigate();
     });
-    (0, test_1.test)('user can export a course', async ({ page }, testInfo) => {
+    test('user can export a course', async ({ page }, testInfo) => {
         const user = process.env.TEST_USER_USERNAME;
         const pass = process.env.TEST_USER_PASSWORD;
         const authoringTarget = process.env.AUTHORING_URL || 'http://apps.local.openedx.io:2001/authoring/home';
         if (!user || !pass) {
             throw new Error('TEST_USER_USERNAME and TEST_USER_PASSWORD environment variables must be set');
         }
-        const testDoc = new src_1.TestdocTest(page, 'Create-Course-Test', {
+        const testDoc = new TestdocTest(page, 'Create-Course-Test', {
             title: 'Exporting a Course in Open edX',
             overview: 'This test automates the export workflow for a course in the Open edX authoring environment. It demonstrates how to access the export page, select a course, and initiate the export process to generate a downloadable course archive.',
             prerequisites: [
@@ -43,8 +41,8 @@ test_1.test.describe('Export Course Tests', () => {
             screenshot: true,
         });
         // Basic URL assertion to confirm navigation reached the authoring area
-        await (0, test_1.expect)(page).toHaveURL(/authoring\/home|authoring/);
-        await (0, src_1.assertA11y)(page, { warnOnly: true, report: true, reportName: 'export-course-page' }, testInfo);
+        await expect(page).toHaveURL(/authoring\/home|authoring/);
+        await assertA11y(page, { warnOnly: true, report: true, reportName: 'export-course-page' }, testInfo);
         await testDoc.click({
             selector: '(//a[text()="Automated TestCourse"])[1]',
             title: 'Open the Selected Course',

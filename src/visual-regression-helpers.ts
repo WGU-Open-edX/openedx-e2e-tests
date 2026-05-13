@@ -193,8 +193,8 @@ export class VisualRegression {
     const maxWidth = Math.max(baseline.width, current.width);
     const maxHeight = Math.max(baseline.height, current.height);
 
-    let normalizedBaseline = baseline;
-    let normalizedCurrent = current;
+    let normalizedBaseline: PNG = baseline;
+    let normalizedCurrent: PNG = current;
 
     // Pad images if dimensions don't match
     if (baseline.width !== maxWidth || baseline.height !== maxHeight) {

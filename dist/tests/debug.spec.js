@@ -1,30 +1,28 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const test_1 = require("@playwright/test");
-const page_objects_1 = require("./common/page-objects");
-test_1.test.describe('Debug Tests', () => {
-    (0, test_1.test)('verify Open edX instance is accessible', async ({ page }) => {
+import { test, expect } from '@playwright/test';
+import { LoginPage } from './common/page-objects';
+test.describe('Debug Tests', () => {
+    test('verify Open edX instance is accessible', async ({ page }) => {
         await page.goto('/');
         // Log the current URL and title for debugging
         console.log('Homepage URL:', page.url());
         console.log('Homepage title:', await page.title());
         // Check if we can access the homepage
-        await (0, test_1.expect)(page).not.toHaveURL(/error/);
+        await expect(page).not.toHaveURL(/error/);
     });
-    (0, test_1.test)('verify login page loads correctly', async ({ page }) => {
-        const loginPage = new page_objects_1.LoginPage(page);
+    test('verify login page loads correctly', async ({ page }) => {
+        const loginPage = new LoginPage(page);
         await loginPage.navigate();
         console.log('Login page URL:', page.url());
         console.log('Login page title:', await page.title());
         // Verify login form elements are present
-        await (0, test_1.expect)(loginPage.emailInput).toBeVisible();
-        await (0, test_1.expect)(loginPage.passwordInput).toBeVisible();
-        await (0, test_1.expect)(loginPage.loginButton).toBeVisible();
+        await expect(loginPage.emailInput).toBeVisible();
+        await expect(loginPage.passwordInput).toBeVisible();
+        await expect(loginPage.loginButton).toBeVisible();
         // Take a screenshot for debugging
         await page.screenshot({ path: 'debug-login-page.png' });
     });
-    (0, test_1.test)('verify form submission behavior', async ({ page }) => {
-        const loginPage = new page_objects_1.LoginPage(page);
+    test('verify form submission behavior', async ({ page }) => {
+        const loginPage = new LoginPage(page);
         await loginPage.navigate();
         // Fill form with test credentials from environment
         const username = process.env.TEST_USER_USERNAME;

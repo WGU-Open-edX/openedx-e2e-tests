@@ -1,16 +1,14 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const test_1 = require("@playwright/test");
-const page_objects_1 = require("../common/page-objects");
-const src_1 = require("../../src");
-test_1.test.skip();
-test_1.test.describe('Complete Course CheckList', () => {
+import { test, expect } from '@playwright/test';
+import { LoginPage } from '../common/page-objects';
+import { TestdocTest, assertA11y, formatDate, shiftDate, } from '../../src';
+test.skip();
+test.describe('Complete Course CheckList', () => {
     let loginPage;
-    test_1.test.beforeEach(async ({ page }) => {
-        loginPage = new page_objects_1.LoginPage(page);
+    test.beforeEach(async ({ page }) => {
+        loginPage = new LoginPage(page);
         await loginPage.navigate();
     });
-    (0, test_1.test)('user can complete the checklist of a course', async ({ page }, testInfo) => {
+    test('user can complete the checklist of a course', async ({ page }, testInfo) => {
         const user = process.env.TEST_USER_USERNAME;
         const pass = process.env.TEST_USER_PASSWORD;
         const authoringTarget = process.env.AUTHORING_URL || 'http://apps.local.openedx.io:2001/authoring/home';
@@ -18,7 +16,7 @@ test_1.test.describe('Complete Course CheckList', () => {
         if (!user || !pass) {
             throw new Error('TEST_USER_USERNAME and TEST_USER_PASSWORD environment variables must be set');
         }
-        const testDoc = new src_1.TestdocTest(page, 'Complete-Checklist-Course', {
+        const testDoc = new TestdocTest(page, 'Complete-Checklist-Course', {
             title: 'Complete the checklists of a course',
             overview: 'Once a course is created, it must be properly configured by completing all required checklists. This test guides you through the process of accessing a course and fulfilling its configuration checklists to ensure it is ready for use.',
             prerequisites: [
@@ -44,8 +42,8 @@ test_1.test.describe('Complete Course CheckList', () => {
             screenshot: true,
         });
         // Basic URL assertion to confirm navigation reached the authoring area
-        await (0, test_1.expect)(page).toHaveURL(/authoring\/home|authoring/);
-        await (0, src_1.assertA11y)(page, { warnOnly: true, report: true, reportName: 'checklist-course-page' }, testInfo);
+        await expect(page).toHaveURL(/authoring\/home|authoring/);
+        await assertA11y(page, { warnOnly: true, report: true, reportName: 'checklist-course-page' }, testInfo);
         await testDoc.hideElement('.alert-content');
         await testDoc.click({
             selector: '(//a[text()="Automated TestCourse"])[1]',
@@ -243,14 +241,14 @@ test_1.test.describe('Complete Course CheckList', () => {
         });
         // we will fill the form based on today's date
         const today = new Date();
-        const startDate = (0, src_1.shiftDate)(today, 1); // tomorrow
-        const endDate = (0, src_1.shiftDate)(today, 7); // one week later
-        const enrollmentStartDate = (0, src_1.shiftDate)(today, -7); // enrollment a week before the course starts
-        const enrollmentEndDate = (0, src_1.shiftDate)(today, -1); // enrollment end a day before the course starts
+        const startDate = shiftDate(today, 1); // tomorrow
+        const endDate = shiftDate(today, 7); // one week later
+        const enrollmentStartDate = shiftDate(today, -7); // enrollment a week before the course starts
+        const enrollmentEndDate = shiftDate(today, -1); // enrollment end a day before the course starts
         await page.locator('input[name="startDate-date"]').scrollIntoViewIfNeeded();
         await testDoc.fill({
             selector: 'input[name="startDate-date"]',
-            value: (0, src_1.formatDate)(startDate),
+            value: formatDate(startDate),
             title: 'Enter the course start date',
             description: 'Click on the input to see a calendar and select the date',
             elementOnly: 'form',
@@ -259,7 +257,7 @@ test_1.test.describe('Complete Course CheckList', () => {
         await page.locator('input[name="endDate-date"]').scrollIntoViewIfNeeded();
         await testDoc.fill({
             selector: 'input[name="endDate-date"]',
-            value: (0, src_1.formatDate)(endDate),
+            value: formatDate(endDate),
             title: 'Enter the course end date',
             description: 'Click on the input to see a calendar and select the date',
             elementOnly: 'form',
@@ -267,7 +265,7 @@ test_1.test.describe('Complete Course CheckList', () => {
         });
         await testDoc.fill({
             selector: 'input[name="enrollmentStart-date"]',
-            value: (0, src_1.formatDate)(enrollmentStartDate),
+            value: formatDate(enrollmentStartDate),
             title: 'Enter the course enrollment start date',
             description: 'Click on the input to see a calendar and select the date',
             elementOnly: 'form',
@@ -275,7 +273,7 @@ test_1.test.describe('Complete Course CheckList', () => {
         });
         await testDoc.fill({
             selector: 'input[name="enrollmentEnd-date"]',
-            value: (0, src_1.formatDate)(enrollmentEndDate),
+            value: formatDate(enrollmentEndDate),
             title: 'Enter the course enrollment end date',
             description: 'Click on the input to see a calendar and select the date',
             elementOnly: 'form',

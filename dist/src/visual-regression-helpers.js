@@ -104,25 +104,34 @@ export class VisualRegression {
         const pixelmatch = (await import('pixelmatch')).default;
         const baseline = PNG.sync.read(readFileSync(baselinePath));
         const current = PNG.sync.read(readFileSync(currentPath));
-        // Ensure dimensions match
-        if (baseline.width !== current.width || baseline.height !== current.height) {
-            throw new Error('Image dimensions don\'t match!\n'
-                + `  Baseline: ${baseline.width}x${baseline.height}\n`
-                + `  Current:  ${current.width}x${current.height}\n`
-                + '  This usually means the viewport size changed or content height is different.');
+        // Normalize images to same dimensions for comparison
+        const maxWidth = Math.max(baseline.width, current.width);
+        const maxHeight = Math.max(baseline.height, current.height);
+        let normalizedBaseline = baseline;
+        let normalizedCurrent = current;
+        // Pad images if dimensions don't match
+        if (baseline.width !== maxWidth || baseline.height !== maxHeight) {
+            normalizedBaseline = new PNG({ width: maxWidth, height: maxHeight });
+            normalizedBaseline.data.fill(255); // White background
+            PNG.bitblt(baseline, normalizedBaseline, 0, 0, baseline.width, baseline.height, 0, 0);
+        }
+        if (current.width !== maxWidth || current.height !== maxHeight) {
+            normalizedCurrent = new PNG({ width: maxWidth, height: maxHeight });
+            normalizedCurrent.data.fill(255); // White background
+            PNG.bitblt(current, normalizedCurrent, 0, 0, current.width, current.height, 0, 0);
         }
         // Create diff image
-        const { width, height } = baseline;
-        const diff = new PNG({ width, height });
+        const diff = new PNG({ width: maxWidth, height: maxHeight });
         // Run pixel comparison
-        const numDiffPixels = pixelmatch(baseline.data, current.data, diff.data, width, height, {
+        const numDiffPixels = pixelmatch(normalizedBaseline.data, normalizedCurrent.data, diff.data, maxWidth, maxHeight, {
             threshold,
             diffColor: [255, 0, 0], // Red color for differences
             diffColorAlt: [255, 100, 100], // Lighter red for subtle differences
         });
         // Calculate difference percentage
-        const totalPixels = width * height;
+        const totalPixels = maxWidth * maxHeight;
         const diffPercentage = (numDiffPixels / totalPixels) * 100;
+        const dimensionMismatch = baseline.width !== current.width || baseline.height !== current.height;
         if (numDiffPixels > 0) {
             // Save diff image
             writeFileSync(diffPath, PNG.sync.write(diff));
@@ -143,6 +152,12 @@ export class VisualRegression {
             console.log(`✗ Visual regression FAILED: ${name}`);
             // eslint-disable-next-line no-console
             console.log(`  Changed pixels: ${numDiffPixels.toLocaleString()} (${diffPercentage.toFixed(2)}%)`);
+            if (dimensionMismatch) {
+                // eslint-disable-next-line no-console
+                console.log(`  Baseline: ${baseline.width}x${baseline.height}`);
+                // eslint-disable-next-line no-console
+                console.log(`  Current:  ${current.width}x${current.height}`);
+            }
             // eslint-disable-next-line no-console
             console.log(`  Baseline: ${baselinePath}`);
             // eslint-disable-next-line no-console
@@ -151,6 +166,9 @@ export class VisualRegression {
             console.log(`  Diff:     ${diffPath}`);
             throw new Error(`Visual regression test failed for "${name}"\n`
                 + `  Changed pixels: ${numDiffPixels.toLocaleString()} (${diffPercentage.toFixed(2)}%)\n`
+                + `${dimensionMismatch
+                    ? `  Dimension mismatch: ${baseline.width}x${baseline.height} vs ${current.width}x${current.height}\n`
+                    : ''}`
                 + `  Check the diff image at: ${diffPath}`);
         }
         // eslint-disable-next-line no-console

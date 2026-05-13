@@ -1,23 +1,21 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const test_1 = require("@playwright/test");
-const page_objects_1 = require("../common/page-objects");
-const src_1 = require("../../src");
-test_1.test.skip();
-test_1.test.describe('Testdoc: How To Create a Course', () => {
+import { test, expect } from '@playwright/test';
+import { LoginPage } from '../common/page-objects';
+import { TestdocTest, assertA11y } from '../../src';
+test.skip();
+test.describe('Testdoc: How To Create a Course', () => {
     let loginPage;
-    test_1.test.beforeEach(async ({ page }) => {
-        loginPage = new page_objects_1.LoginPage(page);
+    test.beforeEach(async ({ page }) => {
+        loginPage = new LoginPage(page);
         await loginPage.navigate();
     });
-    (0, test_1.test)('user can create a valid course', async ({ page }, testInfo) => {
+    test('user can create a valid course', async ({ page }, testInfo) => {
         const user = process.env.TEST_USER_USERNAME;
         const pass = process.env.TEST_USER_PASSWORD;
         const authoringTarget = process.env.AUTHORING_URL || 'http://apps.local.openedx.io:2001/authoring/home';
         if (!user || !pass) {
             throw new Error('TEST_USER_USERNAME and TEST_USER_PASSWORD environment variables must be set');
         }
-        const testDoc = new src_1.TestdocTest(page, 'Create-Course-Test', {
+        const testDoc = new TestdocTest(page, 'Create-Course-Test', {
             title: 'Creating a New Course in Open edX',
             overview: 'This test automates the end-to-end workflow for creating a new course in the Open edX authoring environment. It demonstrates how to access the course creation page, enter all required course details, and submit the form to successfully create a new course instance.',
             prerequisites: [
@@ -42,8 +40,8 @@ test_1.test.describe('Testdoc: How To Create a Course', () => {
             screenshot: true,
         });
         // Basic URL assertion to confirm navigation reached the authoring area
-        await (0, test_1.expect)(page).toHaveURL(/authoring\/home|authoring/);
-        await (0, src_1.assertA11y)(page, { warnOnly: true, report: true, reportName: 'create-course-page' }, testInfo);
+        await expect(page).toHaveURL(/authoring\/home|authoring/);
+        await assertA11y(page, { warnOnly: true, report: true, reportName: 'create-course-page' }, testInfo);
         // Step 2: Click on 'New Course' button
         await testDoc.click({
             selector: 'button:has-text("New course")',
