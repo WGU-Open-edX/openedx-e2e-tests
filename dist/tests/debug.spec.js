@@ -27,10 +27,10 @@ test_1.test.describe('Debug Tests', () => {
         const loginPage = new page_objects_1.LoginPage(page);
         await loginPage.navigate();
         // Fill form with test credentials from environment
-        const username = process.env.TEST_USER;
-        const password = process.env.TEST_PASS;
+        const username = process.env.TEST_USER_USERNAME;
+        const password = process.env.TEST_USER_PASSWORD;
         if (!username || !password) {
-            throw new Error('TEST_USER and TEST_PASS environment variables must be set');
+            throw new Error('TEST_USER_USERNAME and TEST_USER_PASSWORD environment variables must be set');
         }
         await loginPage.emailInput.fill(username);
         await loginPage.passwordInput.fill(password);

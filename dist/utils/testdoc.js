@@ -1,43 +1,7 @@
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.TestdocTest = void 0;
-const fs_1 = require("fs");
-const path = __importStar(require("path"));
-const element_highlighter_1 = require("./element-highlighter");
-class TestdocTest {
+import { promises as fs } from 'fs';
+import * as path from 'path';
+import { highlightAndScreenshot } from './element-highlighter';
+export class TestdocTest {
     constructor(page, testName, options = {}) {
         this.page = page;
         this.title = options.title || testName;
@@ -52,7 +16,7 @@ class TestdocTest {
         this.defaultShowNumbers = options.showNumbers !== false;
     }
     async initialize() {
-        await fs_1.promises.mkdir(this.screenshotDir, { recursive: true });
+        await fs.mkdir(this.screenshotDir, { recursive: true });
     }
     createSlug(text) {
         return text
@@ -197,10 +161,10 @@ class TestdocTest {
         await this.page.locator(selector).waitFor({ state: 'visible', timeout: 10000 });
         // Handle elementOnly string option (screenshot different element than highlighted one)
         if (typeof elementOnly === 'string') {
-            await (0, element_highlighter_1.highlightAndScreenshot)(this.page, selector, { className: 'testdoc-highlight', color: '#0000ff' }, { path: screenshotPath, padding, elementOnly: true }, action ?? undefined);
+            await highlightAndScreenshot(this.page, selector, { className: 'testdoc-highlight', color: '#0000ff' }, { path: screenshotPath, padding, elementOnly: true }, action ?? undefined);
         }
         else {
-            await (0, element_highlighter_1.highlightAndScreenshot)(this.page, selector, { className: 'testdoc-highlight', color: '#ff6b35' }, { path: screenshotPath, padding, elementOnly: elementOnly === true }, action ?? undefined);
+            await highlightAndScreenshot(this.page, selector, { className: 'testdoc-highlight', color: '#ff6b35' }, { path: screenshotPath, padding, elementOnly: elementOnly === true }, action ?? undefined);
         }
         return { stepNumber, numberedStepNumber, screenshot: screenshotName };
     }
@@ -327,7 +291,7 @@ class TestdocTest {
         }
         markdown += '---\n\n';
         markdown += '*This documentation was automatically generated during testing.*\n';
-        await fs_1.promises.writeFile(markdownPath, markdown, 'utf8');
+        await fs.writeFile(markdownPath, markdown, 'utf8');
         // eslint-disable-next-line no-console
         console.log(`📄 Documentation generated: ${markdownPath}`);
         return markdownPath;
@@ -391,7 +355,7 @@ class TestdocTest {
         }
         rst += '----\n\n';
         rst += '*This documentation was automatically generated during testing.*\n';
-        await fs_1.promises.writeFile(rstPath, rst, 'utf8');
+        await fs.writeFile(rstPath, rst, 'utf8');
         console.log(`📄 RST Documentation generated: ${rstPath}`);
         return rstPath;
     }
@@ -421,7 +385,7 @@ class TestdocTest {
         ]);
         // Use provided path or default to artifacts/downloads
         const finalPath = downloadPath || path.join(process.cwd(), 'artifacts', 'downloads', 'testCourseToImport.tar.gz');
-        await fs_1.promises.mkdir(path.dirname(finalPath), { recursive: true });
+        await fs.mkdir(path.dirname(finalPath), { recursive: true });
         await download.saveAs(finalPath);
         // eslint-disable-next-line no-console
         console.log(`✅ File downloaded to: ${finalPath}`);
@@ -432,7 +396,7 @@ class TestdocTest {
         try {
             // eslint-disable-next-line no-console
             console.log('Verifying file exists at path:', absolutePath);
-            await fs_1.promises.access(absolutePath);
+            await fs.access(absolutePath);
         }
         catch {
             throw new Error(`❌ File not found: ${absolutePath}`);
@@ -459,7 +423,7 @@ class TestdocTest {
         try {
             // eslint-disable-next-line no-console
             console.log('Verifying file exists at path:', absolutePath);
-            await fs_1.promises.access(absolutePath);
+            await fs.access(absolutePath);
         }
         catch {
             throw new Error(`❌ File not found: ${absolutePath}`);
@@ -496,5 +460,4 @@ class TestdocTest {
         });
     }
 }
-exports.TestdocTest = TestdocTest;
 //# sourceMappingURL=testdoc.js.map

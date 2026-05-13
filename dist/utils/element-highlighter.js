@@ -1,14 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.addHighlightStyles = addHighlightStyles;
-exports.highlightElement = highlightElement;
-exports.removeHighlight = removeHighlight;
-exports.captureHighlightedScreenshot = captureHighlightedScreenshot;
-exports.highlightAndScreenshot = highlightAndScreenshot;
 /**
  * Adds highlight styles to the page
  */
-async function addHighlightStyles(page, style) {
+export async function addHighlightStyles(page, style) {
     const outlineWidth = style.outlineWidth ?? 3;
     const outlineOffset = style.outlineOffset ?? 2;
     await page.addStyleTag({
@@ -24,7 +17,7 @@ async function addHighlightStyles(page, style) {
 /**
  * Highlights an element by adding a CSS class
  */
-async function highlightElement(page, selector, className) {
+export async function highlightElement(page, selector, className) {
     await page.locator(selector).evaluate((el, cls) => {
         el.classList.add(cls);
     }, className);
@@ -32,7 +25,7 @@ async function highlightElement(page, selector, className) {
 /**
  * Removes highlight from an element
  */
-async function removeHighlight(page, selector, className) {
+export async function removeHighlight(page, selector, className) {
     await page.locator(selector).evaluate((el, cls) => {
         el.classList.remove(cls);
     }, className);
@@ -40,7 +33,7 @@ async function removeHighlight(page, selector, className) {
 /**
  * Captures a screenshot with optional element highlighting and clipping
  */
-async function captureHighlightedScreenshot(page, selector, options) {
+export async function captureHighlightedScreenshot(page, selector, options) {
     const padding = options.padding ?? 20;
     const locator = page.locator(selector);
     if (options.elementOnly) {
@@ -71,7 +64,7 @@ async function captureHighlightedScreenshot(page, selector, options) {
 /**
  * Highlights an element, captures a screenshot, and removes the highlight
  */
-async function highlightAndScreenshot(page, selector, highlightStyle, screenshotOptions, action) {
+export async function highlightAndScreenshot(page, selector, highlightStyle, screenshotOptions, action) {
     // Add styles if not already added
     await addHighlightStyles(page, highlightStyle);
     // Highlight the element

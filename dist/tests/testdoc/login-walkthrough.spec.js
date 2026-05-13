@@ -41,10 +41,10 @@ test_1.test.describe('Testdoc: How to Login', () => {
             screenshot: false,
         });
         // Step 3: Fill in email
-        const username = process.env.TEST_USER;
-        const password = process.env.TEST_PASS;
+        const username = process.env.TEST_USER_USERNAME;
+        const password = process.env.TEST_USER_PASSWORD;
         if (!username || !password) {
-            throw new Error('TEST_USER and TEST_PASS environment variables must be set');
+            throw new Error('TEST_USER_USERNAME and TEST_USER_PASSWORD environment variables must be set');
         }
         await testdoc.fill({
             selector: 'input[name="emailOrUsername"]',

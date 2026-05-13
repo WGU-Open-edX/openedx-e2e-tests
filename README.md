@@ -325,7 +325,6 @@ This repository includes example tests for Open edX. To run them:
 
    # Edit .env and set your credentials
    # Required variables:
-   #   - TEST_USER, TEST_PASS
    #   - TEST_USER_EMAIL, TEST_USER_USERNAME, TEST_USER_PASSWORD
    #   - ADMIN_USER_EMAIL, ADMIN_USER_USERNAME, ADMIN_USER_PASSWORD
    ```

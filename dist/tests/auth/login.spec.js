@@ -1,41 +1,46 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const test_1 = require("@playwright/test");
-const page_objects_1 = require("../common/page-objects");
-test_1.test.describe('Authentication Tests', () => {
+import { test, expect } from '@playwright/test';
+import { LoginPage } from '../common/page-objects';
+import { TestdocTest, VisualRegression } from '../../src';
+test.describe('Authentication Tests', () => {
     let loginPage;
-    test_1.test.beforeEach(async ({ page }) => {
-        loginPage = new page_objects_1.LoginPage(page);
+    test.beforeEach(async ({ page }) => {
+        loginPage = new LoginPage(page);
         await loginPage.navigate();
     });
-    (0, test_1.test)('user can login with valid credentials', async ({ page }) => {
+    test('user can login with valid credentials', async ({ page }, testInfo) => {
+        const testdoc = new TestdocTest(page, 'user-login', {
+            title: 'How to Log In',
+            overview: 'This guide shows you how to log into Open edX.',
+        });
+        await testdoc.initialize();
         // Wait for login form to be fully loaded
-        await (0, test_1.expect)(loginPage.emailInput).toBeVisible();
-        await (0, test_1.expect)(loginPage.passwordInput).toBeVisible();
-        await (0, test_1.expect)(loginPage.loginButton).toBeVisible();
+        await expect(loginPage.emailInput).toBeVisible();
+        await expect(loginPage.passwordInput).toBeVisible();
+        await expect(loginPage.loginButton).toBeVisible();
+        // Visual regression test
+        const vr = new VisualRegression(page, testInfo);
+        await vr.captureAndCompare({ name: 'login-page' });
         // Attempt login with credentials from environment
-        const username = process.env.TEST_USER;
-        const password = process.env.TEST_PASS;
-        if (!username || !password) {
-            throw new Error('TEST_USER and TEST_PASS environment variables must be set');
-        }
-        await loginPage.login(username, password);
+        await testdoc.fill('input[name="emailOrUsername"]', process.env.TEST_USER_USERNAME, 'Enter your username or email');
+        await testdoc.fill('input[name="password"]', process.env.TEST_USER_PASSWORD, 'Enter your password');
+        await testdoc.click('button[name="sign-in"]', 'Click the Sign In button');
         // Expect successful redirect to learner dashboard
-        await (0, test_1.expect)(page).toHaveURL(/learner-dashboard/, { timeout: 15000 });
+        await expect(page).toHaveURL(/learner-dashboard/, { timeout: 15000 });
+        await testdoc.generateMarkdown();
     });
-    (0, test_1.test)('user sees error with invalid credentials', async ({ page }) => {
+    test('user sees error with invalid credentials', async ({ page }) => {
         await loginPage.login('invalid@example.com', 'wrongpassword');
-        await (0, test_1.expect)(page.locator('[role="alert"]')).toBeVisible();
+        await expect(page.locator('[role="alert"]')).toBeVisible();
     });
-    (0, test_1.test)('login form validation works', async ({ page }) => {
+    test('login form validation works', async ({ page }) => {
         await loginPage.loginButton.click();
-        await (0, test_1.expect)(page.locator('.pgn__form-text-invalid')).toHaveCount(2);
+        await expect(page.locator('.pgn__form-text-invalid')).toHaveCount(2);
     });
-    (0, test_1.test)('password visibility toggle works', async () => {
+    test('password visibility toggle works', async () => {
         await loginPage.passwordInput.fill('testpassword');
-        await (0, test_1.expect)(loginPage.passwordInput).toHaveAttribute('type', 'password');
+        await expect(loginPage.passwordInput).toHaveAttribute('type', 'password');
         await loginPage.togglePasswordVisibility();
-        await (0, test_1.expect)(loginPage.passwordInput).toHaveAttribute('type', 'text');
+        await expect(loginPage.passwordInput).toHaveAttribute('type', 'text');
     });
 });
 //# sourceMappingURL=login.spec.js.map

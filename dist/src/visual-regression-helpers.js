@@ -1,43 +1,6 @@
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.VisualRegression = void 0;
-exports.assertVisualRegression = assertVisualRegression;
-const fs_1 = require("fs");
-const path_1 = require("path");
-const pngjs_1 = require("pngjs");
+import { existsSync, mkdirSync, readFileSync, writeFileSync, } from 'fs';
+import { join } from 'path';
+import { PNG } from 'pngjs';
 /**
  * Visual regression helper that:
  * 1. Captures baseline screenshots on first run
@@ -46,23 +9,23 @@ const pngjs_1 = require("pngjs");
  * 4. Stores baselines in tests/__visual-baselines__/ (tracked in git)
  * 5. Stores current and diff images in artifacts/visual-regression/ (gitignored)
  */
-class VisualRegression {
+export class VisualRegression {
     constructor(page, testInfo) {
         this.page = page;
         this.testInfo = testInfo;
         const projectName = testInfo.project.name;
         const testName = testInfo.titlePath.join('-').replace(/[^a-z0-9-]/gi, '_');
         // Store baselines in version control
-        this.baselineDir = (0, path_1.join)(process.cwd(), 'tests', '__visual-baselines__', projectName, testName);
+        this.baselineDir = join(process.cwd(), 'tests', '__visual-baselines__', projectName, testName);
         // Store current run and diffs in artifacts (gitignored)
-        this.currentDir = (0, path_1.join)(process.cwd(), 'artifacts', 'visual-regression', projectName, testName, 'current');
-        this.diffDir = (0, path_1.join)(process.cwd(), 'artifacts', 'visual-regression', projectName, testName, 'diff');
+        this.currentDir = join(process.cwd(), 'artifacts', 'visual-regression', projectName, testName, 'current');
+        this.diffDir = join(process.cwd(), 'artifacts', 'visual-regression', projectName, testName, 'diff');
         this.ensureDirectories();
     }
     ensureDirectories() {
         [this.baselineDir, this.currentDir, this.diffDir].forEach((dir) => {
-            if (!(0, fs_1.existsSync)(dir)) {
-                (0, fs_1.mkdirSync)(dir, { recursive: true });
+            if (!existsSync(dir)) {
+                mkdirSync(dir, { recursive: true });
             }
         });
     }
@@ -73,9 +36,9 @@ class VisualRegression {
      */
     async captureAndCompare(options) {
         const { name, mask = [], fullPage = true, threshold = 0.1, } = options;
-        const baselinePath = (0, path_1.join)(this.baselineDir, `${name}.png`);
-        const currentPath = (0, path_1.join)(this.currentDir, `${name}.png`);
-        const diffPath = (0, path_1.join)(this.diffDir, `${name}-diff.png`);
+        const baselinePath = join(this.baselineDir, `${name}.png`);
+        const currentPath = join(this.currentDir, `${name}.png`);
+        const diffPath = join(this.diffDir, `${name}-diff.png`);
         // Build mask locators
         const maskLocators = mask.map((selector) => this.page.locator(selector));
         // Wait for page to be completely stable
@@ -106,7 +69,7 @@ class VisualRegression {
         });
         // Small wait after disabling animations
         await this.page.waitForTimeout(100);
-        const isFirstRun = !(0, fs_1.existsSync)(baselinePath);
+        const isFirstRun = !existsSync(baselinePath);
         if (isFirstRun) {
             // First run: generate baseline
             await this.page.screenshot({
@@ -138,9 +101,9 @@ class VisualRegression {
             animations: 'disabled',
         });
         // Compare images using pixelmatch (dynamic import for ES module)
-        const pixelmatch = (await Promise.resolve().then(() => __importStar(require('pixelmatch')))).default;
-        const baseline = pngjs_1.PNG.sync.read((0, fs_1.readFileSync)(baselinePath));
-        const current = pngjs_1.PNG.sync.read((0, fs_1.readFileSync)(currentPath));
+        const pixelmatch = (await import('pixelmatch')).default;
+        const baseline = PNG.sync.read(readFileSync(baselinePath));
+        const current = PNG.sync.read(readFileSync(currentPath));
         // Ensure dimensions match
         if (baseline.width !== current.width || baseline.height !== current.height) {
             throw new Error('Image dimensions don\'t match!\n'
@@ -150,7 +113,7 @@ class VisualRegression {
         }
         // Create diff image
         const { width, height } = baseline;
-        const diff = new pngjs_1.PNG({ width, height });
+        const diff = new PNG({ width, height });
         // Run pixel comparison
         const numDiffPixels = pixelmatch(baseline.data, current.data, diff.data, width, height, {
             threshold,
@@ -162,7 +125,7 @@ class VisualRegression {
         const diffPercentage = (numDiffPixels / totalPixels) * 100;
         if (numDiffPixels > 0) {
             // Save diff image
-            (0, fs_1.writeFileSync)(diffPath, pngjs_1.PNG.sync.write(diff));
+            writeFileSync(diffPath, PNG.sync.write(diff));
             // Attach all three images to test report
             this.testInfo.attach(`${name}-baseline`, {
                 path: baselinePath,
@@ -199,7 +162,7 @@ class VisualRegression {
      */
     async updateBaseline(options) {
         const { name, mask = [], fullPage = true } = options;
-        const baselinePath = (0, path_1.join)(this.baselineDir, `${name}.png`);
+        const baselinePath = join(this.baselineDir, `${name}.png`);
         const maskLocators = mask.map((selector) => this.page.locator(selector));
         await this.page.waitForLoadState('networkidle');
         await this.page.waitForLoadState('domcontentloaded');
@@ -233,11 +196,10 @@ class VisualRegression {
         console.log(`✓ Updated baseline: ${baselinePath}`);
     }
 }
-exports.VisualRegression = VisualRegression;
 /**
  * Convenience function for quick visual regression checks
  */
-async function assertVisualRegression(page, testInfo, options) {
+export async function assertVisualRegression(page, testInfo, options) {
     const vr = new VisualRegression(page, testInfo);
     await vr.captureAndCompare(options);
 }

@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.LoginPage = void 0;
-class LoginPage {
+export class LoginPage {
     constructor(page) {
         this.page = page;
         this.emailInput = page.locator('input[name="emailOrUsername"]');
@@ -28,5 +25,4 @@ class LoginPage {
         await this.page.locator('button[name="passwordIcon"]').click();
     }
 }
-exports.LoginPage = LoginPage;
 //# sourceMappingURL=page-objects.js.map

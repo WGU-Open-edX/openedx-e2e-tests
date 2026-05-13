@@ -1,12 +1,7 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const test_1 = require("@playwright/test");
-const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config();
-exports.default = (0, test_1.defineConfig)({
+import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+dotenv.config({ quiet: true });
+export default defineConfig({
     testDir: './tests',
     outputDir: './artifacts/test-results',
     fullyParallel: true,
@@ -27,15 +22,15 @@ exports.default = (0, test_1.defineConfig)({
     projects: [
         {
             name: 'chromium',
-            use: { ...test_1.devices['Desktop Chrome'] },
+            use: { ...devices['Desktop Chrome'] },
         },
         {
             name: 'firefox',
-            use: { ...test_1.devices['Desktop Firefox'] },
+            use: { ...devices['Desktop Firefox'] },
         },
         {
             name: 'webkit',
-            use: { ...test_1.devices['Desktop Safari'] },
+            use: { ...devices['Desktop Safari'] },
         },
         // {
         //   name: 'Mobile Chrome',

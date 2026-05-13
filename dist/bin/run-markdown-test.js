@@ -1,51 +1,15 @@
 #!/usr/bin/env node
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.runMarkdownTest = runMarkdownTest;
-const child_process_1 = require("child_process");
-const fs_1 = require("fs");
-const path = __importStar(require("path"));
-const markdown_test_parser_1 = require("../src/markdown-test-parser");
+import { spawn } from 'child_process';
+import { promises as fs } from 'fs';
+import * as path from 'path';
+import { MarkdownTestParser } from '../src/markdown-test-parser';
 async function findMarkdownFiles(dir) {
-    const files = await fs_1.promises.readdir(dir);
+    const files = await fs.readdir(dir);
     const markdownFiles = [];
     for (const file of files) {
         /* eslint-disable no-await-in-loop */
         const fullPath = path.join(dir, file);
-        const stat = await fs_1.promises.stat(fullPath);
+        const stat = await fs.stat(fullPath);
         if (stat.isDirectory()) {
             const subFiles = await findMarkdownFiles(fullPath);
             markdownFiles.push(...subFiles);
@@ -57,7 +21,7 @@ async function findMarkdownFiles(dir) {
     return markdownFiles;
 }
 async function runMarkdownTest(markdownFile, options = {}) {
-    const parser = new markdown_test_parser_1.MarkdownTestParser(markdownFile);
+    const parser = new MarkdownTestParser(markdownFile);
     const codeBlocks = await parser.parseMarkdown();
     // Generate a temporary test file
     const testName = path.basename(markdownFile, '.md');
@@ -135,7 +99,7 @@ ${codeBlocks.map((block, index) => `
 });
 `;
     // Write the temporary test file
-    await fs_1.promises.writeFile(tempTestFile, testContent);
+    await fs.writeFile(tempTestFile, testContent);
     console.log(`🔄 Running markdown test: ${markdownFile}`);
     // Build command arguments
     const args = ['playwright', 'test', tempTestFile];
@@ -146,7 +110,7 @@ ${codeBlocks.map((block, index) => `
         args.push(`--project=${options.project}`);
     }
     // Run the test
-    const playwright = (0, child_process_1.spawn)('npx', args, {
+    const playwright = spawn('npx', args, {
         stdio: 'inherit',
         cwd: path.join(__dirname, '..'),
     });
@@ -156,7 +120,7 @@ ${codeBlocks.map((block, index) => `
                 console.log('✅ Markdown test completed successfully!');
                 // Clean up the temporary file on success
                 try {
-                    await fs_1.promises.unlink(tempTestFile);
+                    await fs.unlink(tempTestFile);
                 }
                 catch (err) {
                     const errorMessage = err instanceof Error ? err.message : String(err);
@@ -174,7 +138,7 @@ ${codeBlocks.map((block, index) => `
     });
 }
 async function runMarkdownTests(input, options = {}) {
-    const stat = await fs_1.promises.stat(input);
+    const stat = await fs.stat(input);
     if (stat.isDirectory()) {
         // Run all markdown files in directory
         const markdownFiles = await findMarkdownFiles(input);
@@ -218,4 +182,5 @@ if (require.main === module) {
     }
     runMarkdownTests(input, options).catch(console.error);
 }
+export { runMarkdownTest };
 //# sourceMappingURL=run-markdown-test.js.map

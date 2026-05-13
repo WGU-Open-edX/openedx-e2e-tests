@@ -5,6 +5,11 @@
 
 set -e
 
+# Load environment variables from .env file
+if [ -f .env ]; then
+    export $(cat .env | grep -v '^#' | xargs)
+fi
+
 echo "Setting up test data for Open edX E2E tests..."
 
 # Colors for output
@@ -39,7 +44,7 @@ TUTOR_CMD="../.venv/bin/tutor"
 
 echo -e "${YELLOW}Checking tutor status...${NC}"
 # Check if tutor dev is running by looking for running containers
-if ! docker ps | grep -q "tutor_dev-lms"; then
+if ! docker ps | grep -q "tutor_main_dev-lms"; then
     echo -e "${RED}❌ Tutor dev is not running. Please start it with: $TUTOR_CMD dev start lms cms${NC}"
     exit 1
 fi

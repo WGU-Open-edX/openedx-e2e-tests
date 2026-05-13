@@ -11,11 +11,11 @@ test_1.test.describe('Add Unit to Course Test', () => {
         await loginPage.navigate();
     });
     (0, test_1.test)('user can add a Unit to a course', async ({ page }, testInfo) => {
-        const user = process.env.TEST_USER;
-        const pass = process.env.TEST_PASS;
+        const user = process.env.TEST_USER_USERNAME;
+        const pass = process.env.TEST_USER_PASSWORD;
         const authoringTarget = process.env.AUTHORING_URL || 'http://apps.local.openedx.io:2001/authoring/home';
         if (!user || !pass) {
-            throw new Error('TEST_USER and TEST_PASS environment variables must be set');
+            throw new Error('TEST_USER_USERNAME and TEST_USER_PASSWORD environment variables must be set');
         }
         const testDoc = new src_1.TestdocTest(page, 'Add-Unit-Course', {
             title: 'Adding a Unit to a Course in Open edX',

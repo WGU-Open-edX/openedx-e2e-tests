@@ -10,12 +10,12 @@ test.describe('Add Section to Course Test', () => {
     await loginPage.navigate();
   });
   test('user can add a Section to a course', async ({ page }, testInfo) => {
-    const user = process.env.TEST_USER;
-    const pass = process.env.TEST_PASS;
+    const user = process.env.TEST_USER_USERNAME;
+    const pass = process.env.TEST_USER_PASSWORD;
     const authoringTarget = process.env.AUTHORING_URL || 'http://apps.local.openedx.io:2001/authoring/home';
 
     if (!user || !pass) {
-      throw new Error('TEST_USER and TEST_PASS environment variables must be set');
+      throw new Error('TEST_USER_USERNAME and TEST_USER_PASSWORD environment variables must be set');
     }
     const testDoc = new TestdocTest(page, 'Add-Section-Course', {
       title: 'Adding section to a Course in Open edX',

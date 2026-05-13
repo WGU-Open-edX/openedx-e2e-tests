@@ -12,13 +12,13 @@ test.describe('Testdoc: How To Import a Course', () => {
   });
   test('user can import a course', async ({ page }, testInfo) => {
     // Use environment variables or config for credentials and URLs
-    const user = process.env.TEST_USER;
-    const pass = process.env.TEST_PASS;
+    const user = process.env.TEST_USER_USERNAME;
+    const pass = process.env.TEST_USER_PASSWORD;
     const authoringTarget = process.env.AUTHORING_URL || 'http://apps.local.openedx.io:2001/authoring/home';
     const filePath = 'artifacts/downloads/testCourseToImport.tar.gz';
 
     if (!user || !pass) {
-      throw new Error('TEST_USER and TEST_PASS environment variables must be set');
+      throw new Error('TEST_USER_USERNAME and TEST_USER_PASSWORD environment variables must be set');
     }
 
     const testDoc = new TestdocTest(page, 'Import-Course-Test', {
