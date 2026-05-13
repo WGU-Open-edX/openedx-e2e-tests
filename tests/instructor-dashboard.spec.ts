@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from './common/page-objects';
-import { assertA11y, TestdocTest, VisualRegression } from './../src';
+import { TestdocTest, VisualRegression } from '../src';
 
 test.describe('Instructor Dashboard Tests', () => {
   let loginPage: LoginPage;
@@ -26,7 +26,6 @@ test.describe('Instructor Dashboard Tests', () => {
     // Visual regression test
     const vr = new VisualRegression(page, testInfo);
     await vr.captureAndCompare({ name: 'login-page' });
-
 
     // Attempt login with credentials from environment
     await testdoc.fill('input[name="emailOrUsername"]', process.env.ADMIN_USER_USERNAME!, 'Enter your username or email');

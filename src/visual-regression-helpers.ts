@@ -272,9 +272,9 @@ export class VisualRegression {
       throw new Error(
         `Visual regression test failed for "${name}"\n`
         + `  Changed pixels: ${numDiffPixels.toLocaleString()} (${diffPercentage.toFixed(2)}%)\n`
-        + (dimensionMismatch
+        + `${dimensionMismatch
           ? `  Dimension mismatch: ${baseline.width}x${baseline.height} vs ${current.width}x${current.height}\n`
-          : '')
+          : ''}`
         + `  Check the diff image at: ${diffPath}`,
       );
     }
