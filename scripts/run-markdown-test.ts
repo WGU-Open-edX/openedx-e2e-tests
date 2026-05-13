@@ -130,7 +130,7 @@ ${codeBlocks.map((block, index) => `
   });
 
   await new Promise<void>((resolve, reject) => {
-    playwright.on('close', async (code) => {
+    playwright.on('close', async code => {
       if (code === 0) {
         console.log('✅ Markdown test completed successfully!');
         // Clean up the temporary file on success

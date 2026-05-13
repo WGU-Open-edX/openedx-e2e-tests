@@ -83,7 +83,7 @@ export class VisualRegression {
   }
 
   private ensureDirectories(): void {
-    [this.baselineDir, this.currentDir, this.diffDir].forEach((dir) => {
+    [this.baselineDir, this.currentDir, this.diffDir].forEach(dir => {
       if (!existsSync(dir)) {
         mkdirSync(dir, { recursive: true });
       }
@@ -108,7 +108,7 @@ export class VisualRegression {
     const diffPath = join(this.diffDir, `${name}-diff.png`);
 
     // Build mask locators
-    const maskLocators = mask.map((selector) => this.page.locator(selector));
+    const maskLocators = mask.map(selector => this.page.locator(selector));
 
     // Wait for page to be completely stable
     await this.page.waitForLoadState('networkidle');
@@ -117,8 +117,8 @@ export class VisualRegression {
     // Wait for any images to load
     await this.page.evaluate(() => Promise.all(
       Array.from(document.images)
-        .filter((img) => !img.complete)
-        .map((img) => new Promise((resolve) => {
+        .filter(img => !img.complete)
+        .map(img => new Promise(resolve => {
           const element = img;
           element.addEventListener('load', () => resolve(undefined));
           element.addEventListener('error', () => resolve(undefined));
@@ -291,15 +291,15 @@ export class VisualRegression {
     const { name, mask = [], fullPage = true } = options;
 
     const baselinePath = join(this.baselineDir, `${name}.png`);
-    const maskLocators = mask.map((selector) => this.page.locator(selector));
+    const maskLocators = mask.map(selector => this.page.locator(selector));
 
     await this.page.waitForLoadState('networkidle');
     await this.page.waitForLoadState('domcontentloaded');
 
     await this.page.evaluate(() => Promise.all(
       Array.from(document.images)
-        .filter((img) => !img.complete)
-        .map((img) => new Promise((resolve) => {
+        .filter(img => !img.complete)
+        .map(img => new Promise(resolve => {
           const element = img;
           element.addEventListener('load', () => resolve(undefined));
           element.addEventListener('error', () => resolve(undefined));

@@ -1,9 +1,23 @@
 module.exports = {
-  extends: '@edx/eslint-config',
+  extends: [
+    'airbnb-base',
+    'airbnb-typescript/base',
+  ],
+  parserOptions: {
+    project: './tsconfig.json',
+  },
   settings: {
     react: {
       version: '18.0',
     },
+  },
+  rules: {
+    'no-plusplus': 'off',
+    'no-restricted-syntax': 'off',
+    'max-len': 'off',
+    'arrow-parens': ['error', 'as-needed'],
+    'import/prefer-default-export': 'off',
+    'class-methods-use-this': 'off',
   },
   overrides: [
     {
