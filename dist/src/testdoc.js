@@ -188,7 +188,7 @@ export class TestdocTest {
         const numberedStepNumber = skipNumber ? null : this.numberedStepCounter++;
         const { stepNumber, screenshot } = await this.highlight(selector, async () => {
             await this.page.locator(selector).click();
-        }, { ...opts, title: titleStr });
+        }, { ...opts, title: titleStr, skipNumber: true });
         this.steps.push({
             stepNumber,
             numberedStepNumber,
@@ -224,7 +224,7 @@ export class TestdocTest {
         const numberedStepNumber = skipNumber ? null : this.numberedStepCounter++;
         const { stepNumber, screenshot } = await this.highlight(selector, async () => {
             await this.page.locator(selector).fill(val);
-        }, { ...opts, title: titleStr });
+        }, { ...opts, title: titleStr, skipNumber: true });
         this.steps.push({
             stepNumber,
             numberedStepNumber,

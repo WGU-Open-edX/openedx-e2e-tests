@@ -7,7 +7,7 @@ test.describe('Instructor Dashboard Tests', () => {
         loginPage = new LoginPage(page);
         await loginPage.navigate();
     });
-    test('user can login and access the Instructor Dashboard', async ({ page }, testInfo) => {
+    test('certificates page', async ({ page }, testInfo) => {
         const testdoc = new TestdocTest(page, 'user-login', {
             title: 'How to Access the Instructor Dashboard',
             overview: 'This guide shows you how to log into Open edX and access the Instructor Dashboard.',
@@ -19,17 +19,25 @@ test.describe('Instructor Dashboard Tests', () => {
         await expect(loginPage.loginButton).toBeVisible();
         // Visual regression test
         const vr = new VisualRegression(page, testInfo);
-        await vr.captureAndCompare({ name: 'login-page' });
+        await vr.captureAndCompare({ name: 'login-page', threshold: 0.01 });
         // Attempt login with credentials from environment
         await testdoc.fill('input[name="emailOrUsername"]', process.env.ADMIN_USER_USERNAME, 'Enter your username or email');
         await testdoc.fill('input[name="password"]', process.env.ADMIN_USER_PASSWORD, 'Enter your password');
         await testdoc.click('button[name="sign-in"]', 'Click the Sign In button');
+        await page.waitForTimeout(1500);
         // Navigate to instructor dashboard certificates page
         await page.goto('http://apps.local.openedx.io:2003/instructor-dashboard/course-v1:OpenedX+DemoX+DemoCourse/certificates');
-        // wait for data to load 15 seconds
-        await page.waitForTimeout(15000);
-        await expect(page).toHaveURL(/instructor-dashboard.*certificates/, { timeout: 15000 });
-        await vr.captureAndCompare({ name: 'instructor-dashboard-certificates' });
+        await page.waitForTimeout(5000);
+        // Verify the Certificates heading is visible (not unauthorized)
+        await expect(page.locator('h3.text-primary-700:has-text("Certificates")')).toBeVisible();
+        await vr.captureAndCompare({
+            name: 'instructor-dashboard-certificates',
+            fullPage: false,
+            mask: ['.timestamp', '[data-testid="user-greeting"]'],
+            maskAreas: [{
+                    x: 100, y: 50, width: 200, height: 30,
+                }],
+        });
         await testdoc.generateMarkdown();
     });
 });

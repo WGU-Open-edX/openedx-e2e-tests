@@ -41,7 +41,11 @@ test.describe('Instructor Dashboard Tests', () => {
     // Verify the Certificates heading is visible (not unauthorized)
     await expect(page.locator('h3.text-primary-700:has-text("Certificates")')).toBeVisible();
 
-    await vr.captureAndCompare({ name: 'instructor-dashboard-certificates', fullPage: false });
+    await vr.captureAndCompare({
+      name: 'instructor-dashboard-certificates',
+      fullPage: false,
+      mask: ['.timestamp', '[data-testid="user-greeting"]'],
+    });
 
     await testdoc.generateMarkdown();
   });

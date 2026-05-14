@@ -14,12 +14,13 @@ export class VisualRegression {
         this.page = page;
         this.testInfo = testInfo;
         const projectName = testInfo.project.name;
-        const testName = testInfo.titlePath.join('-').replace(/[^a-z0-9-]/gi, '_');
-        // Store baselines in version control
-        this.baselineDir = join(process.cwd(), 'tests', '__visual-baselines__', projectName, testName);
+        // Extract relative test file path (e.g., "auth/login.spec.ts" or "instructor-dashboard.spec.ts")
+        const testFilePath = testInfo.file.replace(process.cwd(), '').replace(/^\/tests\//, '').replace(/\.ts$/, '');
+        // Store baselines in version control, matching test file structure
+        this.baselineDir = join(process.cwd(), 'tests', '__visual-baselines__', projectName, testFilePath);
         // Store current run and diffs in artifacts (gitignored)
-        this.currentDir = join(process.cwd(), 'artifacts', 'visual-regression', projectName, testName, 'current');
-        this.diffDir = join(process.cwd(), 'artifacts', 'visual-regression', projectName, testName, 'diff');
+        this.currentDir = join(process.cwd(), 'artifacts', 'visual-regression', projectName, testFilePath, 'current');
+        this.diffDir = join(process.cwd(), 'artifacts', 'visual-regression', projectName, testFilePath, 'diff');
         this.ensureDirectories();
     }
     ensureDirectories() {
@@ -35,15 +36,14 @@ export class VisualRegression {
      * On subsequent runs: compares and generates diff with red highlights
      */
     async captureAndCompare(options) {
-        const { name, mask = [], fullPage = true, threshold = 0.1, } = options;
+        const { name, mask = [], maskAreas = [], fullPage = true, threshold = 0.1, } = options;
         const baselinePath = join(this.baselineDir, `${name}.png`);
         const currentPath = join(this.currentDir, `${name}.png`);
         const diffPath = join(this.diffDir, `${name}-diff.png`);
-        // Build mask locators
-        const maskLocators = mask.map(selector => this.page.locator(selector));
         // Wait for page to be completely stable
-        await this.page.waitForLoadState('networkidle');
+        await this.page.waitForLoadState('load');
         await this.page.waitForLoadState('domcontentloaded');
+        await this.page.waitForLoadState('networkidle');
         // Wait for any images to load
         await this.page.evaluate(() => Promise.all(Array.from(document.images)
             .filter(img => !img.complete)
@@ -54,35 +54,64 @@ export class VisualRegression {
         }))));
         // Wait for fonts to load
         await this.page.evaluate(() => document.fonts.ready);
-        // Let animations and transitions settle
-        await this.page.waitForTimeout(1000);
-        // Disable animations for consistent screenshots
+        // Wait for any background requests to complete
+        await this.page.waitForTimeout(2000);
+        // Brute force disable ALL animations, transitions, and transformations
+        const maskSelectors = mask.join(', ');
         await this.page.addStyleTag({
             content: `
         *, *::before, *::after {
           animation-duration: 0s !important;
           animation-delay: 0s !important;
+          animation-iteration-count: 1 !important;
+          animation-play-state: paused !important;
           transition-duration: 0s !important;
           transition-delay: 0s !important;
+          transition-property: none !important;
+          transform: none !important;
+          caret-color: transparent !important;
         }
+        ${maskSelectors ? `${maskSelectors} { opacity: 0 !important; pointer-events: none !important; visibility: hidden !important; }` : ''}
       `,
         });
-        // Small wait after disabling animations
-        await this.page.waitForTimeout(100);
+        // Apply coordinate-based masks by creating pink overlays
+        if (maskAreas.length > 0) {
+            await this.page.evaluate((areas) => {
+                areas.forEach((area, index) => {
+                    const div = document.createElement('div');
+                    div.id = `vr-mask-${index}`;
+                    div.style.cssText = `
+            position: fixed;
+            left: ${area.x}px;
+            top: ${area.y}px;
+            width: ${area.width}px;
+            height: ${area.height}px;
+            background-color: #FF00FF;
+            z-index: 999999;
+            pointer-events: none;
+          `;
+                    document.body.appendChild(div);
+                });
+            }, maskAreas);
+        }
+        // Wait for styles to fully apply and any running animations to stop
+        await this.page.waitForTimeout(500);
+        // Force a reflow to ensure styles are applied
+        await this.page.evaluate(() => {
+            document.body.offsetHeight; // Force reflow
+        });
         const isFirstRun = !existsSync(baselinePath);
         if (isFirstRun) {
             // First run: generate baseline
             await this.page.screenshot({
                 path: baselinePath,
                 fullPage,
-                mask: maskLocators,
                 animations: 'disabled',
             });
             // Also save to current for consistency
             await this.page.screenshot({
                 path: currentPath,
                 fullPage,
-                mask: maskLocators,
                 animations: 'disabled',
             });
             this.testInfo.attach(`${name}-baseline-created`, {
@@ -97,7 +126,6 @@ export class VisualRegression {
         await this.page.screenshot({
             path: currentPath,
             fullPage,
-            mask: maskLocators,
             animations: 'disabled',
         });
         // Compare images using pixelmatch (dynamic import for ES module)
@@ -179,11 +207,11 @@ export class VisualRegression {
      * Use this when visual changes are intentional
      */
     async updateBaseline(options) {
-        const { name, mask = [], fullPage = true } = options;
+        const { name, mask = [], maskAreas = [], fullPage = true } = options;
         const baselinePath = join(this.baselineDir, `${name}.png`);
-        const maskLocators = mask.map(selector => this.page.locator(selector));
-        await this.page.waitForLoadState('networkidle');
+        await this.page.waitForLoadState('load');
         await this.page.waitForLoadState('domcontentloaded');
+        await this.page.waitForLoadState('networkidle');
         await this.page.evaluate(() => Promise.all(Array.from(document.images)
             .filter(img => !img.complete)
             .map(img => new Promise(resolve => {
@@ -192,22 +220,51 @@ export class VisualRegression {
             element.addEventListener('error', () => resolve(undefined));
         }))));
         await this.page.evaluate(() => document.fonts.ready);
-        await this.page.waitForTimeout(1000);
+        await this.page.waitForTimeout(2000);
+        const maskSelectors = mask.join(', ');
         await this.page.addStyleTag({
             content: `
         *, *::before, *::after {
           animation-duration: 0s !important;
           animation-delay: 0s !important;
+          animation-iteration-count: 1 !important;
+          animation-play-state: paused !important;
           transition-duration: 0s !important;
           transition-delay: 0s !important;
+          transition-property: none !important;
+          transform: none !important;
+          caret-color: transparent !important;
         }
+        ${maskSelectors ? `${maskSelectors} { opacity: 0 !important; pointer-events: none !important; visibility: hidden !important; }` : ''}
       `,
         });
-        await this.page.waitForTimeout(100);
+        // Apply coordinate-based masks by creating pink overlays
+        if (maskAreas.length > 0) {
+            await this.page.evaluate((areas) => {
+                areas.forEach((area, index) => {
+                    const div = document.createElement('div');
+                    div.id = `vr-mask-${index}`;
+                    div.style.cssText = `
+            position: fixed;
+            left: ${area.x}px;
+            top: ${area.y}px;
+            width: ${area.width}px;
+            height: ${area.height}px;
+            background-color: #FF00FF;
+            z-index: 999999;
+            pointer-events: none;
+          `;
+                    document.body.appendChild(div);
+                });
+            }, maskAreas);
+        }
+        await this.page.waitForTimeout(500);
+        await this.page.evaluate(() => {
+            document.body.offsetHeight; // Force reflow
+        });
         await this.page.screenshot({
             path: baselinePath,
             fullPage,
-            mask: maskLocators,
             animations: 'disabled',
         });
         // eslint-disable-next-line no-console

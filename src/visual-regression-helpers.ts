@@ -109,9 +109,6 @@ export class VisualRegression {
     const currentPath = join(this.currentDir, `${name}.png`);
     const diffPath = join(this.diffDir, `${name}-diff.png`);
 
-    // Build mask locators
-    const maskLocators = mask.map(selector => this.page.locator(selector));
-
     // Wait for page to be completely stable
     await this.page.waitForLoadState('networkidle');
     await this.page.waitForLoadState('domcontentloaded');
@@ -133,7 +130,10 @@ export class VisualRegression {
     // Let animations and transitions settle
     await this.page.waitForTimeout(1000);
 
-    // Disable animations for consistent screenshots
+    // Build mask selector string for CSS
+    const maskSelector = mask.join(', ');
+
+    // Disable animations and apply opacity-based masking
     await this.page.addStyleTag({
       content: `
         *, *::before, *::after {
@@ -142,6 +142,7 @@ export class VisualRegression {
           transition-duration: 0s !important;
           transition-delay: 0s !important;
         }
+        ${maskSelector ? `${maskSelector} { opacity: 0 !important; }` : ''}
       `,
     });
 
@@ -155,7 +156,6 @@ export class VisualRegression {
       await this.page.screenshot({
         path: baselinePath,
         fullPage,
-        mask: maskLocators,
         animations: 'disabled',
       });
 
@@ -163,7 +163,6 @@ export class VisualRegression {
       await this.page.screenshot({
         path: currentPath,
         fullPage,
-        mask: maskLocators,
         animations: 'disabled',
       });
 
@@ -181,7 +180,6 @@ export class VisualRegression {
     await this.page.screenshot({
       path: currentPath,
       fullPage,
-      mask: maskLocators,
       animations: 'disabled',
     });
 
@@ -293,7 +291,6 @@ export class VisualRegression {
     const { name, mask = [], fullPage = true } = options;
 
     const baselinePath = join(this.baselineDir, `${name}.png`);
-    const maskLocators = mask.map(selector => this.page.locator(selector));
 
     await this.page.waitForLoadState('networkidle');
     await this.page.waitForLoadState('domcontentloaded');
@@ -311,6 +308,8 @@ export class VisualRegression {
     await this.page.evaluate(() => document.fonts.ready);
     await this.page.waitForTimeout(1000);
 
+    const maskSelector = mask.join(', ');
+
     await this.page.addStyleTag({
       content: `
         *, *::before, *::after {
@@ -319,6 +318,7 @@ export class VisualRegression {
           transition-duration: 0s !important;
           transition-delay: 0s !important;
         }
+        ${maskSelector ? `${maskSelector} { opacity: 0 !important; }` : ''}
       `,
     });
 
@@ -327,7 +327,6 @@ export class VisualRegression {
     await this.page.screenshot({
       path: baselinePath,
       fullPage,
-      mask: maskLocators,
       animations: 'disabled',
     });
 

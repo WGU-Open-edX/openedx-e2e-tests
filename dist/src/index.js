@@ -5,6 +5,7 @@ export { MarkdownTestParser } from './markdown-test-parser';
 export { checkA11y, assertA11y, } from './a11y-helpers';
 // Visual regression helpers
 export { VisualRegression, assertVisualRegression, } from './visual-regression-helpers';
+export { resetVisualBaselines } from './reset-visual-baselines';
 // Element highlighter utilities
 export { addHighlightStyles, highlightElement, removeHighlight, captureHighlightedScreenshot, highlightAndScreenshot, } from './element-highlighter';
 // Date utilities
