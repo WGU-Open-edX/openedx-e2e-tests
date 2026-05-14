@@ -34,9 +34,6 @@ test.describe('Instructor Dashboard Tests', () => {
             name: 'instructor-dashboard-certificates',
             fullPage: false,
             mask: ['.timestamp', '[data-testid="user-greeting"]'],
-            maskAreas: [{
-                    x: 100, y: 50, width: 200, height: 30,
-                }],
         });
         await testdoc.generateMarkdown();
     });

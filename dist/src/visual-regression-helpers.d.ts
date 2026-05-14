@@ -1,10 +1,4 @@
 import { Page, TestInfo } from '@playwright/test';
-export interface MaskArea {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-}
 export interface VisualRegressionOptions {
     /**
      * Name of the screenshot (e.g., 'login-page')
@@ -12,15 +6,9 @@ export interface VisualRegressionOptions {
      */
     name: string;
     /**
-     * CSS selectors to mask (hide dynamic content like timestamps)
-     * These elements will be hidden with opacity: 0
+     * Selectors to mask (hide dynamic content like timestamps)
      */
     mask?: string[];
-    /**
-     * Coordinate-based mask areas (will use pink Playwright mask)
-     * Useful for masking specific screen regions
-     */
-    maskAreas?: MaskArea[];
     /**
      * Whether to capture full page or just viewport
      */
