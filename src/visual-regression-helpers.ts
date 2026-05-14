@@ -49,15 +49,17 @@ export class VisualRegression {
     private testInfo: TestInfo,
   ) {
     const projectName = testInfo.project.name;
-    const testName = testInfo.titlePath.join('-').replace(/[^a-z0-9-]/gi, '_');
 
-    // Store baselines in version control
+    // Extract relative test file path (e.g., "auth/login.spec.ts" or "instructor-dashboard.spec.ts")
+    const testFilePath = testInfo.file.replace(process.cwd(), '').replace(/^\/tests\//, '').replace(/\.ts$/, '');
+
+    // Store baselines in version control, matching test file structure
     this.baselineDir = join(
       process.cwd(),
       'tests',
       '__visual-baselines__',
       projectName,
-      testName,
+      testFilePath,
     );
 
     // Store current run and diffs in artifacts (gitignored)
@@ -66,7 +68,7 @@ export class VisualRegression {
       'artifacts',
       'visual-regression',
       projectName,
-      testName,
+      testFilePath,
       'current',
     );
 
@@ -75,7 +77,7 @@ export class VisualRegression {
       'artifacts',
       'visual-regression',
       projectName,
-      testName,
+      testFilePath,
       'diff',
     );
 
