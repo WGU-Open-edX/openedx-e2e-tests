@@ -371,7 +371,7 @@ export class TestdocTest {
         }
         else if (!href.startsWith('http')) {
             const baseUrl = this.page.url().split(/\/(?=[^\\/]*$)/)[0];
-            fullUrl = `${baseUrl} '/' ${href}`;
+            fullUrl = `${baseUrl}/${href}`;
         }
         // eslint-disable-next-line no-console
         console.log(`📥 Downloading file from: ${fullUrl}`);

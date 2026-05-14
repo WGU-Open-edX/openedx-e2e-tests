@@ -1,4 +1,10 @@
 import { Page, TestInfo } from '@playwright/test';
+export interface MaskRegion {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
 export interface VisualRegressionOptions {
     /**
      * Name of the screenshot (e.g., 'login-page')
@@ -6,9 +12,14 @@ export interface VisualRegressionOptions {
      */
     name: string;
     /**
-     * Selectors to mask (hide dynamic content like timestamps)
+     * Selectors to hide (hide dynamic content like timestamps)
      */
-    mask?: string[];
+    hide?: string[];
+    /**
+     * Regions to mask during comparison (excludes from pixel diff)
+     * Can be CSS selectors (will auto-detect bounding boxes) or coordinate objects
+     */
+    mask?: (string | MaskRegion)[];
     /**
      * Whether to capture full page or just viewport
      */
@@ -35,6 +46,19 @@ export declare class VisualRegression {
     private diffDir;
     constructor(page: Page, testInfo: TestInfo);
     private ensureDirectories;
+    /**
+     * Convert mask selectors to coordinate regions
+     */
+    private getMaskRegions;
+    /**
+     * Apply mask to PNG image by setting masked regions to a solid gray color
+     */
+    private applyMaskToPNG;
+    /**
+     * Apply hide to PNG image by setting hidden regions to white
+     * (for variable-width elements like timestamps)
+     */
+    private applyHideToPNG;
     /**
      * Capture a screenshot and compare against baseline
      * On first run: creates baseline

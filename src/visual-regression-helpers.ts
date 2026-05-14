@@ -111,11 +111,15 @@ export class VisualRegression {
   private async getMaskRegions(mask: (string | MaskRegion)[]): Promise<MaskRegion[]> {
     const regions: MaskRegion[] = [];
 
+    // eslint-disable-next-line no-restricted-syntax
     for (const item of mask) {
       if (typeof item === 'string') {
         // It's a selector, get all matching elements' bounding boxes
+        // eslint-disable-next-line no-await-in-loop
         const elements = await this.page.locator(item).all();
+        // eslint-disable-next-line no-restricted-syntax
         for (const element of elements) {
+          // eslint-disable-next-line no-await-in-loop
           const box = await element.boundingBox();
           if (box) {
             regions.push({
@@ -139,23 +143,28 @@ export class VisualRegression {
    * Apply mask to PNG image by setting masked regions to a solid gray color
    */
   private applyMaskToPNG(png: PNG, regions: MaskRegion[]): void {
+    const { data, width } = png;
+
     for (const region of regions) {
-      const { x, y, width, height } = region;
+      const {
+        x, y, width: regionWidth, height,
+      } = region;
 
       // Ensure coordinates are within bounds
       const startX = Math.max(0, x);
       const startY = Math.max(0, y);
-      const endX = Math.min(png.width, x + width);
+      const endX = Math.min(png.width, x + regionWidth);
       const endY = Math.min(png.height, y + height);
 
       // Fill the region with gray (RGB: 128, 128, 128, fully opaque)
       for (let py = startY; py < endY; py++) {
         for (let px = startX; px < endX; px++) {
-          const idx = (png.width * py + px) << 2;
-          png.data[idx] = 128;     // R
-          png.data[idx + 1] = 128; // G
-          png.data[idx + 2] = 128; // B
-          png.data[idx + 3] = 255; // A
+          // eslint-disable-next-line no-bitwise
+          const idx = (width * py + px) << 2;
+          data[idx] = 128; // R
+          data[idx + 1] = 128; // G
+          data[idx + 2] = 128; // B
+          data[idx + 3] = 255; // A
         }
       }
     }
@@ -166,23 +175,28 @@ export class VisualRegression {
    * (for variable-width elements like timestamps)
    */
   private applyHideToPNG(png: PNG, regions: MaskRegion[]): void {
+    const { data, width } = png;
+
     for (const region of regions) {
-      const { x, y, width, height } = region;
+      const {
+        x, y, width: regionWidth, height,
+      } = region;
 
       // Ensure coordinates are within bounds
       const startX = Math.max(0, x);
       const startY = Math.max(0, y);
-      const endX = Math.min(png.width, x + width);
+      const endX = Math.min(png.width, x + regionWidth);
       const endY = Math.min(png.height, y + height);
 
       // Fill the region with white (RGB: 255, 255, 255, fully opaque)
       for (let py = startY; py < endY; py++) {
         for (let px = startX; px < endX; px++) {
-          const idx = (png.width * py + px) << 2;
-          png.data[idx] = 255;     // R
-          png.data[idx + 1] = 255; // G
-          png.data[idx + 2] = 255; // B
-          png.data[idx + 3] = 255; // A
+          // eslint-disable-next-line no-bitwise
+          const idx = (width * py + px) << 2;
+          data[idx] = 255; // R
+          data[idx + 1] = 255; // G
+          data[idx + 2] = 255; // B
+          data[idx + 3] = 255; // A
         }
       }
     }
@@ -392,7 +406,9 @@ export class VisualRegression {
    * Use this when visual changes are intentional
    */
   async updateBaseline(options: Omit<VisualRegressionOptions, 'threshold'>): Promise<void> {
-    const { name, hide = [], mask = [], fullPage = true } = options;
+    const {
+      name, hide = [], mask = [], fullPage = true,
+    } = options;
 
     const baselinePath = join(this.baselineDir, `${name}.png`);
 

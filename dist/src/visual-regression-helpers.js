@@ -31,12 +31,95 @@ export class VisualRegression {
         });
     }
     /**
+     * Convert mask selectors to coordinate regions
+     */
+    async getMaskRegions(mask) {
+        const regions = [];
+        // eslint-disable-next-line no-restricted-syntax
+        for (const item of mask) {
+            if (typeof item === 'string') {
+                // It's a selector, get all matching elements' bounding boxes
+                // eslint-disable-next-line no-await-in-loop
+                const elements = await this.page.locator(item).all();
+                // eslint-disable-next-line no-restricted-syntax
+                for (const element of elements) {
+                    // eslint-disable-next-line no-await-in-loop
+                    const box = await element.boundingBox();
+                    if (box) {
+                        regions.push({
+                            x: Math.round(box.x),
+                            y: Math.round(box.y),
+                            width: Math.round(box.width),
+                            height: Math.round(box.height),
+                        });
+                    }
+                }
+            }
+            else {
+                // It's already a coordinate object
+                regions.push(item);
+            }
+        }
+        return regions;
+    }
+    /**
+     * Apply mask to PNG image by setting masked regions to a solid gray color
+     */
+    applyMaskToPNG(png, regions) {
+        const { data, width } = png;
+        for (const region of regions) {
+            const { x, y, width: regionWidth, height, } = region;
+            // Ensure coordinates are within bounds
+            const startX = Math.max(0, x);
+            const startY = Math.max(0, y);
+            const endX = Math.min(png.width, x + regionWidth);
+            const endY = Math.min(png.height, y + height);
+            // Fill the region with gray (RGB: 128, 128, 128, fully opaque)
+            for (let py = startY; py < endY; py++) {
+                for (let px = startX; px < endX; px++) {
+                    // eslint-disable-next-line no-bitwise
+                    const idx = (width * py + px) << 2;
+                    data[idx] = 128; // R
+                    data[idx + 1] = 128; // G
+                    data[idx + 2] = 128; // B
+                    data[idx + 3] = 255; // A
+                }
+            }
+        }
+    }
+    /**
+     * Apply hide to PNG image by setting hidden regions to white
+     * (for variable-width elements like timestamps)
+     */
+    applyHideToPNG(png, regions) {
+        const { data, width } = png;
+        for (const region of regions) {
+            const { x, y, width: regionWidth, height, } = region;
+            // Ensure coordinates are within bounds
+            const startX = Math.max(0, x);
+            const startY = Math.max(0, y);
+            const endX = Math.min(png.width, x + regionWidth);
+            const endY = Math.min(png.height, y + height);
+            // Fill the region with white (RGB: 255, 255, 255, fully opaque)
+            for (let py = startY; py < endY; py++) {
+                for (let px = startX; px < endX; px++) {
+                    // eslint-disable-next-line no-bitwise
+                    const idx = (width * py + px) << 2;
+                    data[idx] = 255; // R
+                    data[idx + 1] = 255; // G
+                    data[idx + 2] = 255; // B
+                    data[idx + 3] = 255; // A
+                }
+            }
+        }
+    }
+    /**
      * Capture a screenshot and compare against baseline
      * On first run: creates baseline
      * On subsequent runs: compares and generates diff with red highlights
      */
     async captureAndCompare(options) {
-        const { name, mask = [], fullPage = true, threshold = 0.1, } = options;
+        const { name, hide = [], mask = [], fullPage = true, threshold = 0.1, } = options;
         const baselinePath = join(this.baselineDir, `${name}.png`);
         const currentPath = join(this.currentDir, `${name}.png`);
         const diffPath = join(this.diffDir, `${name}-diff.png`);
@@ -55,9 +138,9 @@ export class VisualRegression {
         await this.page.evaluate(() => document.fonts.ready);
         // Let animations and transitions settle
         await this.page.waitForTimeout(1000);
-        // Build mask selector string for CSS
-        const maskSelector = mask.join(', ');
-        // Disable animations and apply opacity-based masking
+        // Build hide selector string for CSS
+        const hideSelector = hide.join(', ');
+        // Disable animations and apply opacity-based hiding
         await this.page.addStyleTag({
             content: `
         *, *::before, *::after {
@@ -66,7 +149,7 @@ export class VisualRegression {
           transition-duration: 0s !important;
           transition-delay: 0s !important;
         }
-        ${maskSelector ? `${maskSelector} { opacity: 0 !important; }` : ''}
+        ${hideSelector ? `${hideSelector} { opacity: 0 !important; }` : ''}
       `,
         });
         // Small wait after disabling animations
@@ -118,6 +201,12 @@ export class VisualRegression {
             normalizedCurrent = new PNG({ width: maxWidth, height: maxHeight });
             normalizedCurrent.data.fill(255); // White background
             PNG.bitblt(current, normalizedCurrent, 0, 0, current.width, current.height, 0, 0);
+        }
+        // Apply mask regions if provided (gray fill for areas to completely ignore)
+        if (mask.length > 0) {
+            const maskRegions = await this.getMaskRegions(mask);
+            this.applyMaskToPNG(normalizedBaseline, maskRegions);
+            this.applyMaskToPNG(normalizedCurrent, maskRegions);
         }
         // Create diff image
         const diff = new PNG({ width: maxWidth, height: maxHeight });
@@ -178,7 +267,7 @@ export class VisualRegression {
      * Use this when visual changes are intentional
      */
     async updateBaseline(options) {
-        const { name, mask = [], fullPage = true } = options;
+        const { name, hide = [], mask = [], fullPage = true, } = options;
         const baselinePath = join(this.baselineDir, `${name}.png`);
         await this.page.waitForLoadState('networkidle');
         await this.page.waitForLoadState('domcontentloaded');
@@ -191,7 +280,7 @@ export class VisualRegression {
         }))));
         await this.page.evaluate(() => document.fonts.ready);
         await this.page.waitForTimeout(1000);
-        const maskSelector = mask.join(', ');
+        const hideSelector = hide.join(', ');
         await this.page.addStyleTag({
             content: `
         *, *::before, *::after {
@@ -200,15 +289,31 @@ export class VisualRegression {
           transition-duration: 0s !important;
           transition-delay: 0s !important;
         }
-        ${maskSelector ? `${maskSelector} { opacity: 0 !important; }` : ''}
+        ${hideSelector ? `${hideSelector} { opacity: 0 !important; }` : ''}
       `,
         });
         await this.page.waitForTimeout(100);
+        const tempPath = `${baselinePath}.tmp`;
         await this.page.screenshot({
-            path: baselinePath,
+            path: tempPath,
             fullPage,
             animations: 'disabled',
         });
+        // Apply mask if provided
+        if (mask.length > 0) {
+            const png = PNG.sync.read(readFileSync(tempPath));
+            const maskRegions = await this.getMaskRegions(mask);
+            this.applyMaskToPNG(png, maskRegions);
+            writeFileSync(baselinePath, PNG.sync.write(png));
+            // Clean up temp file
+            const { unlinkSync } = await import('fs');
+            unlinkSync(tempPath);
+        }
+        else {
+            // No mask, just rename the temp file
+            const { renameSync } = await import('fs');
+            renameSync(tempPath, baselinePath);
+        }
         // eslint-disable-next-line no-console
         console.log(`✓ Updated baseline: ${baselinePath}`);
     }

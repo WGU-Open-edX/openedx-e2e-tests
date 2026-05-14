@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { existsSync } from 'fs';
 import { LoginPage } from '../common/page-objects';
 import { TestdocTest, assertA11y } from '../../src';
 test.skip();
@@ -16,6 +17,9 @@ test.describe('Testdoc: How To Import a Course', () => {
         const filePath = 'artifacts/downloads/testCourseToImport.tar.gz';
         if (!user || !pass) {
             throw new Error('TEST_USER_USERNAME and TEST_USER_PASSWORD environment variables must be set');
+        }
+        if (!existsSync(filePath)) {
+            throw new Error(`Import file not found: ${filePath}. Run the export-course test first to generate it.`);
         }
         const testDoc = new TestdocTest(page, 'Import-Course-Test', {
             title: 'Importing a Course in Open edX',

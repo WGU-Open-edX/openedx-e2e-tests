@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from './common/page-objects';
-import { TestdocTest, VisualRegression } from '../src';
+import { assertA11y, TestdocTest, VisualRegression, } from '../src';
 test.describe('Instructor Dashboard Tests', () => {
     let loginPage;
     test.beforeEach(async ({ page }) => {
@@ -24,17 +24,28 @@ test.describe('Instructor Dashboard Tests', () => {
         await testdoc.fill('input[name="emailOrUsername"]', process.env.ADMIN_USER_USERNAME, 'Enter your username or email');
         await testdoc.fill('input[name="password"]', process.env.ADMIN_USER_PASSWORD, 'Enter your password');
         await testdoc.click('button[name="sign-in"]', 'Click the Sign In button');
-        await page.waitForTimeout(1500);
+        await page.waitForURL(/learner-dashboard/, { timeout: 15000 });
         // Navigate to instructor dashboard certificates page
         await page.goto('http://apps.local.openedx.io:2003/instructor-dashboard/course-v1:OpenedX+DemoX+DemoCourse/certificates');
         await page.waitForTimeout(5000);
         // Verify the Certificates heading is visible (not unauthorized)
         await expect(page.locator('h3.text-primary-700:has-text("Certificates")')).toBeVisible();
+        await page.mouse.move(0, 0);
         await vr.captureAndCompare({
             name: 'instructor-dashboard-certificates',
             fullPage: false,
-            mask: ['.timestamp', '[data-testid="user-greeting"]'],
+            hide: ['.timestamp'],
+            mask: [
+                '[aria-label="Masquerade bar"]',
+                {
+                    x: 25, y: 360, width: 500, height: 60, // hide welcome message
+                },
+            ],
         });
+        // checkA11y — returns results, never throws error
+        await assertA11y(page, {
+            warnOnly: true,
+        }, testInfo);
         await testdoc.generateMarkdown();
     });
 });
