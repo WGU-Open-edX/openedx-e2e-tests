@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from './common/page-objects';
-import { TestdocTest, VisualRegression } from '../src';
+import { assertA11y, checkA11y, TestdocTest, VisualRegression } from '../src';
 
 test.describe('Instructor Dashboard Tests', () => {
   let loginPage: LoginPage;
@@ -53,6 +53,12 @@ test.describe('Instructor Dashboard Tests', () => {
         },
       ],
     });
+
+    // checkA11y — returns results, never throws error
+    await assertA11y(page, {
+      warnOnly: true,
+    }, testInfo);
+
 
     await testdoc.generateMarkdown();
   });
