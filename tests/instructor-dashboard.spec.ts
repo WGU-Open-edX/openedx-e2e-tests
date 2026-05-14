@@ -45,7 +45,13 @@ test.describe('Instructor Dashboard Tests', () => {
     await vr.captureAndCompare({
       name: 'instructor-dashboard-certificates',
       fullPage: false,
-      hide: ['.timestamp', '[data-testid="user-greeting"]'],
+      hide: ['.timestamp'],
+      mask: [
+        '[aria-label="Masquerade bar"]',
+        {
+          x: 25, y: 360, width: 500, height: 60, // hide welcome message
+        },
+      ],
     });
 
     await testdoc.generateMarkdown();

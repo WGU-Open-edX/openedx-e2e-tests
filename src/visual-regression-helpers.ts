@@ -5,6 +5,13 @@ import {
 import { join } from 'path';
 import { PNG } from 'pngjs';
 
+export interface MaskRegion {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface VisualRegressionOptions {
   /**
    * Name of the screenshot (e.g., 'login-page')
@@ -16,6 +23,12 @@ export interface VisualRegressionOptions {
    * Selectors to hide (hide dynamic content like timestamps)
    */
   hide?: string[];
+
+  /**
+   * Regions to mask during comparison (excludes from pixel diff)
+   * Can be CSS selectors (will auto-detect bounding boxes) or coordinate objects
+   */
+  mask?: (string | MaskRegion)[];
 
   /**
    * Whether to capture full page or just viewport
@@ -93,6 +106,89 @@ export class VisualRegression {
   }
 
   /**
+   * Convert mask selectors to coordinate regions
+   */
+  private async getMaskRegions(mask: (string | MaskRegion)[]): Promise<MaskRegion[]> {
+    const regions: MaskRegion[] = [];
+
+    for (const item of mask) {
+      if (typeof item === 'string') {
+        // It's a selector, get all matching elements' bounding boxes
+        const elements = await this.page.locator(item).all();
+        for (const element of elements) {
+          const box = await element.boundingBox();
+          if (box) {
+            regions.push({
+              x: Math.round(box.x),
+              y: Math.round(box.y),
+              width: Math.round(box.width),
+              height: Math.round(box.height),
+            });
+          }
+        }
+      } else {
+        // It's already a coordinate object
+        regions.push(item);
+      }
+    }
+
+    return regions;
+  }
+
+  /**
+   * Apply mask to PNG image by setting masked regions to a solid gray color
+   */
+  private applyMaskToPNG(png: PNG, regions: MaskRegion[]): void {
+    for (const region of regions) {
+      const { x, y, width, height } = region;
+
+      // Ensure coordinates are within bounds
+      const startX = Math.max(0, x);
+      const startY = Math.max(0, y);
+      const endX = Math.min(png.width, x + width);
+      const endY = Math.min(png.height, y + height);
+
+      // Fill the region with gray (RGB: 128, 128, 128, fully opaque)
+      for (let py = startY; py < endY; py++) {
+        for (let px = startX; px < endX; px++) {
+          const idx = (png.width * py + px) << 2;
+          png.data[idx] = 128;     // R
+          png.data[idx + 1] = 128; // G
+          png.data[idx + 2] = 128; // B
+          png.data[idx + 3] = 255; // A
+        }
+      }
+    }
+  }
+
+  /**
+   * Apply hide to PNG image by setting hidden regions to white
+   * (for variable-width elements like timestamps)
+   */
+  private applyHideToPNG(png: PNG, regions: MaskRegion[]): void {
+    for (const region of regions) {
+      const { x, y, width, height } = region;
+
+      // Ensure coordinates are within bounds
+      const startX = Math.max(0, x);
+      const startY = Math.max(0, y);
+      const endX = Math.min(png.width, x + width);
+      const endY = Math.min(png.height, y + height);
+
+      // Fill the region with white (RGB: 255, 255, 255, fully opaque)
+      for (let py = startY; py < endY; py++) {
+        for (let px = startX; px < endX; px++) {
+          const idx = (png.width * py + px) << 2;
+          png.data[idx] = 255;     // R
+          png.data[idx + 1] = 255; // G
+          png.data[idx + 2] = 255; // B
+          png.data[idx + 3] = 255; // A
+        }
+      }
+    }
+  }
+
+  /**
    * Capture a screenshot and compare against baseline
    * On first run: creates baseline
    * On subsequent runs: compares and generates diff with red highlights
@@ -101,6 +197,7 @@ export class VisualRegression {
     const {
       name,
       hide = [],
+      mask = [],
       fullPage = true,
       threshold = 0.1,
     } = options;
@@ -209,6 +306,13 @@ export class VisualRegression {
       PNG.bitblt(current, normalizedCurrent, 0, 0, current.width, current.height, 0, 0);
     }
 
+    // Apply mask regions if provided (gray fill for areas to completely ignore)
+    if (mask.length > 0) {
+      const maskRegions = await this.getMaskRegions(mask);
+      this.applyMaskToPNG(normalizedBaseline, maskRegions);
+      this.applyMaskToPNG(normalizedCurrent, maskRegions);
+    }
+
     // Create diff image
     const diff = new PNG({ width: maxWidth, height: maxHeight });
 
@@ -288,7 +392,7 @@ export class VisualRegression {
    * Use this when visual changes are intentional
    */
   async updateBaseline(options: Omit<VisualRegressionOptions, 'threshold'>): Promise<void> {
-    const { name, hide = [], fullPage = true } = options;
+    const { name, hide = [], mask = [], fullPage = true } = options;
 
     const baselinePath = join(this.baselineDir, `${name}.png`);
 
@@ -324,11 +428,27 @@ export class VisualRegression {
 
     await this.page.waitForTimeout(100);
 
+    const tempPath = `${baselinePath}.tmp`;
     await this.page.screenshot({
-      path: baselinePath,
+      path: tempPath,
       fullPage,
       animations: 'disabled',
     });
+
+    // Apply mask if provided
+    if (mask.length > 0) {
+      const png = PNG.sync.read(readFileSync(tempPath));
+      const maskRegions = await this.getMaskRegions(mask);
+      this.applyMaskToPNG(png, maskRegions);
+      writeFileSync(baselinePath, PNG.sync.write(png));
+      // Clean up temp file
+      const { unlinkSync } = await import('fs');
+      unlinkSync(tempPath);
+    } else {
+      // No mask, just rename the temp file
+      const { renameSync } = await import('fs');
+      renameSync(tempPath, baselinePath);
+    }
 
     // eslint-disable-next-line no-console
     console.log(`✓ Updated baseline: ${baselinePath}`);
