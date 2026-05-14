@@ -32,7 +32,7 @@ test.describe('Instructor Dashboard Tests', () => {
     await testdoc.fill('input[name="password"]', process.env.ADMIN_USER_PASSWORD!, 'Enter your password');
     await testdoc.click('button[name="sign-in"]', 'Click the Sign In button');
 
-    await page.waitForTimeout(1500);
+    await page.waitForURL(/learner-dashboard/, { timeout: 15000 });
 
     // Navigate to instructor dashboard certificates page
     await page.goto('http://apps.local.openedx.io:2003/instructor-dashboard/course-v1:OpenedX+DemoX+DemoCourse/certificates');
@@ -41,10 +41,11 @@ test.describe('Instructor Dashboard Tests', () => {
     // Verify the Certificates heading is visible (not unauthorized)
     await expect(page.locator('h3.text-primary-700:has-text("Certificates")')).toBeVisible();
 
+    await page.mouse.move(0, 0);
     await vr.captureAndCompare({
       name: 'instructor-dashboard-certificates',
       fullPage: false,
-      mask: ['.timestamp', '[data-testid="user-greeting"]'],
+      hide: ['.timestamp', '[data-testid="user-greeting"]'],
     });
 
     await testdoc.generateMarkdown();

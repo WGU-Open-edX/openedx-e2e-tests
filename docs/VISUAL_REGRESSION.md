@@ -78,7 +78,7 @@ To avoid false positives from timestamps, user-specific data, or animations:
 await vr.captureAndCompare({
   name: 'dashboard-after-login',
   fullPage: true,
-  mask: [
+  hide: [
     '.timestamp',
     '[data-testid="user-greeting"]',
     '.last-login-time',
@@ -159,7 +159,7 @@ git commit -m "Update visual regression baseline for account page"
 await vr.updateBaseline({
   name: 'account-page',
   fullPage: true,
-  mask: ['.timestamp'],
+  hide: ['.timestamp'],
 });
 ```
 

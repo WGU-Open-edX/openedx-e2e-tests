@@ -13,9 +13,9 @@ export interface VisualRegressionOptions {
   name: string;
 
   /**
-   * Selectors to mask (hide dynamic content like timestamps)
+   * Selectors to hide (hide dynamic content like timestamps)
    */
-  mask?: string[];
+  hide?: string[];
 
   /**
    * Whether to capture full page or just viewport
@@ -100,7 +100,7 @@ export class VisualRegression {
   async captureAndCompare(options: VisualRegressionOptions): Promise<void> {
     const {
       name,
-      mask = [],
+      hide = [],
       fullPage = true,
       threshold = 0.1,
     } = options;
@@ -130,10 +130,10 @@ export class VisualRegression {
     // Let animations and transitions settle
     await this.page.waitForTimeout(1000);
 
-    // Build mask selector string for CSS
-    const maskSelector = mask.join(', ');
+    // Build hide selector string for CSS
+    const hideSelector = hide.join(', ');
 
-    // Disable animations and apply opacity-based masking
+    // Disable animations and apply opacity-based hiding
     await this.page.addStyleTag({
       content: `
         *, *::before, *::after {
@@ -142,7 +142,7 @@ export class VisualRegression {
           transition-duration: 0s !important;
           transition-delay: 0s !important;
         }
-        ${maskSelector ? `${maskSelector} { opacity: 0 !important; }` : ''}
+        ${hideSelector ? `${hideSelector} { opacity: 0 !important; }` : ''}
       `,
     });
 
@@ -288,7 +288,7 @@ export class VisualRegression {
    * Use this when visual changes are intentional
    */
   async updateBaseline(options: Omit<VisualRegressionOptions, 'threshold'>): Promise<void> {
-    const { name, mask = [], fullPage = true } = options;
+    const { name, hide = [], fullPage = true } = options;
 
     const baselinePath = join(this.baselineDir, `${name}.png`);
 
@@ -308,7 +308,7 @@ export class VisualRegression {
     await this.page.evaluate(() => document.fonts.ready);
     await this.page.waitForTimeout(1000);
 
-    const maskSelector = mask.join(', ');
+    const hideSelector = hide.join(', ');
 
     await this.page.addStyleTag({
       content: `
@@ -318,7 +318,7 @@ export class VisualRegression {
           transition-duration: 0s !important;
           transition-delay: 0s !important;
         }
-        ${maskSelector ? `${maskSelector} { opacity: 0 !important; }` : ''}
+        ${hideSelector ? `${hideSelector} { opacity: 0 !important; }` : ''}
       `,
     });
 

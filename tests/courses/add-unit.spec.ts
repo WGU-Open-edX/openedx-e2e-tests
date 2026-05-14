@@ -45,7 +45,7 @@ test.describe('Add Unit to Course Test', () => {
     });
     // Basic URL assertion to confirm navigation reached the authoring area
     await expect(page).toHaveURL(/authoring\/home|authoring/);
-    await assertA11y(page, { warnOnly: true, report: true, reportName: 'add-section-course-page' }, testInfo);
+    await assertA11y(page, { warnOnly: true, report: true, reportName: 'add-unit-course-page' }, testInfo);
 
     await testDoc.click({
       selector: '(//a[text()="Automated TestCourse"])[1]',

@@ -170,7 +170,7 @@ const vr = new VisualRegression(page, testInfo);
 await vr.captureAndCompare({
   name: 'homepage',
   fullPage: true,
-  mask: ['.dynamic-timestamp', '.ads'],  // Mask dynamic content
+  hide: ['.dynamic-timestamp', '.ads'],  // Hide dynamic content
   threshold: 0.1                         // 10% difference tolerance
 });
 
