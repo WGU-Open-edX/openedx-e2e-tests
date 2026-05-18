@@ -1,22 +1,27 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const test_1 = require("@playwright/test");
-const page_objects_1 = require("../common/page-objects");
-const src_1 = require("../../src");
-test_1.test.skip();
-test_1.test.describe('Testdoc: How To Import a Course', () => {
+import { test, expect } from '@playwright/test';
+import { existsSync } from 'fs';
+import { LoginPage } from '../common/page-objects';
+import { TestdocTest, assertA11y } from '../../src';
+test.skip();
+test.describe('Testdoc: How To Import a Course', () => {
     let loginPage;
-    test_1.test.beforeEach(async ({ page }) => {
-        loginPage = new page_objects_1.LoginPage(page);
+    test.beforeEach(async ({ page }) => {
+        loginPage = new LoginPage(page);
         await loginPage.navigate();
     });
-    (0, test_1.test)('user can import a course', async ({ page }, testInfo) => {
+    test('user can import a course', async ({ page }, testInfo) => {
         // Use environment variables or config for credentials and URLs
-        const user = process.env.TEST_USER || 'adminuser';
-        const pass = process.env.TEST_PASS || 'admin123';
+        const user = process.env.TEST_USER_USERNAME;
+        const pass = process.env.TEST_USER_PASSWORD;
         const authoringTarget = process.env.AUTHORING_URL || 'http://apps.local.openedx.io:2001/authoring/home';
         const filePath = 'artifacts/downloads/testCourseToImport.tar.gz';
-        const testDoc = new src_1.TestdocTest(page, 'Import-Course-Test', {
+        if (!user || !pass) {
+            throw new Error('TEST_USER_USERNAME and TEST_USER_PASSWORD environment variables must be set');
+        }
+        if (!existsSync(filePath)) {
+            throw new Error(`Import file not found: ${filePath}. Run the export-course test first to generate it.`);
+        }
+        const testDoc = new TestdocTest(page, 'Import-Course-Test', {
             title: 'Importing a Course in Open edX',
             overview: 'This test automates the process of importing a course package into the Open edX authoring environment. It walks through accessing the import interface, selecting a course, and uploading a course archive for import.',
             prerequisites: [
@@ -37,13 +42,13 @@ test_1.test.describe('Testdoc: How To Import a Course', () => {
         await page.waitForLoadState('networkidle');
         // Navigate to authoring home
         await page.goto(authoringTarget);
-        await (0, test_1.expect)(page).toHaveURL(/authoring\/home|authoring/);
+        await expect(page).toHaveURL(/authoring\/home|authoring/);
         await testDoc.step({
             title: 'Select the Course to Import Into',
             description: 'From the list of available courses, click the course title into which you want to import content.',
             screenshot: false,
         });
-        await (0, src_1.assertA11y)(page, { warnOnly: true, report: true, reportName: 'import-course-page' }, testInfo);
+        await assertA11y(page, { warnOnly: true, report: true, reportName: 'import-course-page' }, testInfo);
         // Highlight first course card
         const xpathFirst = '(//div[contains(concat(" ", normalize-space(@class), " "), " courses-tab-container ")]//div[contains(concat(" ", normalize-space(@class), " "), " w-100 ")])[1]';
         const { stepNumber, screenshot, numberedStepNumber } = await testDoc.highlight('body', null, { elementOnly: xpathFirst, padding: 15 });
@@ -78,8 +83,8 @@ test_1.test.describe('Testdoc: How To Import a Course', () => {
             elementOnly: true,
         });
         // Assert navigation to import page
-        await (0, test_1.expect)(page).toHaveURL(/import/);
-        await (0, src_1.assertA11y)(page, { warnOnly: true, report: true, reportName: 'import-course-upload' }, testInfo);
+        await expect(page).toHaveURL(/import/);
+        await assertA11y(page, { warnOnly: true, report: true, reportName: 'import-course-upload' }, testInfo);
         // Upload course file
         await page.waitForSelector('[data-testid="dropzone"] input[type="file"]', { timeout: 10000 });
         await testDoc.uploadFile('[data-testid="dropzone"] input[type="file"]', filePath);

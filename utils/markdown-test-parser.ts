@@ -3,7 +3,9 @@ import type { CodeBlock } from '../types/markdown-test-parser.types';
 
 export class MarkdownTestParser {
   private markdownPath: string;
+
   private codeBlocks: CodeBlock[];
+
   private originalContent: string;
 
   constructor(markdownPath: string) {
@@ -33,7 +35,7 @@ export class MarkdownTestParser {
         codeBlocks.push({
           code: codeAccumulator.trim(),
           startLine: blockStartLine,
-          endLine: i
+          endLine: i,
         });
         codeAccumulator = '';
         inTestdocCodeBlock = false;
@@ -41,7 +43,7 @@ export class MarkdownTestParser {
       }
 
       if (inTestdocCodeBlock) {
-        codeAccumulator += line + '\n';
+        codeAccumulator += `${line}\n`;
       }
     }
 

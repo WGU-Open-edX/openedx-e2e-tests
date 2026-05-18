@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../common/page-objects';
-import { assertA11y, VisualRegression } from '../../src';
+import { VisualRegression } from '../../src';
 
 test.describe('Authentication Tests', () => {
   let loginPage: LoginPage;
@@ -18,64 +18,31 @@ test.describe('Authentication Tests', () => {
     await expect(loginPage.passwordInput).toBeVisible();
     await expect(loginPage.loginButton).toBeVisible();
 
-    // Capture login page baseline
-    await vr.captureAndCompare({
-      name: 'login-page-initial',
-      fullPage: true,
-    });
+    await vr.captureAndCompare({ name: 'login-page', fullPage: false });
 
-    await assertA11y(page, { warnOnly: true, report: true, reportName: 'login-page' }, testInfo);
+    // Attempt login with credentials from environment
+    const username = process.env.TEST_USER_USERNAME;
+    const password = process.env.TEST_USER_PASSWORD;
 
-    // Attempt login
-    await loginPage.login('testuser', 'password123');
-
-    // Wait for navigation or error
-    await page.waitForLoadState('networkidle');
-
-    // Check if we're on dashboard or got an error
-    const currentUrl = page.url();
-    // eslint-disable-next-line no-console
-    console.log('Current URL after login:', currentUrl);
-
-    // Check for error messages
-    const errorMessage = page.locator('[role="alert"]');
-    const tryAgainButton = page.locator('button:has-text("Try again")');
-
-    if (await tryAgainButton.isVisible()) {
-      throw new Error('Login failed with "Try again" error page');
+    if (!username || !password) {
+      throw new Error('TEST_USER_USERNAME and TEST_USER_PASSWORD environment variables must be set');
     }
 
-    if (await errorMessage.isVisible()) {
-      const errorText = await errorMessage.textContent();
-      throw new Error(`Login failed with error: ${errorText}`);
-    }
+    await loginPage.login(username, password);
 
-    // Expect successful redirect to dashboard
-    await expect(page).toHaveURL(/dashboard/);
+    // Expect successful redirect to learner dashboard
+    await expect(page).toHaveURL(/learner-dashboard/, { timeout: 15000 });
 
-    // Navigate to account settings page for visual regression demo
-    await page.goto('http://apps.local.openedx.io:1997/account/');
-    await page.waitForLoadState('networkidle');
-
-    // Capture account page state after successful login
-    // Mask dynamic content like timestamps and user-specific data
-    await vr.captureAndCompare({
-      name: 'account-page-after-login',
-      fullPage: true,
-      threshold: 0.15, // Allow minor rendering differences (anti-aliasing, fonts)
-      mask: [
-        '.timestamp',
-        '[data-testid="user-greeting"]',
-        '.last-login-time',
-      ],
-    });
-
-    await assertA11y(page, { warnOnly: true, report: true, reportName: 'account-page' }, testInfo);
+    await vr.captureAndCompare({ name: 'learner-dashboard', fullPage: false });
   });
 
-  test('user sees error with invalid credentials', async ({ page }) => {
+  test('user sees error with invalid credentials', async ({ page }, testInfo) => {
+    const vr = new VisualRegression(page, testInfo);
+
     await loginPage.login('invalid@example.com', 'wrongpassword');
     await expect(page.locator('[role="alert"]')).toBeVisible();
+
+    await vr.captureAndCompare({ name: 'login-error', fullPage: false });
   });
 
   test('login form validation works', async ({ page }) => {

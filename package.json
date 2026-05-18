@@ -1,11 +1,12 @@
 {
   "name": "openedx-e2e-tests",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "End-to-end tests for Open edX microservices and MFEs using Playwright",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "bin": {
-    "run-markdown-test": "dist/bin/run-markdown-test.js"
+    "run-markdown-test": "dist/bin/run-markdown-test.js",
+    "reset-visual-baselines": "dist/src/reset-visual-baselines.js"
   },
   "files": [
     "dist/src",
@@ -38,6 +39,7 @@
     "install:browsers": "playwright install",
     "lint": "eslint .",
     "convert-to-testdoc": "ts-node scripts/convert-to-testdoc.ts",
+    "reset-baselines": "./scripts/reset-visual-baselines.sh",
     "build": "tsc",
     "prepublishOnly": "npm run build"
   },
@@ -47,19 +49,26 @@
     "playwright",
     "testing"
   ],
-  "author": "",
+  "author": "Jesse Stewart <jesse-stewart>, Jesus Balderrama <jesusbalderramawgu>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WGU-Open-edX/openedx-e2e-tests.git"
+  },
+  "bugs": {
+    "url": "https://github.com/WGU-Open-edX/openedx-e2e-tests/issues"
+  },
+  "homepage": "https://github.com/WGU-Open-edX/openedx-e2e-tests#readme",
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
-    "@edx/eslint-config": "^4.4.0",
     "@types/node": "^24.6.0",
     "@types/pngjs": "^6.0.5",
-    "@typescript-eslint/eslint-plugin": "^5.62.0",
-    "@typescript-eslint/parser": "^5.62.0",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
     "axe-html-reporter": "^2.2.11",
     "eslint": "^8.57.1",
     "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-airbnb-typescript": "^17.1.0",
+    "eslint-config-airbnb-typescript": "^18.0.0",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.5",
@@ -67,7 +76,7 @@
     "pixelmatch": "^7.1.0",
     "pngjs": "^7.0.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.1.6"
   },
   "dependencies": {
     "@playwright/test": "^1.40.0",

@@ -1,7 +1,16 @@
 import { Page, TestInfo } from '@playwright/test';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import {
+  existsSync, mkdirSync, readFileSync, writeFileSync,
+} from 'fs';
 import { join } from 'path';
 import { PNG } from 'pngjs';
+
+export interface MaskRegion {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
 
 export interface VisualRegressionOptions {
   /**
@@ -11,9 +20,15 @@ export interface VisualRegressionOptions {
   name: string;
 
   /**
-   * Selectors to mask (hide dynamic content like timestamps)
+   * Selectors to hide (hide dynamic content like timestamps)
    */
-  mask?: string[];
+  hide?: string[];
+
+  /**
+   * Regions to mask during comparison (excludes from pixel diff)
+   * Can be CSS selectors (will auto-detect bounding boxes) or coordinate objects
+   */
+  mask?: (string | MaskRegion)[];
 
   /**
    * Whether to capture full page or just viewport
@@ -37,7 +52,9 @@ export interface VisualRegressionOptions {
  */
 export class VisualRegression {
   private baselineDir: string;
+
   private currentDir: string;
+
   private diffDir: string;
 
   constructor(
@@ -45,15 +62,17 @@ export class VisualRegression {
     private testInfo: TestInfo,
   ) {
     const projectName = testInfo.project.name;
-    const testName = testInfo.titlePath.join('-').replace(/[^a-z0-9-]/gi, '_');
 
-    // Store baselines in version control
+    // Extract relative test file path (e.g., "auth/login.spec.ts" or "instructor-dashboard.spec.ts")
+    const testFilePath = testInfo.file.replace(process.cwd(), '').replace(/^\/tests\//, '').replace(/\.ts$/, '');
+
+    // Store baselines in version control, matching test file structure
     this.baselineDir = join(
       process.cwd(),
       'tests',
       '__visual-baselines__',
       projectName,
-      testName,
+      testFilePath,
     );
 
     // Store current run and diffs in artifacts (gitignored)
@@ -62,7 +81,7 @@ export class VisualRegression {
       'artifacts',
       'visual-regression',
       projectName,
-      testName,
+      testFilePath,
       'current',
     );
 
@@ -71,7 +90,7 @@ export class VisualRegression {
       'artifacts',
       'visual-regression',
       projectName,
-      testName,
+      testFilePath,
       'diff',
     );
 
@@ -79,11 +98,108 @@ export class VisualRegression {
   }
 
   private ensureDirectories(): void {
-    [this.baselineDir, this.currentDir, this.diffDir].forEach((dir) => {
+    [this.baselineDir, this.currentDir, this.diffDir].forEach(dir => {
       if (!existsSync(dir)) {
         mkdirSync(dir, { recursive: true });
       }
     });
+  }
+
+  /**
+   * Convert mask selectors to coordinate regions
+   */
+  private async getMaskRegions(mask: (string | MaskRegion)[]): Promise<MaskRegion[]> {
+    const regions: MaskRegion[] = [];
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const item of mask) {
+      if (typeof item === 'string') {
+        // It's a selector, get all matching elements' bounding boxes
+        // eslint-disable-next-line no-await-in-loop
+        const elements = await this.page.locator(item).all();
+        // eslint-disable-next-line no-restricted-syntax
+        for (const element of elements) {
+          // eslint-disable-next-line no-await-in-loop
+          const box = await element.boundingBox();
+          if (box) {
+            regions.push({
+              x: Math.round(box.x),
+              y: Math.round(box.y),
+              width: Math.round(box.width),
+              height: Math.round(box.height),
+            });
+          }
+        }
+      } else {
+        // It's already a coordinate object
+        regions.push(item);
+      }
+    }
+
+    return regions;
+  }
+
+  /**
+   * Apply mask to PNG image by setting masked regions to a solid gray color
+   */
+  private applyMaskToPNG(png: PNG, regions: MaskRegion[]): void {
+    const { data, width } = png;
+
+    for (const region of regions) {
+      const {
+        x, y, width: regionWidth, height,
+      } = region;
+
+      // Ensure coordinates are within bounds
+      const startX = Math.max(0, x);
+      const startY = Math.max(0, y);
+      const endX = Math.min(png.width, x + regionWidth);
+      const endY = Math.min(png.height, y + height);
+
+      // Fill the region with gray (RGB: 128, 128, 128, fully opaque)
+      for (let py = startY; py < endY; py++) {
+        for (let px = startX; px < endX; px++) {
+          // eslint-disable-next-line no-bitwise
+          const idx = (width * py + px) << 2;
+          data[idx] = 128; // R
+          data[idx + 1] = 128; // G
+          data[idx + 2] = 128; // B
+          data[idx + 3] = 255; // A
+        }
+      }
+    }
+  }
+
+  /**
+   * Apply hide to PNG image by setting hidden regions to white
+   * (for variable-width elements like timestamps)
+   */
+  private applyHideToPNG(png: PNG, regions: MaskRegion[]): void {
+    const { data, width } = png;
+
+    for (const region of regions) {
+      const {
+        x, y, width: regionWidth, height,
+      } = region;
+
+      // Ensure coordinates are within bounds
+      const startX = Math.max(0, x);
+      const startY = Math.max(0, y);
+      const endX = Math.min(png.width, x + regionWidth);
+      const endY = Math.min(png.height, y + height);
+
+      // Fill the region with white (RGB: 255, 255, 255, fully opaque)
+      for (let py = startY; py < endY; py++) {
+        for (let px = startX; px < endX; px++) {
+          // eslint-disable-next-line no-bitwise
+          const idx = (width * py + px) << 2;
+          data[idx] = 255; // R
+          data[idx + 1] = 255; // G
+          data[idx + 2] = 255; // B
+          data[idx + 3] = 255; // A
+        }
+      }
+    }
   }
 
   /**
@@ -94,6 +210,7 @@ export class VisualRegression {
   async captureAndCompare(options: VisualRegressionOptions): Promise<void> {
     const {
       name,
+      hide = [],
       mask = [],
       fullPage = true,
       threshold = 0.1,
@@ -103,23 +220,20 @@ export class VisualRegression {
     const currentPath = join(this.currentDir, `${name}.png`);
     const diffPath = join(this.diffDir, `${name}-diff.png`);
 
-    // Build mask locators
-    const maskLocators = mask.map((selector) => this.page.locator(selector));
-
     // Wait for page to be completely stable
     await this.page.waitForLoadState('networkidle');
     await this.page.waitForLoadState('domcontentloaded');
 
     // Wait for any images to load
-    await this.page.evaluate(() => {
-      return Promise.all(
-        Array.from(document.images)
-          .filter((img) => !img.complete)
-          .map((img) => new Promise((resolve) => {
-            img.onload = img.onerror = resolve;
-          })),
-      );
-    });
+    await this.page.evaluate(() => Promise.all(
+      Array.from(document.images)
+        .filter(img => !img.complete)
+        .map(img => new Promise(resolve => {
+          const element = img;
+          element.addEventListener('load', () => resolve(undefined));
+          element.addEventListener('error', () => resolve(undefined));
+        })),
+    ));
 
     // Wait for fonts to load
     await this.page.evaluate(() => document.fonts.ready);
@@ -127,7 +241,10 @@ export class VisualRegression {
     // Let animations and transitions settle
     await this.page.waitForTimeout(1000);
 
-    // Disable animations for consistent screenshots
+    // Build hide selector string for CSS
+    const hideSelector = hide.join(', ');
+
+    // Disable animations and apply opacity-based hiding
     await this.page.addStyleTag({
       content: `
         *, *::before, *::after {
@@ -136,6 +253,7 @@ export class VisualRegression {
           transition-duration: 0s !important;
           transition-delay: 0s !important;
         }
+        ${hideSelector ? `${hideSelector} { opacity: 0 !important; }` : ''}
       `,
     });
 
@@ -149,7 +267,6 @@ export class VisualRegression {
       await this.page.screenshot({
         path: baselinePath,
         fullPage,
-        mask: maskLocators,
         animations: 'disabled',
       });
 
@@ -157,7 +274,6 @@ export class VisualRegression {
       await this.page.screenshot({
         path: currentPath,
         fullPage,
-        mask: maskLocators,
         animations: 'disabled',
       });
 
@@ -175,7 +291,6 @@ export class VisualRegression {
     await this.page.screenshot({
       path: currentPath,
       fullPage,
-      mask: maskLocators,
       animations: 'disabled',
     });
 
@@ -185,27 +300,43 @@ export class VisualRegression {
     const baseline = PNG.sync.read(readFileSync(baselinePath));
     const current = PNG.sync.read(readFileSync(currentPath));
 
-    // Ensure dimensions match
-    if (baseline.width !== current.width || baseline.height !== current.height) {
-      throw new Error(
-        `Image dimensions don't match!\n` +
-        `  Baseline: ${baseline.width}x${baseline.height}\n` +
-        `  Current:  ${current.width}x${current.height}\n` +
-        `  This usually means the viewport size changed or content height is different.`,
-      );
+    // Normalize images to same dimensions for comparison
+    const maxWidth = Math.max(baseline.width, current.width);
+    const maxHeight = Math.max(baseline.height, current.height);
+
+    let normalizedBaseline: PNG = baseline;
+    let normalizedCurrent: PNG = current;
+
+    // Pad images if dimensions don't match
+    if (baseline.width !== maxWidth || baseline.height !== maxHeight) {
+      normalizedBaseline = new PNG({ width: maxWidth, height: maxHeight });
+      normalizedBaseline.data.fill(255); // White background
+      PNG.bitblt(baseline, normalizedBaseline, 0, 0, baseline.width, baseline.height, 0, 0);
+    }
+
+    if (current.width !== maxWidth || current.height !== maxHeight) {
+      normalizedCurrent = new PNG({ width: maxWidth, height: maxHeight });
+      normalizedCurrent.data.fill(255); // White background
+      PNG.bitblt(current, normalizedCurrent, 0, 0, current.width, current.height, 0, 0);
+    }
+
+    // Apply mask regions if provided (gray fill for areas to completely ignore)
+    if (mask.length > 0) {
+      const maskRegions = await this.getMaskRegions(mask);
+      this.applyMaskToPNG(normalizedBaseline, maskRegions);
+      this.applyMaskToPNG(normalizedCurrent, maskRegions);
     }
 
     // Create diff image
-    const { width, height } = baseline;
-    const diff = new PNG({ width, height });
+    const diff = new PNG({ width: maxWidth, height: maxHeight });
 
     // Run pixel comparison
     const numDiffPixels = pixelmatch(
-      baseline.data,
-      current.data,
+      normalizedBaseline.data,
+      normalizedCurrent.data,
       diff.data,
-      width,
-      height,
+      maxWidth,
+      maxHeight,
       {
         threshold,
         diffColor: [255, 0, 0], // Red color for differences
@@ -214,8 +345,10 @@ export class VisualRegression {
     );
 
     // Calculate difference percentage
-    const totalPixels = width * height;
+    const totalPixels = maxWidth * maxHeight;
     const diffPercentage = (numDiffPixels / totalPixels) * 100;
+
+    const dimensionMismatch = baseline.width !== current.width || baseline.height !== current.height;
 
     if (numDiffPixels > 0) {
       // Save diff image
@@ -241,6 +374,12 @@ export class VisualRegression {
       console.log(`✗ Visual regression FAILED: ${name}`);
       // eslint-disable-next-line no-console
       console.log(`  Changed pixels: ${numDiffPixels.toLocaleString()} (${diffPercentage.toFixed(2)}%)`);
+      if (dimensionMismatch) {
+        // eslint-disable-next-line no-console
+        console.log(`  Baseline: ${baseline.width}x${baseline.height}`);
+        // eslint-disable-next-line no-console
+        console.log(`  Current:  ${current.width}x${current.height}`);
+      }
       // eslint-disable-next-line no-console
       console.log(`  Baseline: ${baselinePath}`);
       // eslint-disable-next-line no-console
@@ -249,9 +388,12 @@ export class VisualRegression {
       console.log(`  Diff:     ${diffPath}`);
 
       throw new Error(
-        `Visual regression test failed for "${name}"\n` +
-        `  Changed pixels: ${numDiffPixels.toLocaleString()} (${diffPercentage.toFixed(2)}%)\n` +
-        `  Check the diff image at: ${diffPath}`,
+        `Visual regression test failed for "${name}"\n`
+        + `  Changed pixels: ${numDiffPixels.toLocaleString()} (${diffPercentage.toFixed(2)}%)\n`
+        + `${dimensionMismatch
+          ? `  Dimension mismatch: ${baseline.width}x${baseline.height} vs ${current.width}x${current.height}\n`
+          : ''}`
+        + `  Check the diff image at: ${diffPath}`,
       );
     }
 
@@ -264,26 +406,29 @@ export class VisualRegression {
    * Use this when visual changes are intentional
    */
   async updateBaseline(options: Omit<VisualRegressionOptions, 'threshold'>): Promise<void> {
-    const { name, mask = [], fullPage = true } = options;
+    const {
+      name, hide = [], mask = [], fullPage = true,
+    } = options;
 
     const baselinePath = join(this.baselineDir, `${name}.png`);
-    const maskLocators = mask.map((selector) => this.page.locator(selector));
 
     await this.page.waitForLoadState('networkidle');
     await this.page.waitForLoadState('domcontentloaded');
 
-    await this.page.evaluate(() => {
-      return Promise.all(
-        Array.from(document.images)
-          .filter((img) => !img.complete)
-          .map((img) => new Promise((resolve) => {
-            img.onload = img.onerror = resolve;
-          })),
-      );
-    });
+    await this.page.evaluate(() => Promise.all(
+      Array.from(document.images)
+        .filter(img => !img.complete)
+        .map(img => new Promise(resolve => {
+          const element = img;
+          element.addEventListener('load', () => resolve(undefined));
+          element.addEventListener('error', () => resolve(undefined));
+        })),
+    ));
 
     await this.page.evaluate(() => document.fonts.ready);
     await this.page.waitForTimeout(1000);
+
+    const hideSelector = hide.join(', ');
 
     await this.page.addStyleTag({
       content: `
@@ -293,17 +438,33 @@ export class VisualRegression {
           transition-duration: 0s !important;
           transition-delay: 0s !important;
         }
+        ${hideSelector ? `${hideSelector} { opacity: 0 !important; }` : ''}
       `,
     });
 
     await this.page.waitForTimeout(100);
 
+    const tempPath = `${baselinePath}.tmp`;
     await this.page.screenshot({
-      path: baselinePath,
+      path: tempPath,
       fullPage,
-      mask: maskLocators,
       animations: 'disabled',
     });
+
+    // Apply mask if provided
+    if (mask.length > 0) {
+      const png = PNG.sync.read(readFileSync(tempPath));
+      const maskRegions = await this.getMaskRegions(mask);
+      this.applyMaskToPNG(png, maskRegions);
+      writeFileSync(baselinePath, PNG.sync.write(png));
+      // Clean up temp file
+      const { unlinkSync } = await import('fs');
+      unlinkSync(tempPath);
+    } else {
+      // No mask, just rename the temp file
+      const { renameSync } = await import('fs');
+      renameSync(tempPath, baselinePath);
+    }
 
     // eslint-disable-next-line no-console
     console.log(`✓ Updated baseline: ${baselinePath}`);

@@ -1,15 +1,12 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.MarkdownTestParser = void 0;
-const fs_1 = require("fs");
-class MarkdownTestParser {
+import { promises as fs } from 'fs';
+export class MarkdownTestParser {
     constructor(markdownPath) {
         this.markdownPath = markdownPath;
         this.codeBlocks = [];
         this.originalContent = '';
     }
     async parseMarkdown() {
-        const content = await fs_1.promises.readFile(this.markdownPath, 'utf8');
+        const content = await fs.readFile(this.markdownPath, 'utf8');
         this.originalContent = content;
         const lines = content.split('\n');
         const codeBlocks = [];
@@ -27,14 +24,14 @@ class MarkdownTestParser {
                 codeBlocks.push({
                     code: codeAccumulator.trim(),
                     startLine: blockStartLine,
-                    endLine: i
+                    endLine: i,
                 });
                 codeAccumulator = '';
                 inTestdocCodeBlock = false;
                 continue;
             }
             if (inTestdocCodeBlock) {
-                codeAccumulator += line + '\n';
+                codeAccumulator += `${line}\n`;
             }
         }
         this.codeBlocks = codeBlocks;
@@ -61,5 +58,4 @@ class MarkdownTestParser {
         return finalLines.join('\n');
     }
 }
-exports.MarkdownTestParser = MarkdownTestParser;
 //# sourceMappingURL=markdown-test-parser.js.map

@@ -1,5 +1,4 @@
 #!/usr/bin/env ts-node
-"use strict";
 /**
  * Script to convert regular Playwright tests to testdoc format
  *
@@ -7,42 +6,7 @@
  *
  * Example: ts-node scripts/convert-to-testdoc.ts tests/test-1.spec.ts tests/test-1.testdoc.spec.ts
  */
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.PlaywrightToTestdocConverter = void 0;
-const fs = __importStar(require("fs"));
+import * as fs from 'fs';
 class PlaywrightToTestdocConverter {
     constructor(source, options = {}) {
         this.source = source;
@@ -109,14 +73,14 @@ import { TestdocTest } from '../utils/testdoc';
         }
         // Generate testdoc version
         let output = `test.describe('Testdoc: ${this.options.title || this.testName}', () => {\n`;
-        output += `  test('generate documentation', async ({ page }, testInfo) => {\n`;
+        output += '  test(\'generate documentation\', async ({ page }, testInfo) => {\n';
         output += this.generateTestdocInit();
         output += this.convertTestBody(testBody);
-        output += `\n    // Generate documentation\n`;
-        output += `    await testdoc.generateMarkdown();\n`;
-        output += `    await testdoc.generateRST();\n`;
-        output += `  });\n`;
-        output += `});\n`;
+        output += '\n    // Generate documentation\n';
+        output += '    await testdoc.generateMarkdown();\n';
+        output += '    await testdoc.generateRST();\n';
+        output += '  });\n';
+        output += '});\n';
         return output;
     }
     /**
@@ -129,21 +93,21 @@ import { TestdocTest } from '../utils/testdoc';
             init += `      overview: '${this.escapeQuotes(this.options.overview)}',\n`;
         }
         if (this.options.prerequisites && this.options.prerequisites.length > 0) {
-            init += `      prerequisites: [\n`;
+            init += '      prerequisites: [\n';
             this.options.prerequisites.forEach(p => {
                 init += `        '${this.escapeQuotes(p)}',\n`;
             });
-            init += `      ],\n`;
+            init += '      ],\n';
         }
         if (this.options.notes && this.options.notes.length > 0) {
-            init += `      notes: [\n`;
+            init += '      notes: [\n';
             this.options.notes.forEach(n => {
                 init += `        '${this.escapeQuotes(n)}',\n`;
             });
-            init += `      ],\n`;
+            init += '      ],\n';
         }
         if (this.options.relatedTopics && this.options.relatedTopics.length > 0) {
-            init += `      relatedTopics: [\n`;
+            init += '      relatedTopics: [\n';
             this.options.relatedTopics.forEach(t => {
                 if (typeof t === 'string') {
                     init += `        '${this.escapeQuotes(t)}',\n`;
@@ -152,10 +116,10 @@ import { TestdocTest } from '../utils/testdoc';
                     init += `        { title: '${this.escapeQuotes(t.title)}', url: '${t.url}' },\n`;
                 }
             });
-            init += `      ],\n`;
+            init += '      ],\n';
         }
-        init += `    });\n`;
-        init += `    await testdoc.initialize();\n\n`;
+        init += '    });\n';
+        init += '    await testdoc.initialize();\n\n';
         return init;
     }
     /**
@@ -163,7 +127,6 @@ import { TestdocTest } from '../utils/testdoc';
      */
     convertTestBody(lines) {
         let output = '';
-        let stepCounter = 1;
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i].trim();
             // Skip empty lines
@@ -176,10 +139,10 @@ import { TestdocTest } from '../utils/testdoc';
                 const nextLine = i + 1 < lines.length ? lines[i + 1].trim() : '';
                 const currentRole = line.match(/getByRole\('([^']+)',\s*{\s*name:\s*'([^']+)'/);
                 const nextRole = nextLine.match(/getByRole\('([^']+)',\s*{\s*name:\s*'([^']+)'/);
-                if (currentRole && nextRole &&
-                    currentRole[1] === nextRole[1] &&
-                    currentRole[2] === nextRole[2] &&
-                    nextLine.includes('.fill(')) {
+                if (currentRole && nextRole
+                    && currentRole[1] === nextRole[1]
+                    && currentRole[2] === nextRole[2]
+                    && nextLine.includes('.fill(')) {
                     // Skip this click, the fill will handle it
                     continue;
                 }
@@ -189,11 +152,10 @@ import { TestdocTest } from '../utils/testdoc';
                 const urlMatch = line.match(/goto\(['"](.*?)['"]\)/);
                 const url = urlMatch ? urlMatch[1] : '';
                 output += `    await page.goto('${url}');\n`;
-                output += `    await testdoc.step({\n`;
+                output += '    await testdoc.step({\n';
                 output += `      title: 'Navigate to ${this.escapeQuotes(this.getPageTitle(url))}',\n`;
                 output += `      description: 'Open the page at ${url}',\n`;
-                output += `    });\n\n`;
-                stepCounter++;
+                output += '    });\n\n';
                 continue;
             }
             // Handle getByRole().click()
@@ -203,12 +165,11 @@ import { TestdocTest } from '../utils/testdoc';
                     const [, role, name] = roleMatch;
                     const selector = this.convertLocatorToSelector(line);
                     const escapedName = this.escapeQuotes(name);
-                    output += `    await testdoc.click({\n`;
+                    output += '    await testdoc.click({\n';
                     output += `      selector: '${selector}',\n`;
                     output += `      title: 'Click "${escapedName}"',\n`;
                     output += `      description: 'Click the ${role} labeled "${escapedName}"',\n`;
-                    output += `    });\n\n`;
-                    stepCounter++;
+                    output += '    });\n\n';
                     continue;
                 }
             }
@@ -222,19 +183,18 @@ import { TestdocTest } from '../utils/testdoc';
                     const selector = this.convertLocatorToSelector(line);
                     const escapedName = this.escapeQuotes(name);
                     const escapedValue = this.escapeQuotes(value);
-                    output += `    await testdoc.fill({\n`;
+                    output += '    await testdoc.fill({\n';
                     output += `      selector: '${selector}',\n`;
                     output += `      value: '${escapedValue}',\n`;
                     output += `      title: 'Enter text in "${escapedName}" field',\n`;
                     output += `      description: 'Fill the ${role} field with the value',\n`;
-                    output += `    });\n\n`;
-                    stepCounter++;
+                    output += '    });\n\n';
                     continue;
                 }
             }
             // Handle download events - keep as-is
-            if (line.includes('waitForEvent(\'download\')') || line.includes('= await downloadPromise') ||
-                line.includes('Promise') || line.includes('const download')) {
+            if (line.includes('waitForEvent(\'download\')') || line.includes('= await downloadPromise')
+                || line.includes('Promise') || line.includes('const download')) {
                 output += `    ${line}\n`;
                 continue;
             }
@@ -255,12 +215,11 @@ import { TestdocTest } from '../utils/testdoc';
                     const tabName = nameMatch[1];
                     const selector = this.convertLocatorToSelector(line);
                     const escapedName = this.escapeQuotes(tabName);
-                    output += `    await testdoc.click({\n`;
+                    output += '    await testdoc.click({\n';
                     output += `      selector: '${selector}',\n`;
                     output += `      title: 'Switch to "${escapedName}" tab',\n`;
                     output += `      description: 'Navigate to the ${escapedName} section',\n`;
-                    output += `    });\n\n`;
-                    stepCounter++;
+                    output += '    });\n\n';
                     continue;
                 }
             }
@@ -304,7 +263,7 @@ import { TestdocTest } from '../utils/testdoc';
             case 'cell':
                 return `[role="cell"]:has-text("${escapedName}")`;
             case 'alert':
-                return `[role="alert"]`;
+                return '[role="alert"]';
             case 'heading':
                 return `h1:has-text("${escapedName}"), h2:has-text("${escapedName}"), h3:has-text("${escapedName}")`;
             default:
@@ -322,7 +281,6 @@ import { TestdocTest } from '../utils/testdoc';
         return 'page';
     }
 }
-exports.PlaywrightToTestdocConverter = PlaywrightToTestdocConverter;
 /**
  * Main CLI function
  */
@@ -357,14 +315,15 @@ function main() {
     const converter = new PlaywrightToTestdocConverter(source, options);
     const converted = converter.convert();
     fs.writeFileSync(outputFile, converted, 'utf-8');
-    console.log(`✅ Conversion complete!`);
+    console.log('✅ Conversion complete!');
     console.log(`   Input:  ${inputFile}`);
     console.log(`   Output: ${outputFile}`);
-    console.log(`\n⚠️  Note: You may need to manually adjust selectors and step descriptions for accuracy.`);
-    console.log(`   Look for 'selector-needs-manual-adjustment' in the output file.`);
+    console.log('\n⚠️  Note: You may need to manually adjust selectors and step descriptions for accuracy.');
+    console.log('   Look for \'selector-needs-manual-adjustment\' in the output file.');
 }
 // Run if called directly
 if (require.main === module) {
     main();
 }
+export { PlaywrightToTestdocConverter };
 //# sourceMappingURL=convert-to-testdoc.js.map

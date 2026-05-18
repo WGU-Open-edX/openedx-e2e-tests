@@ -70,21 +70,59 @@ If you're working with the example tests in this repository:
 import { VisualRegression } from '../../src';
 ```
 
-### Masking Dynamic Content
+### Hiding Dynamic Content
 
-To avoid false positives from timestamps, user-specific data, or animations:
+For elements with variable width/content (like timestamps, user names), use `hide`. These elements are hidden with `opacity: 0` in the screenshot:
 
 ```typescript
 await vr.captureAndCompare({
   name: 'dashboard-after-login',
   fullPage: true,
-  mask: [
-    '.timestamp',
+  hide: [
+    '.timestamp',               // CSS selector
     '[data-testid="user-greeting"]',
     '.last-login-time',
   ],
 });
 ```
+
+### Masking Regions (Complete Exclusion)
+
+For regions to completely ignore during comparison, use `mask`. These regions are filled with **gray** before comparison - your original screenshots remain unchanged:
+
+```typescript
+await vr.captureAndCompare({
+  name: 'homepage',
+  fullPage: true,
+  // Mask using CSS selectors (auto-detects element positions)
+  mask: [
+    '.ad-banner',
+    '[data-testid="user-avatar"]',
+  ],
+});
+
+// Or use explicit coordinates
+await vr.captureAndCompare({
+  name: 'dashboard',
+  mask: [
+    { x: 0, y: 0, width: 300, height: 50 },     // Top header
+    { x: 800, y: 100, width: 200, height: 400 }, // Sidebar
+  ],
+});
+
+// Mix selectors and coordinates
+await vr.captureAndCompare({
+  name: 'complex-page',
+  mask: [
+    '.dynamic-content',                          // Selector
+    { x: 0, y: 0, width: 100, height: 100 },   // Coordinate
+  ],
+});
+```
+
+**When to use `hide` vs `mask`:**
+- **`hide`**: Sets `opacity: 0` via CSS. Elements are invisible in screenshots. Use for variable-width elements (timestamps, usernames, dynamic text).
+- **`mask`**: Fills region with **gray** before comparison. Screenshots are unchanged. Use for fixed regions you want to completely ignore (ads, avatars, third-party widgets).
 
 ### Adjusting Sensitivity
 
@@ -159,7 +197,7 @@ git commit -m "Update visual regression baseline for account page"
 await vr.updateBaseline({
   name: 'account-page',
   fullPage: true,
-  mask: ['.timestamp'],
+  hide: ['.timestamp'],
 });
 ```
 

@@ -33,7 +33,7 @@ test.describe('Testdoc: How to Login', () => {
     await loginPage.navigate();
     await testdoc.step({
       title: 'Navigate to the Open edX login page',
-      description: 'You can access the login page by clicking "Sign In" from the main Open edX website or by going directly to the login URL.'
+      description: 'You can access the login page by clicking "Sign In" from the main Open edX website or by going directly to the login URL.',
     });
 
     // Step 2: Show the login form
@@ -49,9 +49,16 @@ test.describe('Testdoc: How to Login', () => {
     });
 
     // Step 3: Fill in email
+    const username = process.env.TEST_USER_USERNAME;
+    const password = process.env.TEST_USER_PASSWORD;
+
+    if (!username || !password) {
+      throw new Error('TEST_USER_USERNAME and TEST_USER_PASSWORD environment variables must be set');
+    }
+
     await testdoc.fill({
       selector: 'input[name="emailOrUsername"]',
-      value: 'testuser',
+      value: username,
       title: 'Enter your email or username',
       description: 'Enter either the email address you registered with or your chosen username in the first field.',
       elementOnly: 'form[id="sign-in-form"]',
@@ -61,7 +68,7 @@ test.describe('Testdoc: How to Login', () => {
     // Step 4: Fill in password
     await testdoc.fill({
       selector: 'input[name="password"]',
-      value: 'password123',
+      value: password,
       title: 'Enter your password',
       description: 'Type your password in the password field.',
       elementOnly: 'form[id="sign-in-form"]',

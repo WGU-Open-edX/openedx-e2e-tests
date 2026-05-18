@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../common/page-objects';
-import { TestdocTest, assertA11y, formatDate, shiftDate } from '../../src';
+import {
+  TestdocTest, assertA11y, formatDate, shiftDate,
+} from '../../src';
 
 test.skip();
 test.describe('Complete Course CheckList', () => {
@@ -10,10 +12,14 @@ test.describe('Complete Course CheckList', () => {
     await loginPage.navigate();
   });
   test('user can complete the checklist of a course', async ({ page }, testInfo) => {
-    const user = process.env.TEST_USER || 'adminuser';
-    const pass = process.env.TEST_PASS || 'adminuser123';
+    const user = process.env.TEST_USER_USERNAME;
+    const pass = process.env.TEST_USER_PASSWORD;
     const authoringTarget = process.env.AUTHORING_URL || 'http://apps.local.openedx.io:2001/authoring/home';
     const openEdxUrl = 'http://apps.local.openedx.io:2001';
+
+    if (!user || !pass) {
+      throw new Error('TEST_USER_USERNAME and TEST_USER_PASSWORD environment variables must be set');
+    }
     const testDoc = new TestdocTest(page, 'Complete-Checklist-Course', {
       title: 'Complete the checklists of a course',
       overview: 'Once a course is created, it must be properly configured by completing all required checklists. This test guides you through the process of accessing a course and fulfilling its configuration checklists to ensure it is ready for use.',
@@ -167,7 +173,7 @@ test.describe('Complete Course CheckList', () => {
       note: null,
       showNumber: true,
     });
-  
+
     // await testDoc.click({
     //   selector: 'button[aria-label="Add new grading segment"]',
     //   title: 'Add more grades',
@@ -390,7 +396,7 @@ test.describe('Complete Course CheckList', () => {
 
     // Course Requirements
     await page.locator('.requirements-section').scrollIntoViewIfNeeded();
-    
+
     const courseRequeriments = await testDoc.highlight(
       '.requirements-section',
       null,
@@ -429,7 +435,8 @@ test.describe('Complete Course CheckList', () => {
     // await testDoc.click({
     //   selector: '.alert-content button.btn-primary:has-text("Save changes")',
     //   title: 'Save Changes',
-    //   description: 'Click the blue "Save changes" button at any time to update and persist your course configuration.',
+    //   description: 'Click the blue "Save changes" button at any time to update and persist your course '
+    //     + 'configuration.',
     //   elementOnly: true,
     // });
     // Generate documentation

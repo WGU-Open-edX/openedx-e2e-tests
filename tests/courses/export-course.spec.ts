@@ -11,9 +11,13 @@ test.describe('Export Course Tests', () => {
     await loginPage.navigate();
   });
   test('user can export a course', async ({ page }, testInfo) => {
-    const user = process.env.TEST_USER || 'adminuser';
-    const pass = process.env.TEST_PASS || 'adminuser123';
+    const user = process.env.TEST_USER_USERNAME;
+    const pass = process.env.TEST_USER_PASSWORD;
     const authoringTarget = process.env.AUTHORING_URL || 'http://apps.local.openedx.io:2001/authoring/home';
+
+    if (!user || !pass) {
+      throw new Error('TEST_USER_USERNAME and TEST_USER_PASSWORD environment variables must be set');
+    }
     const testDoc = new TestdocTest(page, 'Create-Course-Test', {
       title: 'Exporting a Course in Open edX',
       overview: 'This test automates the export workflow for a course in the Open edX authoring environment. It demonstrates how to access the export page, select a course, and initiate the export process to generate a downloadable course archive.',

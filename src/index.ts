@@ -16,6 +16,8 @@ export {
   type VisualRegressionOptions,
 } from './visual-regression-helpers';
 
+export { resetVisualBaselines } from './reset-visual-baselines';
+
 // Element highlighter utilities
 export {
   addHighlightStyles,

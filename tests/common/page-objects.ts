@@ -2,9 +2,13 @@ import { Page, Locator } from '@playwright/test';
 
 export class LoginPage {
   readonly page: Page;
+
   readonly emailInput: Locator;
+
   readonly passwordInput: Locator;
+
   readonly loginButton: Locator;
+
   readonly forgotPasswordLink: Locator;
 
   constructor(page: Page) {
@@ -30,7 +34,7 @@ export class LoginPage {
     await this.login(emailOrUsername, password);
     // Wait for the login redirect to complete so the session cookie is set
     // before any subsequent page.goto() calls
-    await this.page.waitForURL((url) => !url.pathname.includes('/authn/'), { timeout: 15000 });
+    await this.page.waitForURL(url => !url.pathname.includes('/authn/'), { timeout: 15000 });
   }
 
   async togglePasswordVisibility(): Promise<void> {

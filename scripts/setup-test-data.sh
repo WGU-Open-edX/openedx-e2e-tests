@@ -5,6 +5,11 @@
 
 set -e
 
+# Load environment variables from .env file
+if [ -f .env ]; then
+    export $(cat .env | grep -v '^#' | xargs)
+fi
+
 echo "Setting up test data for Open edX E2E tests..."
 
 # Colors for output
@@ -13,21 +18,33 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Test user credentials
-TEST_USER_EMAIL="test@example.com"
-TEST_USER_USERNAME="testuser"
-TEST_USER_PASSWORD="password123"
+# Test user credentials - load from environment variables
+if [ -z "$TEST_USER_EMAIL" ] || [ -z "$TEST_USER_USERNAME" ] || [ -z "$TEST_USER_PASSWORD" ]; then
+    echo -e "${RED}❌ Error: Required test user environment variables are not set.${NC}"
+    echo "Please set the following environment variables:"
+    echo "  - TEST_USER_EMAIL"
+    echo "  - TEST_USER_USERNAME"
+    echo "  - TEST_USER_PASSWORD"
+    echo "  - ADMIN_USER_EMAIL"
+    echo "  - ADMIN_USER_USERNAME"
+    echo "  - ADMIN_USER_PASSWORD"
+    echo ""
+    echo "You can create a .env file in the openedx-e2e-tests directory with these values."
+    exit 1
+fi
 
-ADMIN_USER_EMAIL="admin@example.com"
-ADMIN_USER_USERNAME="adminuser"
-ADMIN_USER_PASSWORD="admin123"
+if [ -z "$ADMIN_USER_EMAIL" ] || [ -z "$ADMIN_USER_USERNAME" ] || [ -z "$ADMIN_USER_PASSWORD" ]; then
+    echo -e "${RED}❌ Error: Required admin user environment variables are not set.${NC}"
+    echo "Please set ADMIN_USER_EMAIL, ADMIN_USER_USERNAME, and ADMIN_USER_PASSWORD"
+    exit 1
+fi
 
 # Use tutor from the virtual environment
 TUTOR_CMD="../.venv/bin/tutor"
 
 echo -e "${YELLOW}Checking tutor status...${NC}"
 # Check if tutor dev is running by looking for running containers
-if ! docker ps | grep -q "tutor_dev-lms"; then
+if ! docker ps | grep -q "tutor_main_dev-lms"; then
     echo -e "${RED}❌ Tutor dev is not running. Please start it with: $TUTOR_CMD dev start lms cms${NC}"
     exit 1
 fi

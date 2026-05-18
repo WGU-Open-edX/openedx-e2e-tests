@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.LoginPage = void 0;
-class LoginPage {
+export class LoginPage {
     constructor(page) {
         this.page = page;
         this.emailInput = page.locator('input[name="emailOrUsername"]');
@@ -22,11 +19,10 @@ class LoginPage {
         await this.login(emailOrUsername, password);
         // Wait for the login redirect to complete so the session cookie is set
         // before any subsequent page.goto() calls
-        await this.page.waitForURL((url) => !url.pathname.includes('/authn/'), { timeout: 15000 });
+        await this.page.waitForURL(url => !url.pathname.includes('/authn/'), { timeout: 15000 });
     }
     async togglePasswordVisibility() {
         await this.page.locator('button[name="passwordIcon"]').click();
     }
 }
-exports.LoginPage = LoginPage;
 //# sourceMappingURL=page-objects.js.map

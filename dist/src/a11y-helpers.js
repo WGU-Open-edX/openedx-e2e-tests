@@ -1,56 +1,16 @@
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkA11y = checkA11y;
-exports.assertA11y = assertA11y;
-const playwright_1 = __importDefault(require("@axe-core/playwright"));
-const axe_html_reporter_1 = require("axe-html-reporter");
-const fs = __importStar(require("fs"));
-const path = __importStar(require("path"));
-const element_highlighter_1 = require("./element-highlighter");
+import AxeBuilder from '@axe-core/playwright';
+import { createHtmlReport } from 'axe-html-reporter';
+import * as fs from 'fs';
+import * as path from 'path';
+import { addHighlightStyles, highlightElement, removeHighlight } from './element-highlighter';
 /**
  * Runs accessibility checks on the current page using axe-core
  * @param page - Playwright page object
  * @param options - Configuration options for the accessibility check
  * @returns Axe accessibility scan results
  */
-async function checkA11y(page, options = {}) {
-    let axeBuilder = new playwright_1.default({ page });
+export async function checkA11y(page, options = {}) {
+    let axeBuilder = new AxeBuilder({ page });
     if (options.disabledRules && options.disabledRules.length > 0) {
         axeBuilder = axeBuilder.disableRules(options.disabledRules);
     }
@@ -74,7 +34,7 @@ async function captureViolationScreenshots(page, results, screenshotDir) {
         fs.mkdirSync(screenshotDir, { recursive: true });
     }
     // Add highlight styles
-    await (0, element_highlighter_1.addHighlightStyles)(page, {
+    await addHighlightStyles(page, {
         className: 'a11y-violation-highlight',
         color: '#ff0000',
     });
@@ -96,7 +56,7 @@ async function captureViolationScreenshots(page, results, screenshotDir) {
                     continue;
                 }
                 // Highlight the element
-                await (0, element_highlighter_1.highlightElement)(page, selector, 'a11y-violation-highlight');
+                await highlightElement(page, selector, 'a11y-violation-highlight');
                 await page.waitForTimeout(200);
                 // Take screenshot
                 const screenshotName = `violation-${i + 1}-element-${j + 1}.png`;
@@ -111,6 +71,7 @@ async function captureViolationScreenshots(page, results, screenshotDir) {
                         const clipWidth = Math.min(viewport.width - clipX, elementBox.width + 2 * padding);
                         const clipHeight = Math.min(viewport.height - clipY, elementBox.height + 2 * padding);
                         if (clipWidth <= 0 || clipHeight <= 0) {
+                            // eslint-disable-next-line no-console
                             console.warn(`Skipping screenshot for ${selector}: clip area has zero or negative dimensions`);
                         }
                         else {
@@ -128,7 +89,7 @@ async function captureViolationScreenshots(page, results, screenshotDir) {
                     }
                 }
                 // Remove highlight
-                await (0, element_highlighter_1.removeHighlight)(page, selector, 'a11y-violation-highlight');
+                await removeHighlight(page, selector, 'a11y-violation-highlight');
             }
             catch (error) {
                 // eslint-disable-next-line no-console
@@ -239,7 +200,7 @@ async function saveReport(page, results, reportPath) {
     if (ext === '.html') {
         // Use standard axe-html-reporter
         const reportName = path.basename(dir);
-        let reportHtml = (0, axe_html_reporter_1.createHtmlReport)({
+        let reportHtml = createHtmlReport({
             results,
             options: {
                 projectKey: reportName,
@@ -447,7 +408,7 @@ function updateMainIndex(baseDir, reportPath, results, pageUrl, testInfo) {
  * @param options - Configuration options for the accessibility check
  * @param testInfo - Playwright test info (optional, used for auto-generating report paths)
  */
-async function assertA11y(page, options = {}, testInfo) {
+export async function assertA11y(page, options = {}, testInfo) {
     const results = await checkA11y(page, options);
     // Save report if requested
     if (options.report) {

@@ -11,9 +11,13 @@ test.describe('Add Unit to Course Test', () => {
     await loginPage.navigate();
   });
   test('user can add a Unit to a course', async ({ page }, testInfo) => {
-    const user = process.env.TEST_USER || 'adminuser';
-    const pass = process.env.TEST_PASS || 'admin123';
+    const user = process.env.TEST_USER_USERNAME;
+    const pass = process.env.TEST_USER_PASSWORD;
     const authoringTarget = process.env.AUTHORING_URL || 'http://apps.local.openedx.io:2001/authoring/home';
+
+    if (!user || !pass) {
+      throw new Error('TEST_USER_USERNAME and TEST_USER_PASSWORD environment variables must be set');
+    }
     const testDoc = new TestdocTest(page, 'Add-Unit-Course', {
       title: 'Adding a Unit to a Course in Open edX',
       overview: 'This test details the steps required to add a new unit to an existing course in the Open edX authoring environment. It includes navigating to the course, selecting the appropriate section, and using the interface to create a new unit.',
@@ -41,7 +45,7 @@ test.describe('Add Unit to Course Test', () => {
     });
     // Basic URL assertion to confirm navigation reached the authoring area
     await expect(page).toHaveURL(/authoring\/home|authoring/);
-    await assertA11y(page, { warnOnly: true, report: true, reportName: 'add-section-course-page' }, testInfo);
+    await assertA11y(page, { warnOnly: true, report: true, reportName: 'add-unit-course-page' }, testInfo);
 
     await testDoc.click({
       selector: '(//a[text()="Automated TestCourse"])[1]',
@@ -107,7 +111,7 @@ test.describe('Add Unit to Course Test', () => {
       description: 'One the Text component is selected this modal will show up with different options of texts to select',
       elementOnly: '.pgn__modal',
     });
-    testDoc.note('We will select Text option in this case')
+    testDoc.note('We will select Text option in this case');
     // clicking on Text option
     await testDoc.click({
       selector: '.pgn__action-row button:has-text("Select")',

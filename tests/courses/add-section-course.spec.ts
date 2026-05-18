@@ -10,9 +10,13 @@ test.describe('Add Section to Course Test', () => {
     await loginPage.navigate();
   });
   test('user can add a Section to a course', async ({ page }, testInfo) => {
-    const user = process.env.TEST_USER || 'adminuser';
-    const pass = process.env.TEST_PASS || 'adminuser123';
+    const user = process.env.TEST_USER_USERNAME;
+    const pass = process.env.TEST_USER_PASSWORD;
     const authoringTarget = process.env.AUTHORING_URL || 'http://apps.local.openedx.io:2001/authoring/home';
+
+    if (!user || !pass) {
+      throw new Error('TEST_USER_USERNAME and TEST_USER_PASSWORD environment variables must be set');
+    }
     const testDoc = new TestdocTest(page, 'Add-Section-Course', {
       title: 'Adding section to a Course in Open edX',
       overview: 'This test walks through the process of adding a new section to an existing course in the Open edX authoring environment. It covers accessing the course, opening the section creation form, and saving the new section.',
