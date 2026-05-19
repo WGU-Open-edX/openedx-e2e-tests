@@ -109,15 +109,11 @@ export class RSTParser extends BaseDocumentParser {
 
     // Convert markdown images to RST
     // ![alt](image.png) -> .. image:: image.png\n   :alt: alt
-    rst = rst.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
-      return `.. image:: ${src}\n   :alt: ${alt}`;
-    });
+    rst = rst.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => `.. image:: ${src}\n   :alt: ${alt}`);
 
     // Convert markdown blockquotes to RST notes
     // > **Note:** text -> .. note::\n\n   text
-    rst = rst.replace(/^> \*\*Note:\*\* (.+)$/gm, (match, text) => {
-      return `.. note::\n\n   ${text}`;
-    });
+    rst = rst.replace(/^> \*\*Note:\*\* (.+)$/gm, (match, text) => `.. note::\n\n   ${text}`);
 
     return rst;
   }
