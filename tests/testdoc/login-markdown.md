@@ -78,7 +78,7 @@ Click on the email field and carefully enter your login identifier. This can be 
 ```testdoc
 await testdoc.fill({
   selector: 'input[name="emailOrUsername"]',
-  value: 'testuser',
+  value: TEST_USERNAME,
   title: 'Enter your email or username',
   description: 'Type your login identifier in the email/username field',
   elementOnly: 'form[id="sign-in-form"]',
@@ -95,7 +95,7 @@ Next, click on the password field and enter your account password. Make sure to 
 ```testdoc
 await testdoc.fill({
   selector: 'input[name="password"]',
-  value: 'password123',
+  value: TEST_PASSWORD,
   title: 'Enter your password',
   description: 'Type your secure password in the password field',
   elementOnly: 'form[id="sign-in-form"]',
@@ -138,13 +138,12 @@ During authentication, the system:
 5. Redirects you to your dashboard or intended destination
 
 ```testdoc
-await page.waitForLoadState('networkidle');
+// Wait for redirect away from login page
+await page.waitForURL(url => !url.pathname.includes('/authn/'), { timeout: 15000 });
 
-// Verify login succeeded - check for dashboard elements or absence of login form
-await expect(page.locator('input[name="emailOrUsername"]')).not.toBeVisible();
 await testdoc.step({
   title: 'Authentication completed',
-  description: 'Your credentials have been verified and you are being redirected',
+  description: 'Your credentials have been verified and you have been redirected',
   screenshot: false,
   skipNumber: true
 });

@@ -223,35 +223,41 @@ await highlightAndScreenshot(
 );
 ```
 
-### Markdown Test Parser
+### Documentation-Driven Testing
 
-Run tests written in markdown files.
+Write tests as Markdown or reStructuredText files with embedded code blocks.
 
 ```typescript
-import { MarkdownTestParser } from 'openedx-e2e-tests';
+import { MarkdownParser, RSTParser } from 'openedx-e2e-tests';
 
-const parser = new MarkdownTestParser('path/to/test.md');
-const codeBlocks = await parser.parseMarkdown();
+// Markdown
+const mdParser = new MarkdownParser('path/to/test.md');
+const mdBlocks = await mdParser.parse();
+
+// reStructuredText
+const rstParser = new RSTParser('path/to/test.rst');
+const rstBlocks = await rstParser.parse();
 
 // Execute code blocks...
 const results = ['Result 1', 'Result 2'];
 
-const finalMarkdown = await parser.createFinalMarkdown(results);
+const finalDoc = await mdParser.createFinalDocument(results);
 ```
 
 ## CLI Tool
 
-Run markdown-driven tests directly from the command line:
+Run documentation-driven tests directly from the command line:
 
 ```bash
-# Run a single markdown test file
-npx run-markdown-test tests/my-test.md
+# Run a single test file (auto-detects .md or .rst)
+npx run-doc-test tests/my-test.md
+npx run-doc-test tests/my-test.rst
 
 # Run with options
-npx run-markdown-test tests/my-test.md --headed --project=firefox
+npx run-doc-test tests/my-test.md --headed --project=firefox
 
-# Run all markdown files in a directory
-npx run-markdown-test tests/testdoc/ --headed
+# Run all markdown/RST files in a directory
+npx run-doc-test tests/testdoc/ --headed
 
 # Available options:
 #   --headed              Run tests in headed mode (visible browser)
@@ -286,7 +292,8 @@ import type {
 
   // Parser types
   CodeBlock,
-  ParsedStep
+  ParsedStep,
+  BaseDocumentParser
 } from 'openedx-e2e-tests';
 ```
 

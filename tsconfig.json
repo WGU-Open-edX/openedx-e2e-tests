@@ -17,6 +17,11 @@
     "declaration": true,
     "declarationMap": true
   },
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
+  },
   "include": [
     "src/**/*",
     "bin/**/*",
