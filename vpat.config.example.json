@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "description": "VPAT Configuration - Copy this file to vpat.config.json and customize for your product",
+  "productName": "Open edX Platform",
+  "productVersion": "Redwood.1",
+  "productDescription": "Open edX Learning Management System - A comprehensive e-learning platform for educators and learners",
+  "contactInformation": "accessibility@example.com",
+  "evaluationMethods": "Automated testing using axe-core 4.11 and Playwright 1.40. Manual testing required for complete WCAG 2.2 Level AA conformance evaluation.",
+  "vendor": {
+    "name": "Your Organization Name",
+    "website": "https://example.com",
+    "address": "123 Main Street, City, State, ZIP"
+  },
+  "notes": "This VPAT was automatically generated from automated accessibility testing. The results represent testing of specific pages and workflows within the platform. Manual testing and expert review are required for complete WCAG 2.2 conformance assessment."
+}

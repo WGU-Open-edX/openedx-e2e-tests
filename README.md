@@ -16,11 +16,11 @@ Rich Playwright HTML reports with screenshots, traces, and detailed test results
   <img src="https://github.com/WGU-Open-edX/openedx-e2e-tests/raw/main/docs/assets/playwright-report.png" alt="Playwright Test Report" width="70%" />
 </p>
 
-### Accessibility Testing
+### Accessibility Testing & VPAT Generation
 
-Built-in accessibility checks using axe-core with detailed HTML reports. Catch WCAG violations early and get clear remediation guidance with visual highlighting of problematic elements.
+Built-in accessibility checks using axe-core with detailed HTML reports. Catch WCAG violations early and get clear remediation guidance with visual highlighting of problematic elements. Automatically generate WCAG 2.2 VPAT (Voluntary Product Accessibility Template) documents for compliance and procurement.
 
-[Accessibility Testing Documentation →](docs/A11Y_TESTING.md)
+[Accessibility Testing Documentation →](docs/A11Y_TESTING.md) | [VPAT Generation →](docs/vpat-generation.md)
 
 <p align="center">
   <img src="https://github.com/WGU-Open-edX/openedx-e2e-tests/raw/main/docs/assets/a11y-report-1.png" alt="Accessibility Report Overview" width="45%" />

@@ -210,6 +210,11 @@ async function saveReport(page, results, reportPath) {
         const screenshotMap = await captureViolationScreenshots(page, results, dir);
         reportHtml = addScreenshotsToReport(reportHtml, screenshotMap);
         fs.writeFileSync(reportPath, reportHtml, 'utf-8');
+        // Also save JSON for VPAT generation
+        const jsonPath = reportPath.replace('.html', '.json');
+        fs.writeFileSync(jsonPath, JSON.stringify(results, null, 2), 'utf-8');
+        // eslint-disable-next-line no-console
+        console.log(`JSON report saved to: ${jsonPath}`);
     }
     else {
         // Default to JSON
