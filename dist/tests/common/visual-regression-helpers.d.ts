@@ -51,4 +51,3 @@ export declare class VisualRegression {
  * Convenience function for quick visual regression checks
  */
 export declare function assertVisualRegression(page: Page, testInfo: TestInfo, options: VisualRegressionOptions): Promise<void>;
-//# sourceMappingURL=visual-regression-helpers.d.ts.map

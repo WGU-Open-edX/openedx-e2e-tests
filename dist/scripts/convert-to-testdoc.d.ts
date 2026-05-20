@@ -56,4 +56,3 @@ declare class PlaywrightToTestdocConverter {
     private getPageTitle;
 }
 export { PlaywrightToTestdocConverter, ConversionOptions };
-//# sourceMappingURL=convert-to-testdoc.d.ts.map

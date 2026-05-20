@@ -4,4 +4,3 @@ declare function runMarkdownTest(markdownFile: string, options?: {
     project?: string;
 }): Promise<void>;
 export { runMarkdownTest };
-//# sourceMappingURL=run-markdown-test.d.ts.map

@@ -25,4 +25,3 @@ export class LoginPage {
         await this.page.locator('button[name="passwordIcon"]').click();
     }
 }
-//# sourceMappingURL=page-objects.js.map

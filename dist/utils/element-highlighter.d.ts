@@ -55,4 +55,3 @@ export declare function captureHighlightedScreenshot(page: Page, selector: strin
  * Highlights an element, captures a screenshot, and removes the highlight
  */
 export declare function highlightAndScreenshot(page: Page, selector: string, highlightStyle: HighlightStyle, screenshotOptions: ScreenshotOptions, action?: () => Promise<void>): Promise<void>;
-//# sourceMappingURL=element-highlighter.d.ts.map

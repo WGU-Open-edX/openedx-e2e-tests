@@ -10,4 +10,3 @@ export { resetVisualBaselines } from './reset-visual-baselines';
 export { addHighlightStyles, highlightElement, removeHighlight, captureHighlightedScreenshot, highlightAndScreenshot, } from './element-highlighter';
 // Date utilities
 export { formatDate, shiftDate, } from './dates';
-//# sourceMappingURL=index.js.map

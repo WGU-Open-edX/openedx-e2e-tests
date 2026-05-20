@@ -109,4 +109,3 @@ test.describe('Testdoc: How To Create a Course', () => {
         console.log('✅ Create course documentation generated successfully!');
     });
 });
-//# sourceMappingURL=create-course.spec.js.map

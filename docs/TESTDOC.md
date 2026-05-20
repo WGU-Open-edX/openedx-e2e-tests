@@ -456,15 +456,15 @@ await testdoc.generateRST();
 
 This creates professional documentation that reads like official user guides with step-by-step instructions and screenshots.
 
-## Markdown-Driven Tests
+## Documentation-Driven Tests
 
-You can now write tests directly as markdown files with embedded code blocks. This approach allows you to write documentation first, then add interactive code to make it executable.
+You can now write tests directly as markdown or reStructuredText files with embedded code blocks. This approach allows you to write documentation first, then add interactive code to make it executable.
 
 ### Creating Markdown Tests
 
 Create a `.md` file in the `tests/testdoc/` directory:
 
-```markdown
+````markdown
 # How to Login to Open edX
 
 This guide shows you how to log into your Open edX account step by step.
@@ -473,7 +473,7 @@ This guide shows you how to log into your Open edX account step by step.
 
 Go to the login page from the main website. You can access this by clicking the "Sign In" button.
 
-```js
+```testdoc
 await loginPage.navigate();
 await testdoc.screenshot({
   title: "Login page loaded",
@@ -485,39 +485,85 @@ await testdoc.screenshot({
 
 Click on the email field and enter your email address or username.
 
-```js
-await loginPage.emailInput.fill("test@example.com");
-await testdoc.screenshot({
-  title: "Email entered",
-  description: "Email address filled in the email field",
+```testdoc
+await testdoc.fill({
+  selector: 'input[name="emailOrUsername"]',
+  value: 'test@example.com',
+  title: 'Email entered',
+  description: 'Email address filled in the email field',
   elementOnly: 'input[name="emailOrUsername"]',
   padding: 30
 });
 ```
+````
+
+### Creating reStructuredText Tests
+
+Create a `.rst` file in the `tests/testdoc/` directory:
+
+```rst
+How to Login to Open edX
+=========================
+
+This guide shows you how to log into your Open edX account step by step.
+
+Navigate to Login Page
+----------------------
+
+Go to the login page from the main website. You can access this by clicking the "Sign In" button.
+
+.. code-block:: testdoc
+
+   await loginPage.navigate();
+   await testdoc.screenshot({
+     title: "Login page loaded",
+     description: "The Open edX login page is displayed"
+   });
+
+Enter Your Email
+----------------
+
+Click on the email field and enter your email address or username.
+
+.. code-block:: testdoc
+
+   await testdoc.fill({
+     selector: 'input[name="emailOrUsername"]',
+     value: 'test@example.com',
+     title: 'Email entered',
+     description: 'Email address filled in the email field',
+     elementOnly: 'input[name="emailOrUsername"]',
+     padding: 30
+   });
 ```
 
-### Running Markdown Tests
+### Running Documentation-Driven Tests
 
-Use the npm scripts to run markdown-driven tests:
+Use the npm scripts to run documentation-driven tests:
 
 ```bash
-# Run all markdown files in tests/testdoc/
-npm run test:markdown
+# Run all .md and .rst files in tests/testdoc/
+npm run test:doc
 
-# Run a specific markdown file
-npm run test:markdown:file tests/testdoc/login-markdown.md
+# Run a specific file (auto-detects format)
+npm run test:doc:file tests/testdoc/login.md
+npm run test:doc:file tests/testdoc/login.rst
+
+# With Firefox in headed mode
+npm run testdoc:doc
 ```
 
 ### How It Works
 
-1. The markdown parser extracts headings as step titles and descriptions
-2. Code blocks are executed as Playwright test code
+1. The parser (markdown or RST) extracts headings as step titles and descriptions
+2. Code blocks tagged with `testdoc` language are executed as Playwright test code
 3. Steps are automatically added to the documentation with `testdoc.step()`
 4. The test generates both the interactive execution and the final documentation
 
-### Benefits of Markdown-Driven Tests
+### Benefits of Documentation-Driven Tests
 
 - **Documentation-first approach**: Write clear, readable documentation that becomes executable
 - **No duplication**: Single source for both documentation and test logic
 - **Easy maintenance**: Update documentation and tests in one place
-- **Readable**: Stakeholders can review test scenarios in markdown format
+- **Readable**: Stakeholders can review test scenarios in their preferred format (Markdown or RST)
+- **Flexible output**: Generate documentation in multiple formats from the same test

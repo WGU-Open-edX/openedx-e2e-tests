@@ -7,4 +7,3 @@ export { addHighlightStyles, highlightElement, removeHighlight, captureHighlight
 export { formatDate, shiftDate, } from './dates';
 export type { StepConfig, ScreenshotConfig, HighlightOptions, ClickConfig, FillConfig, RelatedTopic, TestdocOptions, Step, } from './types/testdoc.types';
 export type { CodeBlock, ParsedStep, } from './types/markdown-test-parser.types';
-//# sourceMappingURL=index.d.ts.map

@@ -12,4 +12,3 @@ export declare class LoginPage {
     loginAndWait(emailOrUsername: string, password: string): Promise<void>;
     togglePasswordVisibility(): Promise<void>;
 }
-//# sourceMappingURL=page-objects.d.ts.map

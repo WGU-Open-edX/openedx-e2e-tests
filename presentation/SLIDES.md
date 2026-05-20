@@ -157,13 +157,15 @@ test('Learner Dashboard Walkthrough', async ({ page }) => {
 
 <!-- _class: lead -->
 
-# Markdown-Driven Authoring
+# Documentation-Driven Authoring
 
 ## Documentation First, Test Second
 
 ---
 
 ## Write Documentation, Get Tests
+
+Write in **Markdown** or **reStructuredText** with embedded code blocks.
 
 ````markdown
 ## Enter Your Credentials
@@ -182,6 +184,8 @@ await testdoc.fill({
 ```
 ````
 
+Run with: `npm run test:doc:file login.md` or `npm run test:doc:file login.rst`
+
 ---
 
 ## Why This Matters
@@ -191,7 +195,7 @@ await testdoc.fill({
 2. Someone writes docs separately
 3. UI changes ➡️ docs become stale
 
-**Markdown-driven workflow:**
+**Documentation-driven workflow:**
 1. Documentation **IS** the test
 2. UI changes ➡️ test fails
 3. Fix selector ➡️ docs update automatically
