@@ -369,4 +369,3 @@ test.describe('Complete Course CheckList', () => {
         console.log('✅ exported course documentation generated successfully!');
     });
 });
-//# sourceMappingURL=checklist-course.spec.js.map

@@ -80,4 +80,3 @@ export async function highlightAndScreenshot(page, selector, highlightStyle, scr
         await action();
     }
 }
-//# sourceMappingURL=element-highlighter.js.map

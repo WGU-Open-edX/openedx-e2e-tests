@@ -53,4 +53,3 @@ export declare function checkA11y(page: Page, options?: A11yCheckOptions): Promi
  * @param testInfo - Playwright test info (optional, used for auto-generating report paths)
  */
 export declare function assertA11y(page: Page, options?: A11yCheckOptions, testInfo?: TestInfo): Promise<void>;
-//# sourceMappingURL=a11y-helpers.d.ts.map

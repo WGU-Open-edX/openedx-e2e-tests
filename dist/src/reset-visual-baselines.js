@@ -70,4 +70,3 @@ if (require.main === module) {
     }
     resetVisualBaselines(testFile);
 }
-//# sourceMappingURL=reset-visual-baselines.js.map

@@ -7,4 +7,3 @@ export declare class MarkdownTestParser {
     parseMarkdown(): Promise<CodeBlock[]>;
     createFinalMarkdown(testResults: string[]): Promise<string>;
 }
-//# sourceMappingURL=markdown-test-parser.d.ts.map

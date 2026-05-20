@@ -33,4 +33,3 @@ export declare class TestdocTest {
     hideElement(selector: string): Promise<void>;
     ShowElement(selector: string, display: string): Promise<void>;
 }
-//# sourceMappingURL=testdoc.d.ts.map

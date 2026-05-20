@@ -40,4 +40,3 @@ declare function generateMarkdownReport(data: VPATData): string;
  */
 declare function generateRSTReport(data: VPATData): string;
 export { generateVPATData, generateHTMLReport, generateMarkdownReport, generateRSTReport, type VPATData, type WCAGCriterion, };
-//# sourceMappingURL=generate-vpat.d.ts.map

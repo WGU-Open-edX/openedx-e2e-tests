@@ -183,4 +183,3 @@ if (require.main === module) {
     runMarkdownTests(input, options).catch(console.error);
 }
 export { runMarkdownTest };
-//# sourceMappingURL=run-markdown-test.js.map

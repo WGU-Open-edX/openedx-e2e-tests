@@ -25,4 +25,3 @@ if (require.main === module) {
     }
     runDocTests(input, ['.rst'], options).catch(console.error);
 }
-//# sourceMappingURL=run-rst-test.js.map

@@ -50,4 +50,3 @@ export class MarkdownParser extends BaseDocumentParser {
         return finalLines.join('\n');
     }
 }
-//# sourceMappingURL=markdown-parser.js.map

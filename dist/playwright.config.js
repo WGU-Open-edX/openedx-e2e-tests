@@ -43,4 +43,3 @@ export default defineConfig({
     ],
     // webServer configuration removed since edX is running externally
 });
-//# sourceMappingURL=playwright.config.js.map

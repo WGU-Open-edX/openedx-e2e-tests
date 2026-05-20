@@ -10,4 +10,3 @@ test.describe('Open edX Platform Basic Tests', () => {
         await expect(page.locator('input[name="password"]')).toBeVisible();
     });
 });
-//# sourceMappingURL=example.spec.js.map

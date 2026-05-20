@@ -806,4 +806,3 @@ if (require.main === module) {
     main();
 }
 export { generateVPATData, generateHTMLReport, generateMarkdownReport, generateRSTReport, };
-//# sourceMappingURL=generate-vpat.js.map

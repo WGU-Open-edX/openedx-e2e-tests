@@ -13,9 +13,9 @@
     "types": ["node", "@playwright/test"],
     "outDir": "./dist",
     "rootDir": "./",
-    "sourceMap": true,
+    "sourceMap": false,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": false
   },
   "ts-node": {
     "compilerOptions": {

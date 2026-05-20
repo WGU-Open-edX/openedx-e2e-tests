@@ -18,4 +18,3 @@ export class BaseDocumentParser {
         return this.originalContent;
     }
 }
-//# sourceMappingURL=base-parser.js.map

@@ -10,4 +10,3 @@ export function shiftDate(base, days) {
     newDate.setDate(base.getDate() + days);
     return newDate;
 }
-//# sourceMappingURL=dates.js.map

@@ -225,4 +225,3 @@ if (require.main === module) {
     runDocTests(input, extensions, options).catch(console.error);
 }
 export { runDocTest, runDocTests };
-//# sourceMappingURL=run-doc-test.js.map

@@ -5,4 +5,3 @@ export declare class RSTParser extends BaseDocumentParser {
     createFinalDocument(testResults: string[]): Promise<string>;
     private convertMarkdownToRST;
 }
-//# sourceMappingURL=rst-parser.d.ts.map

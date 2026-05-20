@@ -25,4 +25,3 @@ if (require.main === module) {
     }
     runDocTests(input, ['.md'], options).catch(console.error);
 }
-//# sourceMappingURL=run-markdown-test.js.map

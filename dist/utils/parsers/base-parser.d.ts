@@ -10,4 +10,3 @@ export declare abstract class BaseDocumentParser {
     getCodeBlocks(): CodeBlock[];
     getOriginalContent(): string;
 }
-//# sourceMappingURL=base-parser.d.ts.map

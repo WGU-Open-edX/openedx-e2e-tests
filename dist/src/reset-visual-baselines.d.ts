@@ -13,4 +13,3 @@ export declare function resetVisualBaselines(testFilePath: string, options?: {
     browsers?: string[];
     verbose?: boolean;
 }): void;
-//# sourceMappingURL=reset-visual-baselines.d.ts.map

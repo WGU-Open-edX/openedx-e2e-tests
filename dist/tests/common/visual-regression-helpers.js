@@ -203,4 +203,3 @@ export async function assertVisualRegression(page, testInfo, options) {
     const vr = new VisualRegression(page, testInfo);
     await vr.captureAndCompare(options);
 }
-//# sourceMappingURL=visual-regression-helpers.js.map
